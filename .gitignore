@@ -1,0 +1,58 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+.venv/
+venv/
+.env
+.env.*
+
+# Tests / type checkers
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Datasets and collection shards (regenerate with scripts/collect_data.py)
+/data/
+*.lance/
+.*.shards/
+
+# Training, eval, checkpoints, logs
+outputs/
+checkpoints/
+multirun/
+wandb/
+runs/
+*.log
+*.ckpt
+*.pt
+*.pth
+*.safetensors
+
+# Generated media and result dumps
+results/
+figures/
+*.mp4
+*.avi
+*.png
+!docs/**/*.png
+
+# Local reference PDFs (not part of the codebase)
+papers/
+
+# IDE / assistant / OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+.cursor/
+.claude/

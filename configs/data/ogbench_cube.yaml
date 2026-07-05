@@ -1,0 +1,15 @@
+# @package data
+# OGBench cube manipulation (stronger "robotics" signal than PushT).
+# proprio/action dims differ from PushT; override model.proprio_dim / model.action_dim
+# on the command line to match the environment, e.g.:
+#   python scripts/train.py data=ogbench_cube model.proprio_dim=... model.action_dim=...
+name_short: ogbench_cube
+dataset: data/ogbench_cube.lance
+env: swm/OGBench-cube-single-v0
+image_key: pixels
+proprio_key: proprio
+action_key: action
+state_key: state
+probe_target_slice: [0, 3]     # object position (env-specific); adjust as needed
+action_low: -1.0
+action_high: 1.0

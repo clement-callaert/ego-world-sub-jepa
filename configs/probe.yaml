@@ -1,0 +1,28 @@
+# Linear probing config.
+#   python scripts/probe.py checkpoint=outputs/pusht_factored_seed0/model.pt
+defaults:
+  - model: factored
+  - data: pusht
+  - override hydra/hydra_logging: disabled
+  - override hydra/job_logging: disabled
+  - _self_
+
+hydra:
+  output_subdir: null
+  run:
+    dir: .
+
+checkpoint: ???
+device: cuda
+seed: 0
+synthetic_fallback: true
+out_dir: outputs/probe
+
+probe:
+  num_steps: 9
+  batch_size: 64
+  num_workers: 0
+  synthetic_episodes: 1024
+  test_frac: 0.2
+  ridge: 1.0e-3
+  max_samples: null   # cap latent rows collected; null = use full dataset

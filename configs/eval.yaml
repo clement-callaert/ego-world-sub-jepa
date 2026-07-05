@@ -1,0 +1,61 @@
+# Evaluation config (Hydra). Planning success rate + robustness.
+#   python scripts/evaluate.py checkpoint=outputs/pusht_factored_seed0/model.pt
+#
+# Fast smoke test (3 episodes, small planner budget):
+#   python scripts/evaluate.py checkpoint=... fast=true
+defaults:
+  - model: factored
+  - data: pusht
+  - override hydra/hydra_logging: disabled
+  - override hydra/job_logging: disabled
+  - _self_
+
+hydra:
+  output_subdir: null
+  run:
+    dir: .
+
+checkpoint: ???            # path to a trained checkpoint (.pt)
+device: cuda
+seed: 0
+episodes: 50
+num_envs: 1
+max_episode_steps: 300
+out_dir: outputs/eval
+
+# Set fast=true to use the smoke-test budget below.
+fast: false
+use_pose_cost: true
+pose_cost_weight: 1.0
+pose_probe_ridge: 1.0e-3
+
+planner:
+  kind: mppi              # one of: cem, mppi, hermite
+  horizon: 8
+  n_samples: 512
+  n_iters: 4
+  # mppi / hermite
+  temperature: 0.1
+  noise_std: 0.4
+  # cem
+  n_elites: 64
+  init_std: 0.5
+  # hermite
+  n_nodes: 4
+  node_noise_std: 0.4
+  beta1: 1.0
+  beta2: 1.0
+
+# Clean eval variation keys (empty = default env reset).
+variation: []
+video_dir: null
+
+# Factors-of-variation robustness sweep (PushT visual/physical knobs).
+robustness:
+  enabled: false
+  episodes: 30
+  variations:
+    - block.color
+    - block.shape
+    - agent.color
+    - background.color

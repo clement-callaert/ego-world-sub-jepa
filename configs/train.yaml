@@ -1,0 +1,45 @@
+# Ego-World JEPA training config (Hydra).
+# Override model/data on the command line, e.g.
+#   python scripts/train.py model=factored data=pusht
+#   python scripts/train.py model=monolithic data=pusht train.steps=50000
+defaults:
+  - model: factored
+  - data: pusht
+  - override hydra/hydra_logging: disabled
+  - override hydra/job_logging: disabled
+  - _self_
+
+hydra:
+  output_subdir: null
+  run:
+    dir: .
+
+seed: 0
+device: cuda
+out_dir: outputs/${data.name_short}_${model.mode}_seed${seed}
+
+train:
+  steps: 500
+  batch_size: 512
+  num_steps: 9          # window length T (open-loop rollout horizon = T-1; matches MPPI H=8)
+  frameskip: 1
+  lr: 3.0e-4
+  weight_decay: 0.01
+  grad_clip: 1.0
+  num_workers: 12
+  prefetch_factor: 4
+  amp: true
+  compile: false        # set true for torch.compile after a short warmup run
+  cudnn_benchmark: true
+  allow_tf32: true
+  log_every: 50
+  ckpt_every: 500
+  diag_every: 250
+  normalize_proprio: true
+  resume: false
+  resume_from: null
+
+wandb:
+  enabled: false
+  project: ego-world-jepa
+  name: ${data.name_short}_${model.mode}_seed${seed}

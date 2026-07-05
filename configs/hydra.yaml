@@ -1,0 +1,6 @@
+# Keep Hydra run artifacts out of timestamped subdirs under outputs/.
+# Training checkpoints still go to `out_dir` from configs/train.yaml.
+hydra:
+  output_subdir: null
+  run:
+    dir: .

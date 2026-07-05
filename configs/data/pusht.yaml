@@ -1,0 +1,18 @@
+# @package data
+# PushT: 2D block-pushing, cheap pixel observations. Collect a Lance dataset
+# first with scripts/collect_data.py (or point `dataset` at an HF/lance path).
+name_short: pusht
+dataset: data/pusht.lance      # Lance dataset consumed by training
+env: swm/PushT-v1              # SWM environment id used for evaluation
+image_key: pixels
+proprio_key: proprio
+action_key: action
+state_key: state               # full state; used as the linear-probe target
+# Object-pose columns inside `state` used as the probe target (env-specific).
+# For PushT the block pose is typically [x, y, angle]; adjust to your build.
+probe_target_slice: [2, 5]
+# Limit training to the first N episodes (null = use all episodes in the table).
+max_episodes: null
+# Action space bounds the planner searches in (must match the env's action space).
+action_low: -1.0
+action_high: 1.0

@@ -1,0 +1,35 @@
+# @package model
+# Factorized Ego-World JEPA (ours): separate world (ViT) and ego (MLP) streams.
+mode: factored
+img_size: 64
+in_chans: 3
+proprio_dim: 4
+action_dim: 2
+# World encoder (small ViT, LeWM-style compact backbone).
+patch_size: 8
+embed_dim: 192
+depth: 4
+num_heads: 6
+mlp_ratio: 2.0
+world_dim: 192
+# Projector-head normalization: "none" (SIGReg controls scale, avoids hiding
+# low-rank collapse) or "batchnorm" (original LeWM head).
+world_head_norm: none
+# Ego encoder (lightweight MLP).
+ego_dim: 32
+ego_hidden: 128
+ego_depth: 2
+# Predictor.
+action_emb_dim: 64
+pred_hidden: 256
+pred_depth: 2
+# Losses (LeJEPA mix + small ego-consistency aux).
+sigreg_mix: 0.1
+ego_loss_weight: 0.1
+stop_grad_target: false
+variance_weight: 0.5
+variance_target: 0.5
+sigreg_kwargs:
+  n_directions: 256
+  n_points: 17
+  t_max: 5.0
