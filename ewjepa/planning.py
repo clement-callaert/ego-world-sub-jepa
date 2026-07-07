@@ -153,25 +153,16 @@ class MPPIPlanner:
     @torch.no_grad()
     def plan(self, cost_fn: CostFn, nominal: torch.Tensor | None = None) -> tuple[torch.Tensor, torch.Tensor]:
         u = nominal.clone() if nominal is not None else torch.zeros(self.h, self.a, device=self.device)
-        n_elite = max(4, self.n_samples // 8)
-        elite_first = u[0].clone()
 
         for _ in range(self.n_iters):
             noise = torch.randn(self.n_samples, self.h, self.a, device=self.device, generator=self.gen)
             cand = torch.clamp(u + self.noise_std * noise, self.low, self.high)
             costs = cost_fn(cand)
-
-            elite_idx = torch.topk(costs, n_elite, largest=False).indices
-            elite_first = cand[elite_idx, 0].mean(dim=0)
-
+            # Soft update: weight each sample by how good it is, then average.
             weights = torch.softmax(-(costs - costs.min()) / self.temperature, dim=0)
             u = torch.clamp((weights.view(-1, 1, 1) * cand).sum(dim=0), self.low, self.high)
 
-        # fallback if weighted mean is too small
-        first = u[0]
-        if first.abs().max().item() < 0.25:
-            first = elite_first.clamp(self.low, self.high)
-        return u, first
+        return u, u[0]
 
 
 # Hermite MPPI

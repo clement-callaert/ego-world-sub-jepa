@@ -57,10 +57,11 @@ def _training_step(
     pixels = batch["pixels"]
     proprio = _apply_proprio_norm(batch["proprio"], normalizer)
     action = batch["action"]
+    state = batch.get("state")
 
     opt.zero_grad(set_to_none=True)
     with torch.amp.autocast("cuda", enabled=use_amp):
-        out = model.compute_loss(pixels, proprio, action)
+        out = model.compute_loss(pixels, proprio, action, state=state)
     scaler.scale(out["loss"]).backward()
     if grad_clip:
         scaler.unscale_(opt)
@@ -144,6 +145,18 @@ def main(cfg: DictConfig) -> None:
             float(cfg.train.grad_clip),
         )
 
+        if not torch.isfinite(out["loss"]):
+            print(f"[warn] non-finite loss at step {step}; skipping update")
+            ckpt_path = out_dir / "model.pt"
+            if ckpt_path.exists():
+                ckpt = load_checkpoint(ckpt_path, map_location=device)
+                model.load_state_dict(ckpt["model"])
+                if "optimizer" in ckpt:
+                    opt.load_state_dict(ckpt["optimizer"])
+                print(f"[warn] reloaded checkpoint from step {ckpt.get('step', '?')}")
+            step += 1
+            continue
+
         if step % cfg.train.log_every == 0:
             msg = " ".join(f"{k}={v.item():.4f}" for k, v in out.items())
             print(f"[step {step}] {msg}")
@@ -157,9 +170,14 @@ def main(cfg: DictConfig) -> None:
                 diag = {f"world/{k}": v for k, v in latent_diagnostics(zw.reshape(-1, zw.shape[-1])).items()}
                 if ze is not None:
                     diag.update({f"ego/{k}": v for k, v in latent_diagnostics(ze.reshape(-1, ze.shape[-1])).items()})
-            print(f"[diag {step}] " + " ".join(f"{k}={v:.3f}" for k, v in diag.items()))
+            diag_msg = " ".join(f"{k}={v:.3f}" for k, v in diag.items())
+            if model_cfg.cov_weight > 0:
+                diag_msg += f" cov_loss={out['cov_loss'].item():.4f}"
+            print(f"[diag {step}] {diag_msg}")
             if run is not None:
                 run.log(diag, step=step)
+                if model_cfg.cov_weight > 0:
+                    run.log({"cov_loss": out["cov_loss"].item()}, step=step)
             world_std = diag.get("world/std", 1.0)
             world_rank = diag.get("world/effective_rank", 192.0)
             world_sigreg = diag.get("world/sigreg", 0.0)
@@ -168,10 +186,11 @@ def main(cfg: DictConfig) -> None:
                     "[warn] World latent std collapsed near zero. "
                     "Raise sigreg_mix or check the encoder."
                 )
-            elif world_rank < 5.0 and world_sigreg > 1.0:
+            elif world_rank < 5.0:
                 print(
-                    "[warn] Low world effective rank with high SIGReg. "
-                    "The representation may be rank deficient; raise sigreg_mix."
+                    "[warn] World latent collapse detected "
+                    f"(effective_rank={world_rank:.2f}). "
+                    "Raise cov_weight or sigreg_mix."
                 )
 
         if step > 0 and step % cfg.train.ckpt_every == 0:

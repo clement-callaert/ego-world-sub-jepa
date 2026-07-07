@@ -1,0 +1,14 @@
+{
+  "date": "2026-07-06",
+  "git_sha": null,
+  "factored_checkpoint": "outputs/pusht_factored_cov_seed0/model.pt",
+  "monolithic_checkpoint": "outputs/pusht_monolithic_seed0/model.pt",
+  "artifacts": [
+    "results/probe/factored_cov_seed0.json",
+    "results/probe/monolithic_seed0.json",
+    "results/eval/factored_cov_seed0_mppi.json",
+    "results/figures/eval_pusht_factored_seed0_mppi_robustness.png",
+    "results/figures/probe_r2.png",
+    "results/train_factored_cov_20k.log"
+  ]
+}

@@ -19,10 +19,14 @@ synthetic_fallback: true
 out_dir: outputs/probe
 
 probe:
-  num_steps: 9
+  # We only need one latent per frame, so short windows are enough and they
+  # overlap less (less chance of train/test leak).
+  num_steps: 2
   batch_size: 64
   num_workers: 0
   synthetic_episodes: 1024
   test_frac: 0.2
   ridge: 1.0e-3
-  max_samples: null   # cap latent rows collected; null = use full dataset
+  # Cap on how many latent rows we collect. Bigger is more representative for the
+  # held-out tail used by group_split. null = use the full dataset.
+  max_samples: 50000

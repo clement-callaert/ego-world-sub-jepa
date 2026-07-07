@@ -27,6 +27,13 @@ ego_loss_weight: 0.0
 stop_grad_target: false
 variance_weight: 0.5
 variance_target: 0.5
+cov_weight: 0.0
+# State supervision (same idea as the factored config). A linear head reads the
+# block pose from the single latent and is trained on the true state, so the
+# latent encodes the block for planning. Set 0 for pure JEPA.
+state_aux_weight: 1.0
+block_slice: [2, 5]
+agent_slice: [0, 2]
 sigreg_kwargs:
   n_directions: 256
   n_points: 17

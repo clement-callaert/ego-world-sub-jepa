@@ -60,6 +60,9 @@ class LatentMPCPolicy(BasePolicy):
         pose_cost_weight: float = 1.0,
         pose_scale: float = 512.0,
         goal_pose_key: str = "goal_pose",
+        agent_readout: dict[str, torch.Tensor] | None = None,
+        approach_weight: float = 0.0,
+        latent_cost_weight: float = 1.0,
         **kwargs: Any,
     ):
         super().__init__(**kwargs)
@@ -76,6 +79,12 @@ class LatentMPCPolicy(BasePolicy):
         self.pose_cost_weight = pose_cost_weight
         self.pose_scale = pose_scale
         self.goal_pose_key = goal_pose_key
+        # agent_readout decodes the agent xy from the ego latent. approach_weight
+        # then pulls the planned agent toward the block so it can push it. Without
+        # this term the agent drifts off the board and never touches the block.
+        self.agent_readout = agent_readout
+        self.approach_weight = approach_weight
+        self.latent_cost_weight = latent_cost_weight
         self._nominal: list[torch.Tensor | None] = []
 
     def set_env(self, env: Any) -> None:
@@ -131,18 +140,22 @@ class LatentMPCPolicy(BasePolicy):
         goal_world, _ = self.model.encode(goal_pixels, goal_proprio)
 
         goal_pose = None
+        goal_poses = None
         if self.pose_readout is not None and self.goal_pose_key in info_dict:
             raw_pose = _squeeze_env_time(_as_tensor(info_dict[self.goal_pose_key], self.device)).float()
             if raw_pose.dim() == 1:
                 raw_pose = raw_pose.unsqueeze(0)
-            goal_pose = raw_pose[0, :3]
+            if raw_pose.shape[0] == e:
+                goal_poses = raw_pose[:, :3]
+            else:
+                goal_pose = raw_pose[0, :3]
 
         actions = []
         for i in range(e):
             zw_i = z_world[i : i + 1]
             ze_i = z_ego[i : i + 1] if z_ego is not None else None
             goal_i = goal_world[i]
-            goal_pose_i = goal_pose
+            goal_pose_i = goal_poses[i] if goal_poses is not None else goal_pose
 
             def cost_fn(
                 cand: torch.Tensor,
@@ -154,12 +167,35 @@ class LatentMPCPolicy(BasePolicy):
                 n = cand.shape[0]
                 zw = zw_i.expand(n, -1)
                 ze = ze_i.expand(n, -1) if ze_i is not None else None
-                costs = self.model.get_cost(zw, ze, cand, goal_i)
-                if self.pose_readout is not None and goal_pose_i is not None:
-                    _, _, traj = self.model.rollout(zw, ze, cand)
-                    pred_pose = decode_pose(self.pose_readout, traj)
-                    pose_err = ((pred_pose - goal_pose_i) / self.pose_scale).pow(2).mean(dim=(1, 2))
-                    costs = costs + self.pose_cost_weight * pose_err
+                # Raw latent distance to the goal image. It mixes agent, block and
+                # background, so it is noisy here. We keep its weight small and let
+                # the pose costs below drive the plan.
+                costs = self.latent_cost_weight * self.model.get_cost(zw, ze, cand, goal_i)
+
+                use_pose = self.pose_readout is not None and goal_pose_i is not None
+                use_approach = (
+                    self.agent_readout is not None
+                    and self.approach_weight > 0
+                    and self.pose_readout is not None
+                )
+                if use_pose or use_approach:
+                    # Roll the latents forward. We read the block from the world
+                    # path and the agent from the ego path.
+                    _, _, world_traj, ego_traj = self.model.rollout(zw, ze, cand)
+                    pred_block = decode_pose(self.pose_readout, world_traj)  # (n, H, 3)
+                    if use_pose:
+                        # Push the block toward the goal pose.
+                        block_err = ((pred_block - goal_pose_i) / self.pose_scale).pow(2).mean(dim=(1, 2))
+                        costs = costs + self.pose_cost_weight * block_err
+                    if use_approach:
+                        # Pull the agent toward the block so it can push it. The
+                        # agent lives in the ego latent, which is the part the
+                        # actions actually control, so we read it from the ego path.
+                        agent_source = ego_traj if ego_traj is not None else world_traj
+                        pred_agent = decode_pose(self.agent_readout, agent_source)  # (n, H, 2)
+                        block_xy = pred_block[..., :2]  # (n, H, 2)
+                        approach_err = ((pred_agent - block_xy) / self.pose_scale).pow(2).mean(dim=(1, 2))
+                        costs = costs + self.approach_weight * approach_err
                 return costs
 
             nominal, first = self.planner.plan(cost_fn, nominal=self._nominal[i])

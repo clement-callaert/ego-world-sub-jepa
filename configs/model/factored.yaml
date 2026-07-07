@@ -12,9 +12,10 @@ depth: 4
 num_heads: 6
 mlp_ratio: 2.0
 world_dim: 192
-# Projector-head normalization: "none" (SIGReg controls scale, avoids hiding
-# low-rank collapse) or "batchnorm" (original LeWM head).
-world_head_norm: none
+# Projector head norm. "batchnorm" (the LeWM head) forces unit variance per
+# dim, which stops the latent from collapsing to zero. "none" relies only on
+# SIGReg and is fragile from a cold start, so we default to batchnorm.
+world_head_norm: batchnorm
 # Ego encoder (lightweight MLP).
 ego_dim: 32
 ego_hidden: 128
@@ -23,12 +24,22 @@ ego_depth: 2
 action_emb_dim: 64
 pred_hidden: 256
 pred_depth: 2
-# Losses (LeJEPA mix + small ego-consistency aux).
+# Losses (LeJEPA mix + small ego consistency aux).
 sigreg_mix: 0.1
 ego_loss_weight: 0.1
-stop_grad_target: false
+# Detach the target latent so the model cannot cheat by collapsing it (JEPA).
+stop_grad_target: true
 variance_weight: 0.5
 variance_target: 0.5
+# Extra decorrelation on z_world. Helps SIGReg keep the latent full rank.
+# 0 turns it off. Value is a mean squared correlation, so it stays in [0, 1].
+cov_weight: 0.25
+# State supervision. A small linear head reads the block pose from z_world and
+# the agent xy from z_ego and is trained on the true state. This forces the
+# world latent to encode the block, which the planner needs. Set 0 for pure JEPA.
+state_aux_weight: 1.0
+block_slice: [2, 5]   # block pose columns [x, y, angle] in `state`
+agent_slice: [0, 2]   # agent xy columns in `state`
 sigreg_kwargs:
   n_directions: 256
   n_points: 17

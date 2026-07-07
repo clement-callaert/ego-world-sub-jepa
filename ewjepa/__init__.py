@@ -14,7 +14,7 @@ from .planning import (
 )
 from .predictor import Predictor
 from .probing import linear_probe
-from .sigreg import latent_diagnostics, sigreg
+from .sigreg import cov_decorrelation_loss, latent_diagnostics, sigreg
 from .utils import Normalizer
 
 __all__ = [
@@ -24,6 +24,7 @@ __all__ = [
     "EgoWorldConfig",
     "EgoWorldJEPA",
     "sigreg",
+    "cov_decorrelation_loss",
     "latent_diagnostics",
     "linear_probe",
     "CEMPlanner",

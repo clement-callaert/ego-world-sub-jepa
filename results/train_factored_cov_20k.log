@@ -1,0 +1,494 @@
+/usr/local/lib/python3.10/dist-packages/stable_worldmodel/envs/__init__.py:215: UserWarning: ale-py not found; ALE/* envs are unavailable. Install with: pip install 'stable-worldmodel[env]' or pip install ale-py.
+  from stable_worldmodel.envs import ale  # noqa: F401
+[model] mode=factored params=1.59M
+/usr/local/lib/python3.10/dist-packages/stable_worldmodel/envs/__init__.py:215: UserWarning: ale-py not found; ALE/* envs are unavailable. Install with: pip install 'stable-worldmodel[env]' or pip install ale-py.
+  from stable_worldmodel.envs import ale  # noqa: F401
+/usr/local/lib/python3.10/dist-packages/stable_worldmodel/envs/__init__.py:215: UserWarning: ale-py not found; ALE/* envs are unavailable. Install with: pip install 'stable-worldmodel[env]' or pip install ale-py.
+  from stable_worldmodel.envs import ale  # noqa: F401
+/usr/local/lib/python3.10/dist-packages/stable_worldmodel/envs/__init__.py:215: UserWarning: ale-py not found; ALE/* envs are unavailable. Install with: pip install 'stable-worldmodel[env]' or pip install ale-py.
+  from stable_worldmodel.envs import ale  # noqa: F401
+/usr/local/lib/python3.10/dist-packages/stable_worldmodel/envs/__init__.py:215: UserWarning: ale-py not found; ALE/* envs are unavailable. Install with: pip install 'stable-worldmodel[env]' or pip install ale-py.
+  from stable_worldmodel.envs import ale  # noqa: F401
+[step 0] loss=280.3073 pred_loss=2.7171 ego_loss=2.3210 sigreg=2773.8054 sigreg_world=1884.3096 sigreg_ego=1778.9917 var_loss=0.4985 cov_loss=0.0000
+[diag 0] world/std=0.002 world/mean_norm=0.021 world/effective_rank=14.102 world/sigreg=1884.291 ego/std=0.119 ego/mean_norm=0.689 ego/effective_rank=6.273 ego/sigreg=1775.678 cov_loss=0.0000
+[warn] World latent std collapsed near zero. Raise sigreg_mix or check the encoder.
+[step 50] loss=211.1686 pred_loss=0.0161 ego_loss=0.4930 sigreg=2108.5493 sigreg_world=1884.3098 sigreg_ego=448.4791 var_loss=0.4998 cov_loss=0.0000
+[step 100] loss=201.4314 pred_loss=0.0055 ego_loss=0.3554 sigreg=2011.4106 sigreg_world=1884.3098 sigreg_ego=254.2018 var_loss=0.4998 cov_loss=0.0000
+[step 150] loss=200.7558 pred_loss=0.0031 ego_loss=0.2713 sigreg=2004.7607 sigreg_world=1884.3098 sigreg_ego=240.9020 var_loss=0.4995 cov_loss=0.0000
+[step 200] loss=197.3123 pred_loss=0.0023 ego_loss=0.3269 sigreg=1970.2778 sigreg_world=1884.3098 sigreg_ego=171.9360 var_loss=0.4995 cov_loss=0.0000
+[step 250] loss=195.7132 pred_loss=0.0740 ego_loss=0.4558 sigreg=1953.5259 sigreg_world=1884.3079 sigreg_ego=138.4360 var_loss=0.4968 cov_loss=0.0000
+[diag 250] world/std=0.003 world/mean_norm=0.048 world/effective_rank=1.466 world/sigreg=1884.199 ego/std=0.922 ego/mean_norm=5.252 ego/effective_rank=8.313 ego/sigreg=123.330 cov_loss=0.0000
+[warn] World latent std collapsed near zero. Raise sigreg_mix or check the encoder.
+[step 300] loss=138.1819 pred_loss=1.4422 ego_loss=0.4408 sigreg=1221.6702 sigreg_world=1157.4180 sigreg_ego=128.5044 var_loss=0.0953 cov_loss=58.5006
+[step 350] loss=65.6885 pred_loss=0.8726 ego_loss=0.4155 sigreg=593.2239 sigreg_world=534.1328 sigreg_ego=118.1824 var_loss=0.0314 cov_loss=22.0941
+[step 400] loss=55.8088 pred_loss=0.8076 ego_loss=0.3649 sigreg=493.8880 sigreg_world=434.3554 sigreg_ego=119.0652 var_loss=0.0189 cov_loss=22.5888
+[step 450] loss=50.8168 pred_loss=0.7083 ego_loss=0.3625 sigreg=457.9053 sigreg_world=395.0131 sigreg_ego=125.7845 var_loss=0.0172 cov_loss=17.3757
+[step 500] loss=36.5455 pred_loss=0.8197 ego_loss=0.3490 sigreg=308.0680 sigreg_world=253.0932 sigreg_ego=109.9495 var_loss=0.0076 cov_loss=19.8493
+[diag 500] world/std=0.868 world/mean_norm=12.467 world/effective_rank=5.621 world/sigreg=294.291 ego/std=0.944 ego/mean_norm=5.361 ego/effective_rank=9.851 ego/sigreg=109.748 cov_loss=19.8493
+[step 550] loss=36.4291 pred_loss=0.7922 ego_loss=0.3381 sigreg=310.7578 sigreg_world=259.9438 sigreg_ego=101.6279 var_loss=0.0042 cov_loss=18.4179
+[step 600] loss=35.5583 pred_loss=0.7492 ego_loss=0.3303 sigreg=310.6674 sigreg_world=259.0854 sigreg_ego=103.1639 var_loss=0.0035 cov_loss=15.1299
+[step 650] loss=32.4100 pred_loss=0.8171 ego_loss=0.3226 sigreg=273.3977 sigreg_world=218.6178 sigreg_ego=109.5598 var_loss=0.0028 cov_loss=17.2046
+[step 700] loss=28.8534 pred_loss=0.8102 ego_loss=0.3079 sigreg=240.4520 sigreg_world=196.4588 sigreg_ego=87.9864 var_loss=0.0020 cov_loss=16.1890
+[step 750] loss=30.2322 pred_loss=0.7990 ego_loss=0.2770 sigreg=253.3586 sigreg_world=200.2947 sigreg_ego=106.1279 var_loss=0.0019 cov_loss=16.5944
+[diag 750] world/std=0.870 world/mean_norm=12.373 world/effective_rank=7.384 world/sigreg=197.583 ego/std=0.959 ego/mean_norm=5.433 ego/effective_rank=12.046 ego/sigreg=87.006 cov_loss=16.5944
+[step 800] loss=27.0857 pred_loss=0.8234 ego_loss=0.2636 sigreg=222.7434 sigreg_world=182.8252 sigreg_ego=79.8365 var_loss=0.0013 cov_loss=16.1734
+[step 850] loss=25.4352 pred_loss=0.8163 ego_loss=0.2437 sigreg=211.2282 sigreg_world=170.1142 sigreg_ego=82.2280 var_loss=0.0009 cov_loss=14.2116
+[step 900] loss=24.9861 pred_loss=0.7933 ego_loss=0.2238 sigreg=206.3907 sigreg_world=168.2900 sigreg_ego=76.2012 var_loss=0.0016 cov_loss=14.4397
+[step 950] loss=24.3012 pred_loss=0.8042 ego_loss=0.2060 sigreg=199.4574 sigreg_world=162.9603 sigreg_ego=72.9943 var_loss=0.0016 cov_loss=14.4413
+[step 1000] loss=25.2254 pred_loss=0.8348 ego_loss=0.1967 sigreg=207.6622 sigreg_world=168.3127 sigreg_ego=78.6989 var_loss=0.0004 cov_loss=14.7520
+[diag 1000] world/std=0.905 world/mean_norm=12.817 world/effective_rank=9.491 world/sigreg=153.054 ego/std=0.971 ego/mean_norm=5.488 ego/effective_rank=12.549 ego/sigreg=76.921 cov_loss=14.7520
+[step 1050] loss=23.7000 pred_loss=0.8643 ego_loss=0.1869 sigreg=191.9517 sigreg_world=152.1183 sigreg_ego=79.6666 var_loss=0.0005 cov_loss=14.8320
+[step 1100] loss=25.4091 pred_loss=0.8218 ego_loss=0.1791 sigreg=212.6070 sigreg_world=173.2867 sigreg_ego=78.6406 var_loss=0.0010 cov_loss=13.5618
+[step 1150] loss=25.2729 pred_loss=0.8062 ego_loss=0.1648 sigreg=213.8168 sigreg_world=173.7011 sigreg_ego=80.2313 var_loss=0.0008 cov_loss=12.5952
+[step 1200] loss=21.7599 pred_loss=0.8343 ego_loss=0.1623 sigreg=177.2453 sigreg_world=140.7526 sigreg_ego=72.9852 var_loss=0.0010 cov_loss=13.0707
+[step 1250] loss=22.1667 pred_loss=0.7765 ego_loss=0.1629 sigreg=186.4451 sigreg_world=144.9093 sigreg_ego=83.0716 var_loss=0.0009 cov_loss=11.2261
+[diag 1250] world/std=0.892 world/mean_norm=12.596 world/effective_rank=10.974 world/sigreg=157.504 ego/std=0.968 ego/mean_norm=5.450 ego/effective_rank=12.610 ego/sigreg=84.370 cov_loss=11.2261
+[step 1300] loss=21.6845 pred_loss=0.7987 ego_loss=0.1581 sigreg=180.8734 sigreg_world=145.0583 sigreg_ego=71.6301 var_loss=0.0011 cov_loss=11.4481
+[step 1350] loss=21.9028 pred_loss=0.8468 ego_loss=0.1639 sigreg=179.9849 sigreg_world=140.1325 sigreg_ego=79.7048 var_loss=0.0001 cov_loss=12.5028
+[step 1400] loss=21.4034 pred_loss=0.8431 ego_loss=0.1532 sigreg=177.5228 sigreg_world=138.6616 sigreg_ego=77.7224 var_loss=0.0001 cov_loss=11.5077
+[step 1450] loss=17.7090 pred_loss=0.8374 ego_loss=0.1470 sigreg=143.2778 sigreg_world=103.8697 sigreg_ego=78.8164 var_loss=0.0002 cov_loss=10.4509
+[step 1500] loss=18.8655 pred_loss=0.8634 ego_loss=0.1453 sigreg=154.7483 sigreg_world=111.7298 sigreg_ego=86.0370 var_loss=0.0000 cov_loss=10.3966
+[diag 1500] world/std=0.938 world/mean_norm=13.215 world/effective_rank=13.326 world/sigreg=111.880 ego/std=0.974 ego/mean_norm=5.447 ego/effective_rank=12.565 ego/sigreg=74.030 cov_loss=10.3966
+[step 1550] loss=17.4602 pred_loss=0.8680 ego_loss=0.1369 sigreg=141.2672 sigreg_world=103.6835 sigreg_ego=75.1674 var_loss=0.0000 cov_loss=10.1543
+[step 1600] loss=17.0790 pred_loss=0.8826 ego_loss=0.1371 sigreg=138.4681 sigreg_world=99.1701 sigreg_ego=78.5961 var_loss=0.0001 cov_loss=9.6965
+[step 1650] loss=16.0967 pred_loss=0.8709 ego_loss=0.1421 sigreg=129.8497 sigreg_world=93.2204 sigreg_ego=73.2586 var_loss=0.0000 cov_loss=9.2546
+[step 1700] loss=15.6252 pred_loss=0.8824 ego_loss=0.1379 sigreg=124.3411 sigreg_world=85.0821 sigreg_ego=78.5179 var_loss=0.0000 cov_loss=9.5327
+[step 1750] loss=16.4053 pred_loss=0.8750 ego_loss=0.1393 sigreg=132.2491 sigreg_world=96.6375 sigreg_ego=71.2233 var_loss=0.0000 cov_loss=9.5156
+[diag 1750] world/std=0.939 world/mean_norm=13.182 world/effective_rank=15.675 world/sigreg=80.398 ego/std=0.994 ego/mean_norm=5.545 ego/effective_rank=12.659 ego/sigreg=75.096 cov_loss=9.5156
+[step 1800] loss=14.6836 pred_loss=0.9100 ego_loss=0.1339 sigreg=115.9293 sigreg_world=80.8798 sigreg_ego=70.0990 var_loss=0.0000 cov_loss=9.0333
+[step 1850] loss=14.6928 pred_loss=0.9599 ego_loss=0.1375 sigreg=114.2168 sigreg_world=77.3740 sigreg_ego=73.6856 var_loss=0.0000 cov_loss=9.5741
+[step 1900] loss=18.3299 pred_loss=0.8430 ego_loss=0.1547 sigreg=151.8060 sigreg_world=115.2137 sigreg_ego=73.1846 var_loss=0.0000 cov_loss=9.5004
+[step 1950] loss=14.9857 pred_loss=0.9205 ego_loss=0.1556 sigreg=116.7966 sigreg_world=82.9761 sigreg_ego=67.6410 var_loss=0.0001 cov_loss=9.8480
+[step 2000] loss=15.6307 pred_loss=0.9396 ego_loss=0.1512 sigreg=121.5742 sigreg_world=85.3749 sigreg_ego=72.3987 var_loss=0.0000 cov_loss=10.4500
+[diag 2000] world/std=0.957 world/mean_norm=13.390 world/effective_rank=15.579 world/sigreg=75.914 ego/std=0.999 ego/mean_norm=5.572 ego/effective_rank=13.370 ego/sigreg=66.487 cov_loss=10.4500
+[step 2050] loss=18.2709 pred_loss=0.9151 ego_loss=0.1597 sigreg=143.4223 sigreg_world=114.7591 sigreg_ego=57.3262 var_loss=0.0001 cov_loss=12.3566
+[step 2100] loss=17.6231 pred_loss=0.8661 ego_loss=0.1437 sigreg=143.1355 sigreg_world=113.6600 sigreg_ego=58.9510 var_loss=0.0001 cov_loss=10.0628
+[step 2150] loss=15.2228 pred_loss=0.8873 ego_loss=0.1421 sigreg=122.0955 sigreg_world=88.0520 sigreg_ego=68.0869 var_loss=0.0000 cov_loss=8.8019
+[step 2200] loss=13.3187 pred_loss=0.9440 ego_loss=0.1311 sigreg=101.0608 sigreg_world=68.1748 sigreg_ego=65.7720 var_loss=0.0000 cov_loss=9.3997
+[step 2250] loss=16.4695 pred_loss=0.9136 ego_loss=0.1354 sigreg=134.1999 sigreg_world=103.0941 sigreg_ego=62.2116 var_loss=0.0000 cov_loss=8.8550
+[diag 2250] world/std=0.900 world/mean_norm=12.608 world/effective_rank=14.019 world/sigreg=108.423 ego/std=0.992 ego/mean_norm=5.521 ego/effective_rank=13.779 ego/sigreg=70.218 cov_loss=8.8550
+[step 2300] loss=16.1236 pred_loss=0.9878 ego_loss=0.1458 sigreg=122.5614 sigreg_world=89.3724 sigreg_ego=66.3779 var_loss=0.0000 cov_loss=11.8554
+[step 2350] loss=15.4390 pred_loss=0.9310 ego_loss=0.1425 sigreg=120.4777 sigreg_world=94.9824 sigreg_ego=50.9906 var_loss=0.0000 cov_loss=10.1563
+[step 2400] loss=22.0790 pred_loss=0.8100 ego_loss=0.1802 sigreg=184.9213 sigreg_world=156.7133 sigreg_ego=56.4161 var_loss=0.0000 cov_loss=11.3594
+[step 2450] loss=21.2891 pred_loss=0.8984 ego_loss=0.1448 sigreg=167.7061 sigreg_world=136.6710 sigreg_ego=62.0702 var_loss=0.0002 cov_loss=14.7816
+[step 2500] loss=16.8356 pred_loss=0.8843 ego_loss=0.1302 sigreg=134.0761 sigreg_world=106.4792 sigreg_ego=55.1939 var_loss=0.0001 cov_loss=10.4760
+[diag 2500] world/std=0.920 world/mean_norm=12.976 world/effective_rank=14.181 world/sigreg=97.705 ego/std=0.987 ego/mean_norm=5.496 ego/effective_rank=14.293 ego/sigreg=58.582 cov_loss=10.4760
+[step 2550] loss=13.6978 pred_loss=0.9280 ego_loss=0.1667 sigreg=103.9594 sigreg_world=74.2647 sigreg_ego=59.3895 var_loss=0.0000 cov_loss=9.8001
+[step 2600] loss=13.0954 pred_loss=0.8909 ego_loss=0.1567 sigreg=101.6112 sigreg_world=70.6103 sigreg_ego=62.0018 var_loss=0.0000 cov_loss=8.4673
+[step 2650] loss=13.4575 pred_loss=0.8902 ego_loss=0.1558 sigreg=103.1163 sigreg_world=73.7595 sigreg_ego=58.7136 var_loss=0.0000 cov_loss=9.3161
+[step 2700] loss=20.1131 pred_loss=0.8999 ego_loss=0.1795 sigreg=160.4077 sigreg_world=130.3322 sigreg_ego=60.1511 var_loss=0.0000 cov_loss=12.9777
+[step 2750] loss=14.4252 pred_loss=0.9643 ego_loss=0.1459 sigreg=110.5991 sigreg_world=81.2993 sigreg_ego=58.5996 var_loss=0.0000 cov_loss=9.9311
+[diag 2750] world/std=0.958 world/mean_norm=13.533 world/effective_rank=15.319 world/sigreg=77.873 ego/std=1.007 ego/mean_norm=5.611 ego/effective_rank=14.506 ego/sigreg=65.550 cov_loss=9.9311
+[step 2800] loss=13.2063 pred_loss=0.8720 ego_loss=0.1761 sigreg=103.8210 sigreg_world=76.8138 sigreg_ego=54.0144 var_loss=0.0000 cov_loss=8.0873
+[step 2850] loss=13.5603 pred_loss=0.8838 ego_loss=0.1458 sigreg=108.0158 sigreg_world=80.5366 sigreg_ego=54.9583 var_loss=0.0000 cov_loss=7.7952
+[step 2900] loss=13.6446 pred_loss=0.9615 ego_loss=0.1619 sigreg=102.9271 sigreg_world=75.0794 sigreg_ego=55.6954 var_loss=0.0000 cov_loss=9.8814
+[step 2950] loss=15.9984 pred_loss=0.8314 ego_loss=0.1651 sigreg=127.6166 sigreg_world=102.0887 sigreg_ego=51.0559 var_loss=0.0000 cov_loss=9.8878
+[step 3000] loss=12.8924 pred_loss=0.9473 ego_loss=0.1558 sigreg=97.0190 sigreg_world=71.0281 sigreg_ego=51.9819 var_loss=0.0000 cov_loss=9.2891
+[diag 3000] world/std=0.963 world/mean_norm=13.535 world/effective_rank=17.055 world/sigreg=82.352 ego/std=0.991 ego/mean_norm=5.514 ego/effective_rank=14.554 ego/sigreg=56.053 cov_loss=9.2891
+[step 3050] loss=14.5952 pred_loss=0.9648 ego_loss=0.1552 sigreg=113.0079 sigreg_world=84.5324 sigreg_ego=56.9509 var_loss=0.0000 cov_loss=9.6421
+[step 3100] loss=15.3060 pred_loss=0.8927 ego_loss=0.1654 sigreg=120.8309 sigreg_world=92.4234 sigreg_ego=56.8150 var_loss=0.0000 cov_loss=9.6116
+[step 3150] loss=14.0416 pred_loss=0.9932 ego_loss=0.1602 sigreg=103.9249 sigreg_world=78.3083 sigreg_ego=51.2332 var_loss=0.0000 cov_loss=10.9569
+[step 3200] loss=13.1915 pred_loss=0.8760 ego_loss=0.1548 sigreg=105.6243 sigreg_world=76.3771 sigreg_ego=58.4944 var_loss=0.0000 cov_loss=7.3007
+[step 3250] loss=13.5222 pred_loss=0.9275 ego_loss=0.1530 sigreg=104.0125 sigreg_world=79.4938 sigreg_ego=49.0373 var_loss=0.0000 cov_loss=9.0835
+[diag 3250] world/std=0.942 world/mean_norm=13.259 world/effective_rank=16.645 world/sigreg=74.481 ego/std=0.996 ego/mean_norm=5.552 ego/effective_rank=15.316 ego/sigreg=51.291 cov_loss=9.0835
+[step 3300] loss=18.5057 pred_loss=0.9139 ego_loss=0.1570 sigreg=149.4414 sigreg_world=119.4863 sigreg_ego=59.9102 var_loss=0.0003 cov_loss=10.8930
+[step 3350] loss=14.0078 pred_loss=0.9368 ego_loss=0.1469 sigreg=107.5198 sigreg_world=79.8076 sigreg_ego=55.4242 var_loss=0.0000 cov_loss=9.5923
+[step 3400] loss=11.7856 pred_loss=0.9242 ego_loss=0.1523 sigreg=89.2148 sigreg_world=62.1547 sigreg_ego=54.1202 var_loss=0.0000 cov_loss=8.0686
+[step 3450] loss=13.7065 pred_loss=0.9131 ego_loss=0.1531 sigreg=106.9313 sigreg_world=84.3091 sigreg_ego=45.2444 var_loss=0.0000 cov_loss=8.7052
+[step 3500] loss=11.5382 pred_loss=0.9383 ego_loss=0.1349 sigreg=87.1731 sigreg_world=61.8064 sigreg_ego=50.7333 var_loss=0.0000 cov_loss=7.8520
+[diag 3500] world/std=0.945 world/mean_norm=13.221 world/effective_rank=18.625 world/sigreg=71.840 ego/std=0.986 ego/mean_norm=5.497 ego/effective_rank=15.486 ego/sigreg=46.537 cov_loss=7.8520
+[step 3550] loss=13.3562 pred_loss=0.9198 ego_loss=0.1485 sigreg=105.2329 sigreg_world=78.1530 sigreg_ego=54.1597 var_loss=0.0000 cov_loss=7.9610
+[step 3600] loss=13.2104 pred_loss=0.9167 ego_loss=0.1474 sigreg=101.7924 sigreg_world=75.7206 sigreg_ego=52.1437 var_loss=0.0000 cov_loss=8.7653
+[step 3650] loss=14.5703 pred_loss=0.8969 ego_loss=0.1664 sigreg=113.9082 sigreg_world=88.7129 sigreg_ego=50.3907 var_loss=0.0000 cov_loss=9.4226
+[step 3700] loss=12.5676 pred_loss=0.9745 ego_loss=0.1375 sigreg=93.8308 sigreg_world=67.7277 sigreg_ego=52.2062 var_loss=0.0000 cov_loss=9.1751
+[step 3750] loss=13.5329 pred_loss=0.9658 ego_loss=0.1926 sigreg=101.0738 sigreg_world=76.9074 sigreg_ego=48.3328 var_loss=0.0000 cov_loss=10.1482
+[diag 3750] world/std=0.958 world/mean_norm=13.459 world/effective_rank=18.384 world/sigreg=67.993 ego/std=0.998 ego/mean_norm=5.574 ego/effective_rank=15.417 ego/sigreg=51.562 cov_loss=10.1482
+[step 3800] loss=10.8341 pred_loss=0.9267 ego_loss=0.1441 sigreg=82.1295 sigreg_world=58.5195 sigreg_ego=47.2200 var_loss=0.0000 cov_loss=7.0910
+[step 3850] loss=11.8007 pred_loss=0.9311 ego_loss=0.1475 sigreg=89.9429 sigreg_world=64.4727 sigreg_ego=50.9404 var_loss=0.0000 cov_loss=7.8149
+[step 3900] loss=10.2825 pred_loss=0.8931 ego_loss=0.1477 sigreg=77.4827 sigreg_world=53.2962 sigreg_ego=48.3731 var_loss=0.0000 cov_loss=6.8625
+[step 3950] loss=12.9021 pred_loss=0.8914 ego_loss=0.1449 sigreg=101.3133 sigreg_world=80.3728 sigreg_ego=41.8810 var_loss=0.0000 cov_loss=7.8161
+[step 4000] loss=11.9082 pred_loss=0.9484 ego_loss=0.1511 sigreg=90.4138 sigreg_world=66.7000 sigreg_ego=47.4276 var_loss=0.0000 cov_loss=7.9928
+[diag 4000] world/std=0.962 world/mean_norm=13.566 world/effective_rank=19.027 world/sigreg=59.219 ego/std=0.987 ego/mean_norm=5.519 ego/effective_rank=16.674 ego/sigreg=49.615 cov_loss=7.9928
+[step 4050] loss=12.0262 pred_loss=0.9022 ego_loss=0.1440 sigreg=92.8316 sigreg_world=66.9104 sigreg_ego=51.8425 var_loss=0.0000 cov_loss=7.6665
+[step 4100] loss=13.4365 pred_loss=0.9398 ego_loss=0.1584 sigreg=100.7120 sigreg_world=79.3246 sigreg_ego=42.7750 var_loss=0.0000 cov_loss=10.0147
+[step 4150] loss=12.6513 pred_loss=0.9853 ego_loss=0.1793 sigreg=94.2188 sigreg_world=74.4086 sigreg_ego=39.6204 var_loss=0.0000 cov_loss=9.2989
+[step 4200] loss=10.6219 pred_loss=0.9672 ego_loss=0.1473 sigreg=77.8702 sigreg_world=55.9499 sigreg_ego=43.8405 var_loss=0.0000 cov_loss=7.7989
+[step 4250] loss=10.7017 pred_loss=0.9244 ego_loss=0.1555 sigreg=80.6908 sigreg_world=58.7204 sigreg_ego=43.9408 var_loss=0.0000 cov_loss=7.1407
+[diag 4250] world/std=0.953 world/mean_norm=13.401 world/effective_rank=20.346 world/sigreg=59.177 ego/std=0.994 ego/mean_norm=5.549 ego/effective_rank=16.911 ego/sigreg=49.081 cov_loss=7.1407
+[step 4300] loss=10.6742 pred_loss=0.8882 ego_loss=0.1508 sigreg=81.6490 sigreg_world=60.1654 sigreg_ego=42.9672 var_loss=0.0000 cov_loss=6.7794
+[step 4350] loss=11.1217 pred_loss=0.9820 ego_loss=0.1474 sigreg=81.2407 sigreg_world=62.0802 sigreg_ego=38.3209 var_loss=0.0000 cov_loss=8.3966
+[step 4400] loss=12.6756 pred_loss=0.8974 ego_loss=0.1472 sigreg=99.7300 sigreg_world=79.0388 sigreg_ego=41.3823 var_loss=0.0000 cov_loss=7.5208
+[step 4450] loss=11.0035 pred_loss=0.9675 ego_loss=0.1481 sigreg=82.1794 sigreg_world=58.8542 sigreg_ego=46.6504 var_loss=0.0000 cov_loss=7.5999
+[step 4500] loss=12.5319 pred_loss=0.8830 ego_loss=0.1510 sigreg=99.4441 sigreg_world=79.5983 sigreg_ego=39.6916 var_loss=0.0001 cov_loss=7.1106
+[diag 4500] world/std=0.922 world/mean_norm=12.903 world/effective_rank=18.974 world/sigreg=83.115 ego/std=1.000 ego/mean_norm=5.589 ego/effective_rank=17.122 ego/sigreg=42.351 cov_loss=7.1106
+[step 4550] loss=12.1894 pred_loss=0.9478 ego_loss=0.1736 sigreg=93.0437 sigreg_world=70.0312 sigreg_ego=46.0248 var_loss=0.0000 cov_loss=8.0586
+[step 4600] loss=12.0143 pred_loss=0.9460 ego_loss=0.1556 sigreg=89.6250 sigreg_world=69.5520 sigreg_ego=40.1459 var_loss=0.0000 cov_loss=8.7392
+[step 4650] loss=10.0336 pred_loss=0.9476 ego_loss=0.1367 sigreg=73.3455 sigreg_world=53.1872 sigreg_ego=40.3166 var_loss=0.0000 cov_loss=7.3303
+[step 4700] loss=13.8301 pred_loss=0.9458 ego_loss=0.1974 sigreg=107.8526 sigreg_world=87.3338 sigreg_ego=41.0376 var_loss=0.0000 cov_loss=8.6952
+[step 4750] loss=13.5481 pred_loss=0.9055 ego_loss=0.2327 sigreg=104.2019 sigreg_world=81.7829 sigreg_ego=44.8379 var_loss=0.0000 cov_loss=9.1586
+[diag 4750] world/std=0.940 world/mean_norm=13.220 world/effective_rank=16.853 world/sigreg=84.416 ego/std=0.999 ego/mean_norm=5.598 ego/effective_rank=16.714 ego/sigreg=39.845 cov_loss=9.1586
+[step 4800] loss=11.6065 pred_loss=0.9141 ego_loss=0.1465 sigreg=88.6693 sigreg_world=68.8337 sigreg_ego=39.6714 var_loss=0.0000 cov_loss=7.6090
+[step 4850] loss=12.9432 pred_loss=0.8844 ego_loss=0.1509 sigreg=103.4756 sigreg_world=80.2547 sigreg_ego=46.4416 var_loss=0.0000 cov_loss=7.1382
+[step 4900] loss=12.5164 pred_loss=0.9033 ego_loss=0.1576 sigreg=96.7310 sigreg_world=75.6717 sigreg_ego=42.1186 var_loss=0.0001 cov_loss=8.0579
+[step 4950] loss=14.8898 pred_loss=0.9353 ego_loss=0.2190 sigreg=116.2077 sigreg_world=92.2976 sigreg_ego=47.8201 var_loss=0.0003 cov_loss=9.6211
+[step 5000] loss=11.1486 pred_loss=0.9117 ego_loss=0.1538 sigreg=83.7167 sigreg_world=62.9770 sigreg_ego=41.4794 var_loss=0.0001 cov_loss=7.7635
+[diag 5000] world/std=0.932 world/mean_norm=13.081 world/effective_rank=17.947 world/sigreg=75.371 ego/std=0.998 ego/mean_norm=5.575 ego/effective_rank=17.248 ego/sigreg=39.452 cov_loss=7.7635
+[step 5050] loss=11.9879 pred_loss=1.0085 ego_loss=0.2219 sigreg=89.6530 sigreg_world=67.1446 sigreg_ego=45.0168 var_loss=0.0000 cov_loss=8.3710
+[step 5100] loss=12.9650 pred_loss=0.9182 ego_loss=0.1863 sigreg=100.5047 sigreg_world=79.6921 sigreg_ego=41.6251 var_loss=0.0004 cov_loss=8.2772
+[step 5150] loss=15.4735 pred_loss=0.9427 ego_loss=0.1771 sigreg=118.4338 sigreg_world=100.7635 sigreg_ego=35.3406 var_loss=0.0000 cov_loss=11.0561
+[step 5200] loss=10.8578 pred_loss=0.9665 ego_loss=0.1718 sigreg=80.7481 sigreg_world=60.6082 sigreg_ego=40.2798 var_loss=0.0000 cov_loss=7.5837
+[step 5250] loss=11.8902 pred_loss=0.9948 ego_loss=0.1920 sigreg=87.5217 sigreg_world=67.7010 sigreg_ego=39.6414 var_loss=0.0000 cov_loss=8.8937
+[diag 5250] world/std=0.975 world/mean_norm=13.761 world/effective_rank=19.044 world/sigreg=69.987 ego/std=1.006 ego/mean_norm=5.634 ego/effective_rank=17.789 ego/sigreg=39.687 cov_loss=8.8937
+[step 5300] loss=9.7609 pred_loss=0.9020 ego_loss=0.1591 sigreg=73.8315 sigreg_world=53.7689 sigreg_ego=40.1253 var_loss=0.0000 cov_loss=6.2002
+[step 5350] loss=11.1087 pred_loss=0.9093 ego_loss=0.2235 sigreg=82.7182 sigreg_world=62.5317 sigreg_ego=40.3730 var_loss=0.0000 cov_loss=7.9843
+[step 5400] loss=10.2712 pred_loss=0.9108 ego_loss=0.1610 sigreg=75.4089 sigreg_world=57.6030 sigreg_ego=35.6117 var_loss=0.0001 cov_loss=7.5780
+[step 5450] loss=11.5518 pred_loss=0.8793 ego_loss=0.1823 sigreg=88.8218 sigreg_world=69.7961 sigreg_ego=38.0514 var_loss=0.0000 cov_loss=7.4403
+[step 5500] loss=12.4559 pred_loss=0.9241 ego_loss=0.2321 sigreg=96.2474 sigreg_world=76.6266 sigreg_ego=39.2416 var_loss=0.0000 cov_loss=7.9051
+[diag 5500] world/std=0.943 world/mean_norm=13.227 world/effective_rank=18.817 world/sigreg=69.520 ego/std=0.980 ego/mean_norm=5.504 ego/effective_rank=18.738 ego/sigreg=35.047 cov_loss=7.9051
+[step 5550] loss=14.5313 pred_loss=0.9575 ego_loss=0.2026 sigreg=110.3360 sigreg_world=93.4795 sigreg_ego=33.7130 var_loss=0.0004 cov_loss=10.4622
+[step 5600] loss=13.4214 pred_loss=0.9008 ego_loss=0.1901 sigreg=103.0321 sigreg_world=84.6214 sigreg_ego=36.8215 var_loss=0.0000 cov_loss=9.1535
+[step 5650] loss=12.3183 pred_loss=0.9667 ego_loss=0.1836 sigreg=91.0190 sigreg_world=74.7107 sigreg_ego=32.6165 var_loss=0.0002 cov_loss=9.3120
+[step 5700] loss=10.2127 pred_loss=0.9595 ego_loss=0.1644 sigreg=72.8246 sigreg_world=56.9013 sigreg_ego=31.8466 var_loss=0.0000 cov_loss=8.2012
+[step 5750] loss=11.5282 pred_loss=0.9440 ego_loss=0.1792 sigreg=86.7775 sigreg_world=69.6638 sigreg_ego=34.2274 var_loss=0.0000 cov_loss=7.9314
+[diag 5750] world/std=0.951 world/mean_norm=13.414 world/effective_rank=18.670 world/sigreg=62.988 ego/std=0.997 ego/mean_norm=5.591 ego/effective_rank=18.661 ego/sigreg=31.997 cov_loss=7.9314
+[step 5800] loss=12.6980 pred_loss=0.9597 ego_loss=0.1952 sigreg=94.0987 sigreg_world=78.6093 sigreg_ego=30.9787 var_loss=0.0000 cov_loss=9.6194
+[step 5850] loss=10.3951 pred_loss=0.9597 ego_loss=0.1716 sigreg=76.6601 sigreg_world=58.5052 sigreg_ego=36.3098 var_loss=0.0000 cov_loss=7.3927
+[step 5900] loss=10.6208 pred_loss=0.9253 ego_loss=0.1777 sigreg=78.6627 sigreg_world=63.0455 sigreg_ego=31.2343 var_loss=0.0000 cov_loss=7.6159
+[step 5950] loss=10.7555 pred_loss=0.9226 ego_loss=0.1587 sigreg=81.3215 sigreg_world=67.5275 sigreg_ego=27.5879 var_loss=0.0000 cov_loss=7.1088
+[step 6000] loss=10.0133 pred_loss=0.9338 ego_loss=0.1728 sigreg=73.5169 sigreg_world=58.1333 sigreg_ego=30.7673 var_loss=0.0000 cov_loss=7.2159
+[diag 6000] world/std=0.956 world/mean_norm=13.486 world/effective_rank=21.864 world/sigreg=56.105 ego/std=0.999 ego/mean_norm=5.596 ego/effective_rank=19.435 ego/sigreg=30.302 cov_loss=7.2159
+[step 6050] loss=17.0160 pred_loss=0.8680 ego_loss=0.1808 sigreg=137.3902 sigreg_world=121.0904 sigreg_ego=32.5995 var_loss=0.0000 cov_loss=9.9107
+[step 6100] loss=11.4892 pred_loss=0.8414 ego_loss=0.1686 sigreg=90.6276 sigreg_world=75.3205 sigreg_ego=30.6143 var_loss=0.0000 cov_loss=6.6094
+[step 6150] loss=11.3971 pred_loss=0.8965 ego_loss=0.1969 sigreg=87.0898 sigreg_world=71.2626 sigreg_ego=31.6545 var_loss=0.0002 cov_loss=7.4458
+[step 6200] loss=10.9668 pred_loss=0.8544 ego_loss=0.1793 sigreg=85.4150 sigreg_world=71.1131 sigreg_ego=28.6038 var_loss=0.0001 cov_loss=6.5533
+[step 6250] loss=11.1508 pred_loss=0.9803 ego_loss=0.1729 sigreg=82.8048 sigreg_world=67.2375 sigreg_ego=31.1347 var_loss=0.0000 cov_loss=7.8834
+[diag 6250] world/std=0.967 world/mean_norm=13.677 world/effective_rank=20.049 world/sigreg=60.319 ego/std=0.993 ego/mean_norm=5.576 ego/effective_rank=20.641 ego/sigreg=30.557 cov_loss=7.8834
+[step 6300] loss=9.8858 pred_loss=0.9880 ego_loss=0.1793 sigreg=69.8718 sigreg_world=56.9663 sigreg_ego=25.8110 var_loss=0.0000 cov_loss=7.9658
+[step 6350] loss=9.4526 pred_loss=0.9714 ego_loss=0.1797 sigreg=65.3288 sigreg_world=51.4580 sigreg_ego=27.7414 var_loss=0.0000 cov_loss=8.1100
+[step 6400] loss=10.6463 pred_loss=0.8971 ego_loss=0.1526 sigreg=82.6681 sigreg_world=67.9738 sigreg_ego=29.3885 var_loss=0.0000 cov_loss=6.2275
+[step 6450] loss=9.3389 pred_loss=0.9746 ego_loss=0.1587 sigreg=66.1982 sigreg_world=54.0259 sigreg_ego=24.3447 var_loss=0.0000 cov_loss=7.3044
+[step 6500] loss=9.5179 pred_loss=0.9410 ego_loss=0.1606 sigreg=68.6548 sigreg_world=54.3081 sigreg_ego=28.6934 var_loss=0.0000 cov_loss=7.1579
+[diag 6500] world/std=0.958 world/mean_norm=13.537 world/effective_rank=22.005 world/sigreg=53.843 ego/std=0.996 ego/mean_norm=5.589 ego/effective_rank=21.301 ego/sigreg=26.355 cov_loss=7.1579
+[step 6550] loss=10.6422 pred_loss=0.9062 ego_loss=0.1674 sigreg=80.4988 sigreg_world=67.4684 sigreg_ego=26.0608 var_loss=0.0003 cov_loss=7.0393
+[step 6600] loss=9.9143 pred_loss=0.9293 ego_loss=0.1595 sigreg=74.1666 sigreg_world=58.4713 sigreg_ego=31.3907 var_loss=0.0000 cov_loss=6.5812
+[step 6650] loss=9.9313 pred_loss=0.9458 ego_loss=0.1670 sigreg=72.4862 sigreg_world=59.7501 sigreg_ego=25.4724 var_loss=0.0000 cov_loss=7.2590
+[step 6700] loss=8.4463 pred_loss=0.8965 ego_loss=0.1813 sigreg=61.1426 sigreg_world=47.8914 sigreg_ego=26.5025 var_loss=0.0000 cov_loss=6.0281
+[step 6750] loss=8.4600 pred_loss=0.8955 ego_loss=0.1824 sigreg=60.8417 sigreg_world=47.9197 sigreg_ego=25.8438 var_loss=0.0000 cov_loss=6.2064
+[diag 6750] world/std=0.944 world/mean_norm=13.308 world/effective_rank=23.689 world/sigreg=51.118 ego/std=0.997 ego/mean_norm=5.596 ego/effective_rank=21.181 ego/sigreg=28.111 cov_loss=6.2064
+[step 6800] loss=8.7890 pred_loss=0.8712 ego_loss=0.1735 sigreg=64.2584 sigreg_world=48.3871 sigreg_ego=31.7427 var_loss=0.0000 cov_loss=6.2470
+[step 6850] loss=9.5899 pred_loss=0.9714 ego_loss=0.1903 sigreg=69.3262 sigreg_world=55.9832 sigreg_ego=26.6862 var_loss=0.0000 cov_loss=7.0559
+[step 6900] loss=9.0768 pred_loss=0.9051 ego_loss=0.1938 sigreg=67.0953 sigreg_world=53.7585 sigreg_ego=26.6737 var_loss=0.0000 cov_loss=6.1332
+[step 6950] loss=8.8756 pred_loss=0.8981 ego_loss=0.1842 sigreg=65.3968 sigreg_world=52.8564 sigreg_ego=25.0809 var_loss=0.0000 cov_loss=6.0367
+[step 7000] loss=8.5308 pred_loss=0.9772 ego_loss=0.2045 sigreg=59.4984 sigreg_world=46.9754 sigreg_ego=25.0461 var_loss=0.0000 cov_loss=6.7240
+[diag 7000] world/std=0.966 world/mean_norm=13.524 world/effective_rank=24.558 world/sigreg=53.246 ego/std=0.987 ego/mean_norm=5.545 ego/effective_rank=22.784 ego/sigreg=25.217 cov_loss=6.7240
+[step 7050] loss=8.7985 pred_loss=0.9137 ego_loss=0.1845 sigreg=64.8643 sigreg_world=55.1599 sigreg_ego=19.4087 var_loss=0.0000 cov_loss=5.8851
+[step 7100] loss=10.4014 pred_loss=0.8786 ego_loss=0.1780 sigreg=78.7554 sigreg_world=66.3348 sigreg_ego=24.8413 var_loss=0.0002 cov_loss=6.8691
+[step 7150] loss=8.8640 pred_loss=0.8980 ego_loss=0.2123 sigreg=65.9157 sigreg_world=53.6419 sigreg_ego=24.5476 var_loss=0.0000 cov_loss=5.7721
+[step 7200] loss=10.7332 pred_loss=1.0359 ego_loss=0.1970 sigreg=75.5615 sigreg_world=64.4826 sigreg_ego=22.1578 var_loss=0.0000 cov_loss=8.9000
+[step 7250] loss=9.9731 pred_loss=0.8977 ego_loss=0.1875 sigreg=75.9059 sigreg_world=66.4294 sigreg_ego=18.9530 var_loss=0.0000 cov_loss=6.2235
+[diag 7250] world/std=0.903 world/mean_norm=12.756 world/effective_rank=20.573 world/sigreg=71.316 ego/std=0.989 ego/mean_norm=5.562 ego/effective_rank=23.793 ego/sigreg=18.504 cov_loss=6.2235
+[step 7300] loss=11.9882 pred_loss=0.9311 ego_loss=0.1691 sigreg=89.2991 sigreg_world=76.9385 sigreg_ego=24.7213 var_loss=0.0002 cov_loss=8.8134
+[step 7350] loss=10.3664 pred_loss=0.9285 ego_loss=0.1750 sigreg=75.4300 sigreg_world=65.5729 sigreg_ego=19.7141 var_loss=0.0002 cov_loss=7.8804
+[step 7400] loss=8.6692 pred_loss=0.8906 ego_loss=0.1898 sigreg=63.1906 sigreg_world=53.0984 sigreg_ego=20.1843 var_loss=0.0000 cov_loss=6.1186
+[step 7450] loss=8.2901 pred_loss=0.9684 ego_loss=0.2038 sigreg=58.9838 sigreg_world=48.7202 sigreg_ego=20.5272 var_loss=0.0000 cov_loss=5.9994
+[step 7500] loss=7.0438 pred_loss=0.9069 ego_loss=0.1791 sigreg=49.5619 sigreg_world=39.3787 sigreg_ego=20.3664 var_loss=0.0000 cov_loss=5.0139
+[diag 7500] world/std=0.943 world/mean_norm=13.277 world/effective_rank=27.477 world/sigreg=48.315 ego/std=0.993 ego/mean_norm=5.584 ego/effective_rank=24.689 ego/sigreg=18.175 cov_loss=5.0139
+[step 7550] loss=6.8957 pred_loss=0.9756 ego_loss=0.1951 sigreg=46.0281 sigreg_world=36.5279 sigreg_ego=19.0004 var_loss=0.0000 cov_loss=5.5815
+[step 7600] loss=7.5915 pred_loss=0.9753 ego_loss=0.1859 sigreg=52.0633 sigreg_world=42.6008 sigreg_ego=18.9249 var_loss=0.0000 cov_loss=5.9553
+[step 7650] loss=9.6121 pred_loss=0.9249 ego_loss=0.1866 sigreg=69.4855 sigreg_world=60.5426 sigreg_ego=17.8858 var_loss=0.0000 cov_loss=7.2497
+[step 7700] loss=10.8765 pred_loss=0.9771 ego_loss=0.1677 sigreg=79.4556 sigreg_world=71.5444 sigreg_ego=15.8224 var_loss=0.0000 cov_loss=8.1394
+[step 7750] loss=8.5857 pred_loss=0.9273 ego_loss=0.1596 sigreg=60.9274 sigreg_world=52.6619 sigreg_ego=16.5309 var_loss=0.0000 cov_loss=6.5699
+[diag 7750] world/std=0.942 world/mean_norm=13.333 world/effective_rank=22.300 world/sigreg=59.815 ego/std=0.996 ego/mean_norm=5.595 ego/effective_rank=25.458 ego/sigreg=16.397 cov_loss=6.5699
+[step 7800] loss=7.8152 pred_loss=0.9389 ego_loss=0.1594 sigreg=55.2986 sigreg_world=47.6457 sigreg_ego=15.3058 var_loss=0.0000 cov_loss=5.6979
+[step 7850] loss=10.0267 pred_loss=0.9033 ego_loss=0.1706 sigreg=74.3332 sigreg_world=65.9141 sigreg_ego=16.8381 var_loss=0.0000 cov_loss=7.0536
+[step 7900] loss=9.3941 pred_loss=0.9095 ego_loss=0.1803 sigreg=69.9523 sigreg_world=60.9607 sigreg_ego=17.9831 var_loss=0.0001 cov_loss=6.2492
+[step 7950] loss=9.9123 pred_loss=1.0550 ego_loss=0.1722 sigreg=68.8309 sigreg_world=60.4919 sigreg_ego=16.6780 var_loss=0.0000 cov_loss=8.2501
+[step 8000] loss=8.1507 pred_loss=0.9255 ego_loss=0.1513 sigreg=57.0868 sigreg_world=49.6694 sigreg_ego=14.8349 var_loss=0.0000 cov_loss=6.3759
+[diag 8000] world/std=0.965 world/mean_norm=13.775 world/effective_rank=23.705 world/sigreg=53.912 ego/std=0.995 ego/mean_norm=5.589 ego/effective_rank=26.175 ego/sigreg=15.580 cov_loss=6.3759
+[step 8050] loss=9.4362 pred_loss=0.9065 ego_loss=0.1563 sigreg=69.7832 sigreg_world=62.0393 sigreg_ego=15.4877 var_loss=0.0000 cov_loss=6.5053
+[step 8100] loss=9.0297 pred_loss=0.8466 ego_loss=0.1434 sigreg=69.9990 sigreg_world=62.4060 sigreg_ego=15.1859 var_loss=0.0000 cov_loss=5.0141
+[step 8150] loss=7.3622 pred_loss=0.9318 ego_loss=0.1600 sigreg=51.4669 sigreg_world=42.6954 sigreg_ego=17.5431 var_loss=0.0000 cov_loss=5.4434
+[step 8200] loss=7.1775 pred_loss=0.9662 ego_loss=0.1409 sigreg=48.9187 sigreg_world=41.7252 sigreg_ego=14.3871 var_loss=0.0000 cov_loss=5.6078
+[step 8250] loss=7.6371 pred_loss=0.9470 ego_loss=0.1401 sigreg=54.6679 sigreg_world=46.6367 sigreg_ego=16.0623 var_loss=0.0000 cov_loss=5.2162
+[diag 8250] world/std=0.952 world/mean_norm=13.400 world/effective_rank=28.232 world/sigreg=39.325 ego/std=0.992 ego/mean_norm=5.575 ego/effective_rank=26.505 ego/sigreg=15.125 cov_loss=5.2162
+[step 8300] loss=9.2956 pred_loss=0.8478 ego_loss=0.1666 sigreg=73.4047 sigreg_world=66.3037 sigreg_ego=14.2020 var_loss=0.0002 cov_loss=4.7014
+[step 8350] loss=8.6540 pred_loss=0.9845 ego_loss=0.1466 sigreg=60.6606 sigreg_world=53.7849 sigreg_ego=13.7514 var_loss=0.0000 cov_loss=6.7490
+[step 8400] loss=10.6752 pred_loss=0.9595 ego_loss=0.1765 sigreg=78.9864 sigreg_world=71.9160 sigreg_ego=14.1407 var_loss=0.0001 cov_loss=7.5812
+[step 8450] loss=8.5132 pred_loss=0.9340 ego_loss=0.1600 sigreg=62.1028 sigreg_world=54.8130 sigreg_ego=14.5796 var_loss=0.0000 cov_loss=5.7851
+[step 8500] loss=8.9878 pred_loss=0.9942 ego_loss=0.1667 sigreg=62.6743 sigreg_world=55.2161 sigreg_ego=14.9163 var_loss=0.0000 cov_loss=7.2356
+[diag 8500] world/std=0.973 world/mean_norm=13.938 world/effective_rank=22.542 world/sigreg=56.415 ego/std=0.992 ego/mean_norm=5.576 ego/effective_rank=27.331 ego/sigreg=11.989 cov_loss=7.2356
+[step 8550] loss=8.8004 pred_loss=1.1247 ego_loss=0.1637 sigreg=58.5988 sigreg_world=51.4381 sigreg_ego=14.3213 var_loss=0.0000 cov_loss=7.6478
+[step 8600] loss=7.2801 pred_loss=0.9895 ego_loss=0.1584 sigreg=48.3777 sigreg_world=41.9433 sigreg_ego=12.8689 var_loss=0.0000 cov_loss=6.1435
+[step 8650] loss=7.4419 pred_loss=1.0346 ego_loss=0.1563 sigreg=48.9913 sigreg_world=42.4713 sigreg_ego=13.0401 var_loss=0.0000 cov_loss=6.3842
+[step 8700] loss=8.6863 pred_loss=1.0199 ego_loss=0.1526 sigreg=59.1919 sigreg_world=52.9762 sigreg_ego=12.4312 var_loss=0.0000 cov_loss=7.3357
+[step 8750] loss=7.9484 pred_loss=0.9106 ego_loss=0.1502 sigreg=56.6823 sigreg_world=49.5968 sigreg_ego=14.1710 var_loss=0.0000 cov_loss=5.7824
+[diag 8750] world/std=0.939 world/mean_norm=13.420 world/effective_rank=25.069 world/sigreg=51.564 ego/std=0.990 ego/mean_norm=5.570 ego/effective_rank=28.019 ego/sigreg=10.888 cov_loss=5.7824
+[step 8800] loss=7.3754 pred_loss=0.9346 ego_loss=0.1720 sigreg=51.2378 sigreg_world=45.1490 sigreg_ego=12.1777 var_loss=0.0000 cov_loss=5.5734
+[step 8850] loss=7.1497 pred_loss=0.9291 ego_loss=0.1734 sigreg=49.9291 sigreg_world=43.9836 sigreg_ego=11.8910 var_loss=0.0000 cov_loss=5.2130
+[step 8900] loss=7.3533 pred_loss=0.9398 ego_loss=0.1718 sigreg=50.6688 sigreg_world=44.7981 sigreg_ego=11.7415 var_loss=0.0000 cov_loss=5.6938
+[step 8950] loss=8.2516 pred_loss=0.9025 ego_loss=0.1552 sigreg=59.9220 sigreg_world=54.3781 sigreg_ego=11.0879 var_loss=0.0000 cov_loss=5.7266
+[step 9000] loss=6.9294 pred_loss=1.0053 ego_loss=0.1681 sigreg=45.7947 sigreg_world=40.2797 sigreg_ego=11.0299 var_loss=0.0000 cov_loss=5.7134
+[diag 9000] world/std=0.968 world/mean_norm=13.822 world/effective_rank=27.324 world/sigreg=49.702 ego/std=0.995 ego/mean_norm=5.593 ego/effective_rank=28.800 ego/sigreg=9.734 cov_loss=5.7134
+[step 9050] loss=10.1378 pred_loss=0.8785 ego_loss=0.1864 sigreg=73.6569 sigreg_world=68.4734 sigreg_ego=10.3670 var_loss=0.0001 cov_loss=7.8509
+[step 9100] loss=8.8845 pred_loss=0.8483 ego_loss=0.1732 sigreg=69.2508 sigreg_world=64.4259 sigreg_ego=9.6497 var_loss=0.0000 cov_loss=4.7147
+[step 9150] loss=9.5574 pred_loss=0.8249 ego_loss=0.1519 sigreg=76.7953 sigreg_world=71.7247 sigreg_ego=10.1412 var_loss=0.0001 cov_loss=4.4807
+[step 9200] loss=9.7774 pred_loss=1.0066 ego_loss=0.1585 sigreg=68.5215 sigreg_world=64.1925 sigreg_ego=8.6581 var_loss=0.0000 cov_loss=8.0139
+[step 9250] loss=8.0407 pred_loss=0.9498 ego_loss=0.1501 sigreg=56.8838 sigreg_world=52.3090 sigreg_ego=9.1495 var_loss=0.0000 cov_loss=5.9297
+[diag 9250] world/std=0.950 world/mean_norm=13.456 world/effective_rank=24.810 world/sigreg=44.641 ego/std=0.989 ego/mean_norm=5.561 ego/effective_rank=29.816 ego/sigreg=8.391 cov_loss=5.9297
+[step 9300] loss=7.3289 pred_loss=0.9451 ego_loss=0.1722 sigreg=50.4966 sigreg_world=45.3253 sigreg_ego=10.3426 var_loss=0.0000 cov_loss=5.6456
+[step 9350] loss=8.6033 pred_loss=1.0033 ego_loss=0.1701 sigreg=59.2635 sigreg_world=54.0970 sigreg_ego=10.3329 var_loss=0.0000 cov_loss=7.0276
+[step 9400] loss=7.6359 pred_loss=0.9223 ego_loss=0.1600 sigreg=52.5443 sigreg_world=47.8048 sigreg_ego=9.4790 var_loss=0.0000 cov_loss=6.1419
+[step 9450] loss=6.7406 pred_loss=0.8831 ego_loss=0.1513 sigreg=48.0558 sigreg_world=43.4377 sigreg_ego=9.2362 var_loss=0.0002 cov_loss=4.5003
+[step 9500] loss=7.1373 pred_loss=0.9165 ego_loss=0.1542 sigreg=52.0894 sigreg_world=47.3079 sigreg_ego=9.5630 var_loss=0.0000 cov_loss=4.3525
+[diag 9500] world/std=0.927 world/mean_norm=13.035 world/effective_rank=29.035 world/sigreg=43.339 ego/std=0.993 ego/mean_norm=5.583 ego/effective_rank=29.720 ego/sigreg=8.922 cov_loss=4.3525
+[step 9550] loss=6.3795 pred_loss=0.9693 ego_loss=0.1488 sigreg=42.1978 sigreg_world=37.4539 sigreg_ego=9.4878 var_loss=0.0000 cov_loss=5.0899
+[step 9600] loss=6.0291 pred_loss=0.9960 ego_loss=0.1367 sigreg=38.3857 sigreg_world=34.0947 sigreg_ego=8.5819 var_loss=0.0000 cov_loss=5.1219
+[step 9650] loss=6.6831 pred_loss=0.9792 ego_loss=0.1445 sigreg=45.6051 sigreg_world=40.8413 sigreg_ego=9.5276 var_loss=0.0000 cov_loss=4.9076
+[step 9700] loss=6.5463 pred_loss=0.9625 ego_loss=0.1331 sigreg=45.7734 sigreg_world=41.3719 sigreg_ego=8.8030 var_loss=0.0000 cov_loss=4.3575
+[step 9750] loss=7.0029 pred_loss=0.9937 ego_loss=0.1325 sigreg=47.0615 sigreg_world=42.8320 sigreg_ego=8.4591 var_loss=0.0000 cov_loss=5.5568
+[diag 9750] world/std=0.966 world/mean_norm=13.872 world/effective_rank=28.187 world/sigreg=42.752 ego/std=0.994 ego/mean_norm=5.587 ego/effective_rank=29.922 ego/sigreg=9.310 cov_loss=5.5568
+[step 9800] loss=7.8464 pred_loss=0.9237 ego_loss=0.1448 sigreg=55.5347 sigreg_world=51.0773 sigreg_ego=8.9148 var_loss=0.0000 cov_loss=5.7885
+[step 9850] loss=7.9509 pred_loss=0.9801 ego_loss=0.1626 sigreg=53.6409 sigreg_world=49.4339 sigreg_ego=8.4141 var_loss=0.0001 cov_loss=6.7537
+[step 9900] loss=6.8451 pred_loss=0.9540 ego_loss=0.1429 sigreg=45.3021 sigreg_world=41.2169 sigreg_ego=8.1703 var_loss=0.0000 cov_loss=5.7679
+[step 9950] loss=7.4009 pred_loss=0.9214 ego_loss=0.1408 sigreg=52.0816 sigreg_world=47.6350 sigreg_ego=8.8934 var_loss=0.0001 cov_loss=5.3973
+[step 10000] loss=8.4660 pred_loss=0.9738 ego_loss=0.1429 sigreg=58.6518 sigreg_world=54.2921 sigreg_ego=8.7193 var_loss=0.0000 cov_loss=6.8406
+[diag 10000] world/std=0.948 world/mean_norm=13.701 world/effective_rank=22.425 world/sigreg=52.951 ego/std=0.994 ego/mean_norm=5.587 ego/effective_rank=30.423 ego/sigreg=7.655 cov_loss=6.8406
+[step 10050] loss=7.1672 pred_loss=0.9892 ego_loss=0.1406 sigreg=47.4482 sigreg_world=43.1954 sigreg_ego=8.5056 var_loss=0.0000 cov_loss=6.0721
+[step 10100] loss=8.1911 pred_loss=0.9312 ego_loss=0.1737 sigreg=57.2370 sigreg_world=52.9251 sigreg_ego=8.6237 var_loss=0.0000 cov_loss=6.4480
+[step 10150] loss=9.2933 pred_loss=0.9918 ego_loss=0.1401 sigreg=65.5759 sigreg_world=61.5719 sigreg_ego=8.0080 var_loss=0.0000 cov_loss=7.3165
+[step 10200] loss=9.2744 pred_loss=0.9761 ego_loss=0.1705 sigreg=65.7302 sigreg_world=61.1799 sigreg_ego=9.1006 var_loss=0.0002 cov_loss=7.2228
+[step 10250] loss=6.3348 pred_loss=0.9531 ego_loss=0.1601 sigreg=41.2161 sigreg_world=37.5897 sigreg_ego=7.2530 var_loss=0.0000 cov_loss=5.3573
+[diag 10250] world/std=0.940 world/mean_norm=13.434 world/effective_rank=26.861 world/sigreg=52.256 ego/std=0.992 ego/mean_norm=5.575 ego/effective_rank=30.262 ego/sigreg=7.359 cov_loss=5.3573
+[step 10300] loss=6.8629 pred_loss=0.9180 ego_loss=0.1447 sigreg=48.9621 sigreg_world=44.9789 sigreg_ego=7.9664 var_loss=0.0000 cov_loss=4.5039
+[step 10350] loss=6.4115 pred_loss=0.9177 ego_loss=0.1610 sigreg=44.1304 sigreg_world=40.0698 sigreg_ego=8.1213 var_loss=0.0000 cov_loss=4.6258
+[step 10400] loss=6.9137 pred_loss=0.9658 ego_loss=0.1353 sigreg=46.8748 sigreg_world=42.2329 sigreg_ego=9.2837 var_loss=0.0000 cov_loss=5.3739
+[step 10450] loss=7.6428 pred_loss=0.9931 ego_loss=0.1412 sigreg=52.0771 sigreg_world=48.5314 sigreg_ego=7.0915 var_loss=0.0000 cov_loss=6.1086
+[step 10500] loss=8.7251 pred_loss=0.9289 ego_loss=0.1373 sigreg=60.5116 sigreg_world=56.2559 sigreg_ego=8.5115 var_loss=0.0000 cov_loss=7.2967
+[diag 10500] world/std=0.933 world/mean_norm=13.681 world/effective_rank=20.034 world/sigreg=63.001 ego/std=0.999 ego/mean_norm=5.615 ego/effective_rank=30.607 ego/sigreg=8.046 cov_loss=7.2967
+[step 10550] loss=7.5306 pred_loss=0.8901 ego_loss=0.1328 sigreg=53.1202 sigreg_world=48.6963 sigreg_ego=8.8478 var_loss=0.0001 cov_loss=5.6166
+[step 10600] loss=7.9664 pred_loss=0.9464 ego_loss=0.1622 sigreg=54.9199 sigreg_world=50.8035 sigreg_ego=8.2328 var_loss=0.0001 cov_loss=6.4254
+[step 10650] loss=7.8284 pred_loss=0.9873 ego_loss=0.1337 sigreg=53.4766 sigreg_world=49.3591 sigreg_ego=8.2350 var_loss=0.0000 cov_loss=6.3152
+[step 10700] loss=6.9734 pred_loss=0.9486 ego_loss=0.1573 sigreg=46.4147 sigreg_world=42.0506 sigreg_ego=8.7283 var_loss=0.0000 cov_loss=5.8500
+[step 10750] loss=7.4336 pred_loss=0.9843 ego_loss=0.1639 sigreg=50.8029 sigreg_world=46.9031 sigreg_ego=7.7996 var_loss=0.0002 cov_loss=5.8036
+[diag 10750] world/std=0.943 world/mean_norm=13.664 world/effective_rank=25.094 world/sigreg=48.013 ego/std=0.995 ego/mean_norm=5.595 ego/effective_rank=30.234 ego/sigreg=7.997 cov_loss=5.8036
+[step 10800] loss=7.5727 pred_loss=0.9089 ego_loss=0.1353 sigreg=53.5028 sigreg_world=49.5118 sigreg_ego=7.9820 var_loss=0.0006 cov_loss=5.5622
+[step 10850] loss=8.9846 pred_loss=0.9261 ego_loss=0.1692 sigreg=64.3559 sigreg_world=60.2794 sigreg_ego=8.1532 var_loss=0.0002 cov_loss=6.7941
+[step 10900] loss=9.7256 pred_loss=0.9169 ego_loss=0.1529 sigreg=72.6162 sigreg_world=68.3396 sigreg_ego=8.5532 var_loss=0.0001 cov_loss=6.4939
+[step 10950] loss=10.7413 pred_loss=0.8626 ego_loss=0.1397 sigreg=82.5325 sigreg_world=78.8783 sigreg_ego=7.3083 var_loss=0.0012 cov_loss=6.7884
+[step 11000] loss=7.2606 pred_loss=0.9244 ego_loss=0.1505 sigreg=49.8935 sigreg_world=46.4705 sigreg_ego=6.8462 var_loss=0.0001 cov_loss=5.6970
+[diag 11000] world/std=0.915 world/mean_norm=13.364 world/effective_rank=23.873 world/sigreg=52.460 ego/std=0.992 ego/mean_norm=5.576 ego/effective_rank=30.536 ego/sigreg=7.961 cov_loss=5.6970
+[step 11050] loss=7.8678 pred_loss=0.9252 ego_loss=0.2306 sigreg=54.2680 sigreg_world=50.2341 sigreg_ego=8.0677 var_loss=0.0000 cov_loss=6.3409
+[step 11100] loss=8.7263 pred_loss=0.9383 ego_loss=0.1840 sigreg=64.3814 sigreg_world=60.3721 sigreg_ego=8.0184 var_loss=0.0002 cov_loss=5.7009
+[step 11150] loss=8.2576 pred_loss=0.9206 ego_loss=0.1537 sigreg=58.7262 sigreg_world=55.2924 sigreg_ego=6.8677 var_loss=0.0003 cov_loss=6.1635
+[step 11200] loss=8.0275 pred_loss=0.9450 ego_loss=0.1411 sigreg=55.8164 sigreg_world=52.0933 sigreg_ego=7.4462 var_loss=0.0001 cov_loss=6.3246
+[step 11250] loss=7.6284 pred_loss=0.9729 ego_loss=0.1359 sigreg=51.1456 sigreg_world=47.7400 sigreg_ego=6.8112 var_loss=0.0001 cov_loss=6.4981
+[diag 11250] world/std=0.952 world/mean_norm=13.971 world/effective_rank=23.582 world/sigreg=52.803 ego/std=0.991 ego/mean_norm=5.571 ego/effective_rank=30.930 ego/sigreg=7.315 cov_loss=6.4981
+[step 11300] loss=7.1122 pred_loss=0.9431 ego_loss=0.1327 sigreg=48.6109 sigreg_world=44.9857 sigreg_ego=7.2503 var_loss=0.0001 cov_loss=5.5559
+[step 11350] loss=7.0663 pred_loss=0.8753 ego_loss=0.1411 sigreg=50.7427 sigreg_world=47.1202 sigreg_ego=7.2450 var_loss=0.0008 cov_loss=4.7588
+[step 11400] loss=7.0685 pred_loss=0.9441 ego_loss=0.1378 sigreg=50.0424 sigreg_world=46.4803 sigreg_ego=7.1241 var_loss=0.0001 cov_loss=4.8031
+[step 11450] loss=8.3743 pred_loss=0.9645 ego_loss=0.1691 sigreg=60.1022 sigreg_world=56.2184 sigreg_ego=7.7677 var_loss=0.0000 cov_loss=5.9161
+[step 11500] loss=7.4644 pred_loss=0.9162 ego_loss=0.1418 sigreg=52.5486 sigreg_world=49.0260 sigreg_ego=7.0452 var_loss=0.0000 cov_loss=5.4830
+[diag 11500] world/std=0.918 world/mean_norm=13.361 world/effective_rank=24.576 world/sigreg=50.599 ego/std=0.995 ego/mean_norm=5.594 ego/effective_rank=30.852 ego/sigreg=6.022 cov_loss=5.4830
+[step 11550] loss=6.9705 pred_loss=0.9329 ego_loss=0.1421 sigreg=49.3079 sigreg_world=45.9619 sigreg_ego=6.6920 var_loss=0.0000 cov_loss=4.7435
+[step 11600] loss=6.8814 pred_loss=0.9573 ego_loss=0.1344 sigreg=46.9538 sigreg_world=43.4056 sigreg_ego=7.0964 var_loss=0.0001 cov_loss=5.2437
+[step 11650] loss=6.2558 pred_loss=0.9264 ego_loss=0.1438 sigreg=43.2862 sigreg_world=39.7782 sigreg_ego=7.0161 var_loss=0.0001 cov_loss=4.3159
+[step 11700] loss=6.7836 pred_loss=0.9575 ego_loss=0.1374 sigreg=48.2536 sigreg_world=45.4146 sigreg_ego=5.6781 var_loss=0.0001 cov_loss=4.3304
+[step 11750] loss=6.4902 pred_loss=0.9125 ego_loss=0.1319 sigreg=45.5842 sigreg_world=42.4537 sigreg_ego=6.2611 var_loss=0.0003 cov_loss=4.3887
+[diag 11750] world/std=0.910 world/mean_norm=13.299 world/effective_rank=27.561 world/sigreg=50.088 ego/std=0.996 ego/mean_norm=5.594 ego/effective_rank=31.003 ego/sigreg=6.254 cov_loss=4.3887
+[step 11800] loss=6.7346 pred_loss=0.9793 ego_loss=0.1259 sigreg=45.6151 sigreg_world=42.4397 sigreg_ego=6.3509 var_loss=0.0002 cov_loss=5.1160
+[step 11850] loss=6.7388 pred_loss=0.9488 ego_loss=0.1306 sigreg=46.3650 sigreg_world=43.5147 sigreg_ego=5.7006 var_loss=0.0002 cov_loss=4.9407
+[step 11900] loss=7.0502 pred_loss=0.9120 ego_loss=0.1272 sigreg=51.7618 sigreg_world=48.5116 sigreg_ego=6.5003 var_loss=0.0002 cov_loss=4.1617
+[step 11950] loss=6.2345 pred_loss=0.9820 ego_loss=0.1323 sigreg=41.7543 sigreg_world=38.8553 sigreg_ego=5.7980 var_loss=0.0001 cov_loss=4.6479
+[step 12000] loss=6.6441 pred_loss=0.9576 ego_loss=0.1487 sigreg=46.0892 sigreg_world=42.9794 sigreg_ego=6.2196 var_loss=0.0000 cov_loss=4.6337
+[diag 12000] world/std=0.929 world/mean_norm=13.560 world/effective_rank=29.139 world/sigreg=41.108 ego/std=0.993 ego/mean_norm=5.578 ego/effective_rank=30.545 ego/sigreg=6.928 cov_loss=4.6337
+[step 12050] loss=6.4109 pred_loss=0.9229 ego_loss=0.1692 sigreg=44.4807 sigreg_world=41.1658 sigreg_ego=6.6298 var_loss=0.0006 cov_loss=4.4599
+[step 12100] loss=6.2925 pred_loss=0.9450 ego_loss=0.1979 sigreg=43.7139 sigreg_world=39.5434 sigreg_ego=8.3410 var_loss=0.0001 cov_loss=4.2029
+[step 12150] loss=5.4104 pred_loss=0.9760 ego_loss=0.1794 sigreg=34.5552 sigreg_world=31.2086 sigreg_ego=6.6932 var_loss=0.0000 cov_loss=4.2341
+[step 12200] loss=5.3480 pred_loss=0.9818 ego_loss=0.1579 sigreg=34.6592 sigreg_world=31.3565 sigreg_ego=6.6054 var_loss=0.0000 cov_loss=3.9307
+[step 12250] loss=5.7340 pred_loss=0.9898 ego_loss=0.1393 sigreg=38.2552 sigreg_world=35.4480 sigreg_ego=5.6145 var_loss=0.0000 cov_loss=4.0148
+[diag 12250] world/std=0.942 world/mean_norm=13.674 world/effective_rank=33.138 world/sigreg=31.045 ego/std=0.999 ego/mean_norm=5.616 ego/effective_rank=30.889 ego/sigreg=5.872 cov_loss=4.0148
+[step 12300] loss=5.4204 pred_loss=0.9709 ego_loss=0.1577 sigreg=34.9226 sigreg_world=32.2276 sigreg_ego=5.3901 var_loss=0.0000 cov_loss=4.1542
+[step 12350] loss=4.9639 pred_loss=0.9835 ego_loss=0.1412 sigreg=30.8876 sigreg_world=28.0205 sigreg_ego=5.7341 var_loss=0.0000 cov_loss=3.9034
+[step 12400] loss=5.8962 pred_loss=0.9576 ego_loss=0.1384 sigreg=40.1823 sigreg_world=37.0269 sigreg_ego=6.3109 var_loss=0.0001 cov_loss=4.0092
+[step 12450] loss=5.7181 pred_loss=0.9571 ego_loss=0.1353 sigreg=38.5067 sigreg_world=35.4839 sigreg_ego=6.0456 var_loss=0.0001 cov_loss=3.9697
+[step 12500] loss=5.1292 pred_loss=0.9967 ego_loss=0.1295 sigreg=32.5547 sigreg_world=29.5315 sigreg_ego=6.0465 var_loss=0.0000 cov_loss=3.8547
+[diag 12500] world/std=0.938 world/mean_norm=13.627 world/effective_rank=33.908 world/sigreg=30.643 ego/std=0.996 ego/mean_norm=5.596 ego/effective_rank=31.096 ego/sigreg=5.260 cov_loss=3.8547
+[step 12550] loss=6.7049 pred_loss=0.9531 ego_loss=0.1320 sigreg=45.9435 sigreg_world=43.1820 sigreg_ego=5.5230 var_loss=0.0000 cov_loss=4.9581
+[step 12600] loss=5.7845 pred_loss=0.9737 ego_loss=0.1312 sigreg=38.9195 sigreg_world=35.9123 sigreg_ego=6.0143 var_loss=0.0000 cov_loss=4.0123
+[step 12650] loss=5.6295 pred_loss=0.9334 ego_loss=0.1297 sigreg=38.8802 sigreg_world=35.9594 sigreg_ego=5.8417 var_loss=0.0000 cov_loss=3.5538
+[step 12700] loss=5.4155 pred_loss=0.9704 ego_loss=0.1380 sigreg=35.9523 sigreg_world=32.8910 sigreg_ego=6.1225 var_loss=0.0000 cov_loss=3.7324
+[step 12750] loss=5.1942 pred_loss=0.9777 ego_loss=0.1437 sigreg=33.8020 sigreg_world=30.9944 sigreg_ego=5.6151 var_loss=0.0000 cov_loss=3.6789
+[diag 12750] world/std=0.927 world/mean_norm=13.618 world/effective_rank=33.445 world/sigreg=26.967 ego/std=0.995 ego/mean_norm=5.594 ego/effective_rank=30.959 ego/sigreg=5.482 cov_loss=3.6789
+[step 12800] loss=5.6242 pred_loss=0.9486 ego_loss=0.1371 sigreg=37.6021 sigreg_world=34.6599 sigreg_ego=5.8844 var_loss=0.0000 cov_loss=3.9860
+[step 12850] loss=5.3398 pred_loss=0.9929 ego_loss=0.1487 sigreg=34.6880 sigreg_world=31.7730 sigreg_ego=5.8300 var_loss=0.0000 cov_loss=3.8501
+[step 12900] loss=5.5941 pred_loss=1.0125 ego_loss=0.1346 sigreg=36.8382 sigreg_world=34.5181 sigreg_ego=4.6402 var_loss=0.0000 cov_loss=3.9423
+[step 12950] loss=5.4091 pred_loss=0.9579 ego_loss=0.1312 sigreg=36.1535 sigreg_world=33.1812 sigreg_ego=5.9446 var_loss=0.0000 cov_loss=3.6740
+[step 13000] loss=6.2744 pred_loss=1.0687 ego_loss=0.1318 sigreg=40.8009 sigreg_world=38.2355 sigreg_ego=5.1308 var_loss=0.0000 cov_loss=4.8771
+[diag 13000] world/std=0.944 world/mean_norm=13.949 world/effective_rank=29.365 world/sigreg=42.991 ego/std=0.995 ego/mean_norm=5.594 ego/effective_rank=31.202 ego/sigreg=4.732 cov_loss=4.8771
+[step 13050] loss=6.1213 pred_loss=1.0513 ego_loss=0.1544 sigreg=39.1799 sigreg_world=36.0772 sigreg_ego=6.2054 var_loss=0.0000 cov_loss=4.9667
+[step 13100] loss=5.8519 pred_loss=0.9920 ego_loss=0.1424 sigreg=39.4757 sigreg_world=36.5695 sigreg_ego=5.8124 var_loss=0.0000 cov_loss=3.9892
+[step 13150] loss=5.7000 pred_loss=0.9548 ego_loss=0.1366 sigreg=39.1401 sigreg_world=36.3990 sigreg_ego=5.4821 var_loss=0.0000 cov_loss=3.6518
+[step 13200] loss=6.8883 pred_loss=0.9179 ego_loss=0.1391 sigreg=50.2336 sigreg_world=47.7940 sigreg_ego=4.8793 var_loss=0.0002 cov_loss=4.0994
+[step 13250] loss=6.6353 pred_loss=0.9396 ego_loss=0.1379 sigreg=46.7454 sigreg_world=44.1118 sigreg_ego=5.2672 var_loss=0.0002 cov_loss=4.4048
+[diag 13250] world/std=0.911 world/mean_norm=13.606 world/effective_rank=28.060 world/sigreg=43.467 ego/std=1.000 ego/mean_norm=5.622 ego/effective_rank=30.953 ego/sigreg=5.809 cov_loss=4.4048
+[step 13300] loss=5.3491 pred_loss=0.9775 ego_loss=0.1367 sigreg=35.3093 sigreg_world=32.7917 sigreg_ego=5.0351 var_loss=0.0000 cov_loss=3.6989
+[step 13350] loss=6.4140 pred_loss=0.9752 ego_loss=0.1572 sigreg=45.2561 sigreg_world=42.5800 sigreg_ego=5.3520 var_loss=0.0003 cov_loss=3.9794
+[step 13400] loss=6.8081 pred_loss=0.9666 ego_loss=0.1633 sigreg=47.4040 sigreg_world=44.6205 sigreg_ego=5.5671 var_loss=0.0001 cov_loss=4.7252
+[step 13450] loss=6.3072 pred_loss=0.9722 ego_loss=0.1566 sigreg=44.2446 sigreg_world=41.4840 sigreg_ego=5.5212 var_loss=0.0000 cov_loss=3.9681
+[step 13500] loss=6.1711 pred_loss=0.9568 ego_loss=0.1532 sigreg=42.5430 sigreg_world=39.5823 sigreg_ego=5.9215 var_loss=0.0002 cov_loss=4.1612
+[diag 13500] world/std=0.910 world/mean_norm=13.538 world/effective_rank=29.143 world/sigreg=37.734 ego/std=0.999 ego/mean_norm=5.613 ego/effective_rank=30.757 ego/sigreg=5.111 cov_loss=4.1612
+[step 13550] loss=6.9371 pred_loss=0.9773 ego_loss=0.1436 sigreg=48.2058 sigreg_world=45.3437 sigreg_ego=5.7242 var_loss=0.0007 cov_loss=4.8890
+[step 13600] loss=5.4171 pred_loss=0.9477 ego_loss=0.1481 sigreg=36.5457 sigreg_world=33.6295 sigreg_ego=5.8325 var_loss=0.0004 cov_loss=3.5782
+[step 13650] loss=6.0250 pred_loss=1.0248 ego_loss=0.1548 sigreg=39.7401 sigreg_world=37.3928 sigreg_ego=4.6947 var_loss=0.0000 cov_loss=4.4528
+[step 13700] loss=5.8633 pred_loss=0.9800 ego_loss=0.1696 sigreg=40.2262 sigreg_world=37.1018 sigreg_ego=6.2488 var_loss=0.0001 cov_loss=3.7668
+[step 13750] loss=5.9188 pred_loss=0.9341 ego_loss=0.1477 sigreg=40.7130 sigreg_world=37.9985 sigreg_ego=5.4289 var_loss=0.0000 cov_loss=3.9681
+[diag 13750] world/std=0.911 world/mean_norm=13.608 world/effective_rank=30.158 world/sigreg=41.390 ego/std=0.995 ego/mean_norm=5.593 ego/effective_rank=31.047 ego/sigreg=5.204 cov_loss=3.9681
+[step 13800] loss=5.2675 pred_loss=0.9821 ego_loss=0.1400 sigreg=34.7931 sigreg_world=32.3520 sigreg_ego=4.8822 var_loss=0.0001 cov_loss=3.5609
+[step 13850] loss=5.1921 pred_loss=0.9944 ego_loss=0.1382 sigreg=33.4865 sigreg_world=31.0662 sigreg_ego=4.8406 var_loss=0.0000 cov_loss=3.7388
+[step 13900] loss=5.6060 pred_loss=0.9564 ego_loss=0.1392 sigreg=38.0256 sigreg_world=35.5335 sigreg_ego=4.9841 var_loss=0.0001 cov_loss=3.7149
+[step 13950] loss=5.6181 pred_loss=0.9144 ego_loss=0.1394 sigreg=40.0724 sigreg_world=37.5698 sigreg_ego=5.0051 var_loss=0.0003 cov_loss=3.0948
+[step 14000] loss=5.4891 pred_loss=0.9612 ego_loss=0.1389 sigreg=37.2079 sigreg_world=34.6201 sigreg_ego=5.1755 var_loss=0.0002 cov_loss=3.5570
+[diag 14000] world/std=0.911 world/mean_norm=13.581 world/effective_rank=32.916 world/sigreg=32.822 ego/std=0.997 ego/mean_norm=5.605 ego/effective_rank=31.035 ego/sigreg=5.424 cov_loss=3.5570
+[step 14050] loss=5.1708 pred_loss=0.9424 ego_loss=0.2896 sigreg=33.9990 sigreg_world=31.0073 sigreg_ego=5.9834 var_loss=0.0006 cov_loss=3.5737
+[step 14100] loss=6.0781 pred_loss=1.0567 ego_loss=0.1603 sigreg=40.0444 sigreg_world=37.4379 sigreg_ego=5.2130 var_loss=0.0000 cov_loss=4.4260
+[step 14150] loss=5.3222 pred_loss=0.9786 ego_loss=0.1503 sigreg=35.0521 sigreg_world=32.5474 sigreg_ego=5.0094 var_loss=0.0003 cov_loss=3.6842
+[step 14200] loss=5.5570 pred_loss=0.9986 ego_loss=0.1576 sigreg=37.2415 sigreg_world=34.5449 sigreg_ego=5.3932 var_loss=0.0002 cov_loss=3.6729
+[step 14250] loss=5.3736 pred_loss=0.9531 ego_loss=0.1447 sigreg=36.4456 sigreg_world=33.8903 sigreg_ego=5.1107 var_loss=0.0004 cov_loss=3.4262
+[diag 14250] world/std=0.901 world/mean_norm=13.410 world/effective_rank=32.775 world/sigreg=32.096 ego/std=0.993 ego/mean_norm=5.579 ego/effective_rank=31.231 ego/sigreg=5.186 cov_loss=3.4262
+[step 14300] loss=6.0017 pred_loss=0.9651 ego_loss=0.1628 sigreg=41.1290 sigreg_world=38.5475 sigreg_ego=5.1630 var_loss=0.0004 cov_loss=4.0150
+[step 14350] loss=5.5892 pred_loss=1.0184 ego_loss=0.1712 sigreg=36.3315 sigreg_world=33.7905 sigreg_ego=5.0821 var_loss=0.0003 cov_loss=4.0890
+[step 14400] loss=5.2872 pred_loss=1.0401 ego_loss=0.1594 sigreg=33.9979 sigreg_world=31.7492 sigreg_ego=4.4973 var_loss=0.0003 cov_loss=3.7412
+[step 14450] loss=4.9215 pred_loss=0.9921 ego_loss=0.1539 sigreg=31.1461 sigreg_world=28.4222 sigreg_ego=5.4478 var_loss=0.0003 cov_loss=3.5941
+[step 14500] loss=4.7947 pred_loss=0.9661 ego_loss=0.1485 sigreg=31.6465 sigreg_world=29.2522 sigreg_ego=4.7886 var_loss=0.0005 cov_loss=2.9817
+[diag 14500] world/std=0.904 world/mean_norm=13.382 world/effective_rank=36.001 world/sigreg=29.327 ego/std=0.995 ego/mean_norm=5.590 ego/effective_rank=31.173 ego/sigreg=4.804 cov_loss=2.9817
+[step 14550] loss=5.5485 pred_loss=0.9890 ego_loss=0.1604 sigreg=37.3312 sigreg_world=34.7290 sigreg_ego=5.2043 var_loss=0.0005 cov_loss=3.6358
+[step 14600] loss=5.2535 pred_loss=0.9942 ego_loss=0.1514 sigreg=35.1001 sigreg_world=32.6949 sigreg_ego=4.8104 var_loss=0.0004 cov_loss=3.3337
+[step 14650] loss=5.3355 pred_loss=1.0437 ego_loss=0.1504 sigreg=34.7206 sigreg_world=32.5053 sigreg_ego=4.4305 var_loss=0.0002 cov_loss=3.6358
+[step 14700] loss=5.4947 pred_loss=1.0327 ego_loss=0.1848 sigreg=34.9138 sigreg_world=32.4073 sigreg_ego=5.0131 var_loss=0.0004 cov_loss=4.2207
+[step 14750] loss=4.9134 pred_loss=0.9692 ego_loss=0.1919 sigreg=31.8438 sigreg_world=29.3225 sigreg_ego=5.0425 var_loss=0.0007 cov_loss=3.3488
+[diag 14750] world/std=0.896 world/mean_norm=13.540 world/effective_rank=32.728 world/sigreg=31.563 ego/std=0.995 ego/mean_norm=5.595 ego/effective_rank=30.739 ego/sigreg=5.004 cov_loss=3.3488
+[step 14800] loss=6.0622 pred_loss=0.9179 ego_loss=0.2102 sigreg=44.2834 sigreg_world=41.4199 sigreg_ego=5.7270 var_loss=0.0011 cov_loss=3.1446
+[step 14850] loss=4.9944 pred_loss=0.9722 ego_loss=0.1851 sigreg=33.0272 sigreg_world=30.5299 sigreg_ego=4.9944 var_loss=0.0007 cov_loss=3.1916
+[step 14900] loss=5.4226 pred_loss=0.9800 ego_loss=0.1710 sigreg=36.6859 sigreg_world=34.4060 sigreg_ego=4.5598 var_loss=0.0010 cov_loss=3.4180
+[step 14950] loss=5.2824 pred_loss=1.0073 ego_loss=0.1567 sigreg=34.6857 sigreg_world=32.3005 sigreg_ego=4.7703 var_loss=0.0005 cov_loss=3.5652
+[step 15000] loss=5.0645 pred_loss=0.9773 ego_loss=0.1589 sigreg=33.5191 sigreg_world=31.4059 sigreg_ego=4.2266 var_loss=0.0009 cov_loss=3.2667
+[diag 15000] world/std=0.902 world/mean_norm=13.328 world/effective_rank=33.740 world/sigreg=32.135 ego/std=0.999 ego/mean_norm=5.615 ego/effective_rank=31.168 ego/sigreg=4.645 cov_loss=3.2667
+[step 15050] loss=4.7533 pred_loss=0.9995 ego_loss=0.1611 sigreg=29.9599 sigreg_world=27.7359 sigreg_ego=4.4479 var_loss=0.0009 cov_loss=3.3648
+[step 15100] loss=5.6900 pred_loss=1.0175 ego_loss=0.1598 sigreg=37.7186 sigreg_world=35.3764 sigreg_ego=4.6844 var_loss=0.0009 cov_loss=3.9441
+[step 15150] loss=5.7878 pred_loss=1.0583 ego_loss=0.1594 sigreg=38.0892 sigreg_world=35.9144 sigreg_ego=4.3496 var_loss=0.0005 cov_loss=4.0407
+[step 15200] loss=5.1157 pred_loss=1.0296 ego_loss=0.1571 sigreg=33.0182 sigreg_world=30.7714 sigreg_ego=4.4936 var_loss=0.0009 cov_loss=3.4841
+[step 15250] loss=5.9545 pred_loss=0.9713 ego_loss=0.1618 sigreg=40.4062 sigreg_world=38.1027 sigreg_ego=4.6071 var_loss=0.0017 cov_loss=4.0904
+[diag 15250] world/std=0.890 world/mean_norm=13.601 world/effective_rank=28.435 world/sigreg=38.818 ego/std=1.002 ego/mean_norm=5.629 ego/effective_rank=31.227 ego/sigreg=4.044 cov_loss=4.0904
+[step 15300] loss=5.4627 pred_loss=0.9481 ego_loss=0.1875 sigreg=37.2646 sigreg_world=35.0656 sigreg_ego=4.3980 var_loss=0.0023 cov_loss=3.4522
+[step 15350] loss=4.4487 pred_loss=0.9858 ego_loss=0.1981 sigreg=27.2347 sigreg_world=24.8058 sigreg_ego=4.8579 var_loss=0.0008 cov_loss=3.2715
+[step 15400] loss=5.4711 pred_loss=0.9896 ego_loss=0.1940 sigreg=36.6353 sigreg_world=34.1981 sigreg_ego=4.8744 var_loss=0.0008 cov_loss=3.5885
+[step 15450] loss=5.3187 pred_loss=0.9969 ego_loss=0.1895 sigreg=35.8588 sigreg_world=33.3123 sigreg_ego=5.0929 var_loss=0.0013 cov_loss=3.2640
+[step 15500] loss=5.2467 pred_loss=0.9574 ego_loss=0.1727 sigreg=34.9937 sigreg_world=32.8345 sigreg_ego=4.3184 var_loss=0.0004 cov_loss=3.4725
+[diag 15500] world/std=0.907 world/mean_norm=13.501 world/effective_rank=33.483 world/sigreg=35.601 ego/std=0.994 ego/mean_norm=5.586 ego/effective_rank=31.124 ego/sigreg=4.431 cov_loss=3.4725
+[step 15550] loss=4.9691 pred_loss=1.0331 ego_loss=0.1703 sigreg=31.7820 sigreg_world=29.8177 sigreg_ego=3.9287 var_loss=0.0003 cov_loss=3.3755
+[step 15600] loss=4.7341 pred_loss=0.9851 ego_loss=0.1683 sigreg=30.6008 sigreg_world=28.6154 sigreg_ego=3.9708 var_loss=0.0006 cov_loss=3.0816
+[step 15650] loss=5.9869 pred_loss=0.9155 ego_loss=0.1660 sigreg=43.2876 sigreg_world=41.1931 sigreg_ego=4.1890 var_loss=0.0018 cov_loss=3.2666
+[step 15700] loss=5.0278 pred_loss=0.9871 ego_loss=0.1607 sigreg=33.1861 sigreg_world=31.0664 sigreg_ego=4.2393 var_loss=0.0013 cov_loss=3.2166
+[step 15750] loss=5.0993 pred_loss=0.9919 ego_loss=0.1785 sigreg=32.7266 sigreg_world=30.5335 sigreg_ego=4.3862 var_loss=0.0007 cov_loss=3.6626
+[diag 15750] world/std=0.897 world/mean_norm=13.684 world/effective_rank=30.907 world/sigreg=37.453 ego/std=0.997 ego/mean_norm=5.603 ego/effective_rank=30.976 ego/sigreg=4.827 cov_loss=3.6626
+[step 15800] loss=5.2338 pred_loss=1.0187 ego_loss=0.1563 sigreg=34.2498 sigreg_world=32.1150 sigreg_ego=4.2695 var_loss=0.0005 cov_loss=3.5045
+[step 15850] loss=6.1008 pred_loss=0.9037 ego_loss=0.1520 sigreg=46.1665 sigreg_world=43.5529 sigreg_ego=5.2271 var_loss=0.0019 cov_loss=2.6188
+[step 15900] loss=4.6928 pred_loss=0.9915 ego_loss=0.1538 sigreg=30.4140 sigreg_world=28.2293 sigreg_ego=4.3694 var_loss=0.0007 cov_loss=2.9732
+[step 15950] loss=4.6485 pred_loss=1.0111 ego_loss=0.1504 sigreg=29.7756 sigreg_world=27.6443 sigreg_ego=4.2626 var_loss=0.0006 cov_loss=2.9822
+[step 16000] loss=4.6309 pred_loss=0.9971 ego_loss=0.1540 sigreg=30.0656 sigreg_world=28.0245 sigreg_ego=4.0822 var_loss=0.0008 cov_loss=2.8444
+[diag 16000] world/std=0.897 world/mean_norm=13.742 world/effective_rank=35.655 world/sigreg=27.277 ego/std=0.996 ego/mean_norm=5.596 ego/effective_rank=31.371 ego/sigreg=3.974 cov_loss=2.8444
+[step 16050] loss=5.4730 pred_loss=0.9362 ego_loss=0.1751 sigreg=39.2365 sigreg_world=36.9406 sigreg_ego=4.5918 var_loss=0.0017 cov_loss=2.7533
+[step 16100] loss=4.9696 pred_loss=0.9803 ego_loss=0.2032 sigreg=32.5743 sigreg_world=30.7921 sigreg_ego=3.5644 var_loss=0.0014 cov_loss=3.2354
+[step 16150] loss=5.4624 pred_loss=0.9808 ego_loss=0.1612 sigreg=37.6075 sigreg_world=35.5302 sigreg_ego=4.1546 var_loss=0.0005 cov_loss=3.2103
+[step 16200] loss=4.1430 pred_loss=1.0042 ego_loss=0.1537 sigreg=25.0587 sigreg_world=22.8477 sigreg_ego=4.4219 var_loss=0.0003 cov_loss=2.8713
+[step 16250] loss=5.3620 pred_loss=1.0127 ego_loss=0.1908 sigreg=35.1920 sigreg_world=33.0245 sigreg_ego=4.3349 var_loss=0.0017 cov_loss=3.6456
+[diag 16250] world/std=0.898 world/mean_norm=14.025 world/effective_rank=30.682 world/sigreg=38.172 ego/std=0.992 ego/mean_norm=5.572 ego/effective_rank=31.128 ego/sigreg=4.120 cov_loss=3.6456
+[step 16300] loss=5.4337 pred_loss=0.9284 ego_loss=0.1870 sigreg=38.4208 sigreg_world=36.2586 sigreg_ego=4.3244 var_loss=0.0033 cov_loss=2.9430
+[step 16350] loss=5.0106 pred_loss=0.9669 ego_loss=0.1819 sigreg=33.1331 sigreg_world=30.7678 sigreg_ego=4.7307 var_loss=0.0014 cov_loss=3.2329
+[step 16400] loss=5.2136 pred_loss=0.9512 ego_loss=0.1838 sigreg=35.4807 sigreg_world=33.2869 sigreg_ego=4.3874 var_loss=0.0018 cov_loss=3.1605
+[step 16450] loss=4.4042 pred_loss=0.9542 ego_loss=0.1790 sigreg=28.4057 sigreg_world=26.5562 sigreg_ego=3.6989 var_loss=0.0008 cov_loss=2.7463
+[step 16500] loss=5.3982 pred_loss=0.9235 ego_loss=0.1713 sigreg=39.3535 sigreg_world=37.3188 sigreg_ego=4.0694 var_loss=0.0018 cov_loss=2.4548
+[diag 16500] world/std=0.844 world/mean_norm=13.136 world/effective_rank=33.670 world/sigreg=33.855 ego/std=1.000 ego/mean_norm=5.619 ego/effective_rank=31.133 ego/sigreg=4.199 cov_loss=2.4548
+[step 16550] loss=5.2035 pred_loss=0.9570 ego_loss=0.1974 sigreg=35.6614 sigreg_world=33.2149 sigreg_ego=4.8929 var_loss=0.0012 cov_loss=3.0229
+[step 16600] loss=6.0838 pred_loss=0.9666 ego_loss=0.1861 sigreg=42.2925 sigreg_world=39.8905 sigreg_ego=4.8039 var_loss=0.0006 cov_loss=3.8627
+[step 16650] loss=5.2575 pred_loss=0.9997 ego_loss=0.1811 sigreg=36.1309 sigreg_world=34.0565 sigreg_ego=4.1488 var_loss=0.0008 cov_loss=2.9045
+[step 16700] loss=5.0828 pred_loss=0.9979 ego_loss=0.1770 sigreg=33.8446 sigreg_world=31.6297 sigreg_ego=4.4299 var_loss=0.0010 cov_loss=3.1280
+[step 16750] loss=4.6345 pred_loss=0.9616 ego_loss=0.1890 sigreg=30.1895 sigreg_world=28.0358 sigreg_ego=4.3074 var_loss=0.0020 cov_loss=2.9210
+[diag 16750] world/std=0.865 world/mean_norm=13.459 world/effective_rank=33.637 world/sigreg=27.416 ego/std=0.997 ego/mean_norm=5.601 ego/effective_rank=30.933 ego/sigreg=4.149 cov_loss=2.9210
+[step 16800] loss=5.0721 pred_loss=0.9723 ego_loss=0.1806 sigreg=34.4288 sigreg_world=32.4501 sigreg_ego=3.9576 var_loss=0.0017 cov_loss=2.9408
+[step 16850] loss=4.8540 pred_loss=0.9359 ego_loss=0.1764 sigreg=33.4904 sigreg_world=31.2872 sigreg_ego=4.4066 var_loss=0.0017 cov_loss=2.5766
+[step 16900] loss=4.9094 pred_loss=0.9759 ego_loss=0.1679 sigreg=33.1417 sigreg_world=31.2549 sigreg_ego=3.7736 var_loss=0.0011 cov_loss=2.7983
+[step 16950] loss=4.7884 pred_loss=1.0138 ego_loss=0.1599 sigreg=31.3584 sigreg_world=29.3878 sigreg_ego=3.9411 var_loss=0.0010 cov_loss=2.8946
+[step 17000] loss=4.8049 pred_loss=0.9793 ego_loss=0.1645 sigreg=32.1857 sigreg_world=30.4977 sigreg_ego=3.3761 var_loss=0.0022 cov_loss=2.7497
+[diag 17000] world/std=0.871 world/mean_norm=13.637 world/effective_rank=34.812 world/sigreg=30.762 ego/std=1.000 ego/mean_norm=5.621 ego/effective_rank=31.164 ego/sigreg=4.120 cov_loss=2.7497
+[step 17050] loss=5.2406 pred_loss=0.9506 ego_loss=0.1744 sigreg=36.2974 sigreg_world=34.3957 sigreg_ego=3.8034 var_loss=0.0016 cov_loss=2.9485
+[step 17100] loss=5.1945 pred_loss=0.9877 ego_loss=0.1755 sigreg=35.8828 sigreg_world=33.7718 sigreg_ego=4.2222 var_loss=0.0015 cov_loss=2.7959
+[step 17150] loss=4.4250 pred_loss=0.9697 ego_loss=0.1672 sigreg=28.9412 sigreg_world=27.0753 sigreg_ego=3.7318 var_loss=0.0015 cov_loss=2.5624
+[step 17200] loss=4.4815 pred_loss=0.9764 ego_loss=0.1660 sigreg=29.5726 sigreg_world=27.5750 sigreg_ego=3.9952 var_loss=0.0009 cov_loss=2.5134
+[step 17250] loss=8.1829 pred_loss=0.8737 ego_loss=0.1668 sigreg=61.3127 sigreg_world=59.4866 sigreg_ego=3.6522 var_loss=0.0043 cov_loss=4.9859
+[diag 17250] world/std=0.859 world/mean_norm=13.488 world/effective_rank=23.526 world/sigreg=58.449 ego/std=0.999 ego/mean_norm=5.612 ego/effective_rank=31.317 ego/sigreg=3.638 cov_loss=4.9859
+[step 17300] loss=6.1846 pred_loss=0.9221 ego_loss=0.1544 sigreg=45.8384 sigreg_world=43.9978 sigreg_ego=3.6811 var_loss=0.0032 cov_loss=3.0152
+[step 17350] loss=5.8934 pred_loss=0.9398 ego_loss=0.1539 sigreg=41.2187 sigreg_world=39.2458 sigreg_ego=3.9459 var_loss=0.0018 cov_loss=3.6378
+[step 17400] loss=4.5883 pred_loss=0.9650 ego_loss=0.1547 sigreg=30.4108 sigreg_world=28.5986 sigreg_ego=3.6243 var_loss=0.0012 cov_loss=2.6505
+[step 17450] loss=4.2060 pred_loss=0.9648 ego_loss=0.1570 sigreg=26.6053 sigreg_world=25.0193 sigreg_ego=3.1719 var_loss=0.0016 cov_loss=2.6427
+[step 17500] loss=4.5812 pred_loss=0.9897 ego_loss=0.1592 sigreg=30.1705 sigreg_world=28.2404 sigreg_ego=3.8602 var_loss=0.0016 cov_loss=2.6269
+[diag 17500] world/std=0.873 world/mean_norm=13.691 world/effective_rank=35.508 world/sigreg=28.219 ego/std=1.002 ego/mean_norm=5.628 ego/effective_rank=31.296 ego/sigreg=3.345 cov_loss=2.6269
+[step 17550] loss=4.6663 pred_loss=1.0131 ego_loss=0.1529 sigreg=29.4136 sigreg_world=27.6168 sigreg_ego=3.5936 var_loss=0.0016 cov_loss=3.1879
+[step 17600] loss=4.8454 pred_loss=0.9572 ego_loss=0.1505 sigreg=33.2512 sigreg_world=31.5780 sigreg_ego=3.3462 var_loss=0.0020 cov_loss=2.5712
+[step 17650] loss=4.5422 pred_loss=0.9847 ego_loss=0.1450 sigreg=30.0670 sigreg_world=28.2656 sigreg_ego=3.6027 var_loss=0.0023 cov_loss=2.5346
+[step 17700] loss=4.8915 pred_loss=0.9888 ego_loss=0.1493 sigreg=33.1672 sigreg_world=31.2665 sigreg_ego=3.8013 var_loss=0.0012 cov_loss=2.6772
+[step 17750] loss=5.0044 pred_loss=0.9793 ego_loss=0.1524 sigreg=33.6672 sigreg_world=31.8475 sigreg_ego=3.6394 var_loss=0.0021 cov_loss=2.9599
+[diag 17750] world/std=0.880 world/mean_norm=13.505 world/effective_rank=34.658 world/sigreg=31.554 ego/std=0.993 ego/mean_norm=5.581 ego/effective_rank=31.445 ego/sigreg=3.182 cov_loss=2.9599
+[step 17800] loss=4.2776 pred_loss=1.0291 ego_loss=0.1467 sigreg=26.2071 sigreg_world=24.3431 sigreg_ego=3.7280 var_loss=0.0012 cov_loss=2.8619
+[step 17850] loss=4.8694 pred_loss=1.0003 ego_loss=0.1486 sigreg=32.8488 sigreg_world=31.0567 sigreg_ego=3.5843 var_loss=0.0016 cov_loss=2.6740
+[step 17900] loss=4.0965 pred_loss=0.9888 ego_loss=0.1540 sigreg=26.0136 sigreg_world=24.3225 sigreg_ego=3.3823 var_loss=0.0026 cov_loss=2.3538
+[step 17950] loss=4.5632 pred_loss=0.9771 ego_loss=0.1450 sigreg=30.3477 sigreg_world=28.9018 sigreg_ego=2.8918 var_loss=0.0014 cov_loss=2.5351
+[step 18000] loss=4.4733 pred_loss=0.9914 ego_loss=0.1492 sigreg=28.8034 sigreg_world=27.1381 sigreg_ego=3.3307 var_loss=0.0025 cov_loss=2.7382
+[diag 18000] world/std=0.875 world/mean_norm=13.668 world/effective_rank=35.584 world/sigreg=28.682 ego/std=1.001 ego/mean_norm=5.626 ego/effective_rank=31.351 ego/sigreg=3.448 cov_loss=2.7382
+[step 18050] loss=4.5191 pred_loss=0.9937 ego_loss=0.1451 sigreg=29.4349 sigreg_world=27.6341 sigreg_ego=3.6016 var_loss=0.0035 cov_loss=2.6599
+[step 18100] loss=4.7398 pred_loss=0.9578 ego_loss=0.1558 sigreg=32.4763 sigreg_world=30.7429 sigreg_ego=3.4668 var_loss=0.0051 cov_loss=2.4479
+[step 18150] loss=4.2814 pred_loss=0.9925 ego_loss=0.1529 sigreg=27.6232 sigreg_world=26.0876 sigreg_ego=3.0712 var_loss=0.0032 cov_loss=2.4357
+[step 18200] loss=4.2790 pred_loss=0.9750 ego_loss=0.1500 sigreg=28.3757 sigreg_world=26.8227 sigreg_ego=3.1059 var_loss=0.0028 cov_loss=2.1902
+[step 18250] loss=4.6481 pred_loss=1.0339 ego_loss=0.1549 sigreg=30.3213 sigreg_world=28.4536 sigreg_ego=3.7353 var_loss=0.0014 cov_loss=2.6770
+[diag 18250] world/std=0.885 world/mean_norm=13.873 world/effective_rank=36.294 world/sigreg=29.806 ego/std=0.994 ego/mean_norm=5.583 ego/effective_rank=31.378 ego/sigreg=3.476 cov_loss=2.6770
+[step 18300] loss=4.6860 pred_loss=0.9879 ego_loss=0.1533 sigreg=31.4430 sigreg_world=29.6063 sigreg_ego=3.6735 var_loss=0.0021 cov_loss=2.5449
+[step 18350] loss=4.8456 pred_loss=0.9611 ego_loss=0.1469 sigreg=33.6001 sigreg_world=31.9868 sigreg_ego=3.2267 var_loss=0.0029 cov_loss=2.4179
+[step 18400] loss=6.0184 pred_loss=1.0174 ego_loss=0.1588 sigreg=42.6999 sigreg_world=40.8551 sigreg_ego=3.6898 var_loss=0.0021 cov_loss=3.2632
+[step 18450] loss=4.7653 pred_loss=0.9903 ego_loss=0.1654 sigreg=32.2108 sigreg_world=30.5636 sigreg_ego=3.2943 var_loss=0.0040 cov_loss=2.5377
+[step 18500] loss=4.7108 pred_loss=0.9760 ego_loss=0.1556 sigreg=31.8949 sigreg_world=30.0271 sigreg_ego=3.7357 var_loss=0.0028 cov_loss=2.5040
+[diag 18500] world/std=0.860 world/mean_norm=13.613 world/effective_rank=35.958 world/sigreg=27.699 ego/std=0.997 ego/mean_norm=5.601 ego/effective_rank=31.336 ego/sigreg=3.120 cov_loss=2.5040
+[step 18550] loss=4.7084 pred_loss=1.0022 ego_loss=0.1576 sigreg=30.5636 sigreg_world=28.6524 sigreg_ego=3.8224 var_loss=0.0024 cov_loss=2.9323
+[step 18600] loss=4.3209 pred_loss=0.9771 ego_loss=0.1467 sigreg=28.5556 sigreg_world=26.7762 sigreg_ego=3.5588 var_loss=0.0049 cov_loss=2.2753
+[step 18650] loss=4.3806 pred_loss=0.9957 ego_loss=0.1476 sigreg=29.2693 sigreg_world=27.5489 sigreg_ego=3.4408 var_loss=0.0034 cov_loss=2.1642
+[step 18700] loss=4.3651 pred_loss=0.9939 ego_loss=0.1452 sigreg=28.3353 sigreg_world=26.7344 sigreg_ego=3.2018 var_loss=0.0045 cov_loss=2.4811
+[step 18750] loss=4.2041 pred_loss=1.0103 ego_loss=0.1438 sigreg=27.3762 sigreg_world=25.6436 sigreg_ego=3.4653 var_loss=0.0030 cov_loss=2.1654
+[diag 18750] world/std=0.866 world/mean_norm=13.848 world/effective_rank=37.697 world/sigreg=23.792 ego/std=1.000 ego/mean_norm=5.617 ego/effective_rank=31.363 ego/sigreg=3.284 cov_loss=2.1654
+[step 18800] loss=4.4443 pred_loss=0.9627 ego_loss=0.1495 sigreg=29.9188 sigreg_world=28.3362 sigreg_ego=3.1653 var_loss=0.0030 cov_loss=2.2782
+[step 18850] loss=4.2153 pred_loss=0.9768 ego_loss=0.1493 sigreg=27.7458 sigreg_world=26.1069 sigreg_ego=3.2777 var_loss=0.0019 cov_loss=2.1828
+[step 18900] loss=4.5522 pred_loss=0.9887 ego_loss=0.1569 sigreg=30.5443 sigreg_world=28.5120 sigreg_ego=4.0647 var_loss=0.0022 cov_loss=2.3646
+[step 18950] loss=4.5154 pred_loss=1.0127 ego_loss=0.1498 sigreg=29.4999 sigreg_world=27.8678 sigreg_ego=3.2642 var_loss=0.0037 cov_loss=2.5485
+[step 19000] loss=4.2540 pred_loss=0.9947 ego_loss=0.1703 sigreg=27.7497 sigreg_world=25.9675 sigreg_ego=3.5644 var_loss=0.0031 cov_loss=2.2607
+[diag 19000] world/std=0.858 world/mean_norm=13.675 world/effective_rank=36.538 world/sigreg=27.748 ego/std=0.996 ego/mean_norm=5.596 ego/effective_rank=31.177 ego/sigreg=3.718 cov_loss=2.2607
+[step 19050] loss=4.3797 pred_loss=0.9935 ego_loss=0.1554 sigreg=28.5510 sigreg_world=26.7425 sigreg_ego=3.6169 var_loss=0.0062 cov_loss=2.4472
+[step 19100] loss=5.0180 pred_loss=1.0004 ego_loss=0.1684 sigreg=34.9314 sigreg_world=33.0111 sigreg_ego=3.8407 var_loss=0.0066 cov_loss=2.4174
+[step 19150] loss=4.7830 pred_loss=0.9934 ego_loss=0.1553 sigreg=32.5544 sigreg_world=30.9797 sigreg_ego=3.1494 var_loss=0.0051 cov_loss=2.4616
+[step 19200] loss=4.6222 pred_loss=0.9967 ego_loss=0.1658 sigreg=31.0270 sigreg_world=29.2817 sigreg_ego=3.4906 var_loss=0.0048 cov_loss=2.4142
+[step 19250] loss=4.7291 pred_loss=0.9767 ego_loss=0.1549 sigreg=32.6406 sigreg_world=30.9265 sigreg_ego=3.4283 var_loss=0.0028 cov_loss=2.2767
+[diag 19250] world/std=0.849 world/mean_norm=13.563 world/effective_rank=35.691 world/sigreg=28.006 ego/std=0.994 ego/mean_norm=5.586 ego/effective_rank=31.432 ego/sigreg=3.157 cov_loss=2.2767
+[step 19300] loss=4.3381 pred_loss=1.0185 ego_loss=0.1622 sigreg=28.3186 sigreg_world=26.3696 sigreg_ego=3.8981 var_loss=0.0027 cov_loss=2.2880
+[step 19350] loss=4.2929 pred_loss=0.9853 ego_loss=0.1590 sigreg=28.6538 sigreg_world=26.8581 sigreg_ego=3.5914 var_loss=0.0046 cov_loss=2.0904
+[step 19400] loss=4.6643 pred_loss=0.9649 ego_loss=0.1546 sigreg=31.9646 sigreg_world=30.2665 sigreg_ego=3.3961 var_loss=0.0084 cov_loss=2.3192
+[step 19450] loss=4.7979 pred_loss=1.0211 ego_loss=0.1659 sigreg=32.4561 sigreg_world=30.7027 sigreg_ego=3.5068 var_loss=0.0067 cov_loss=2.4534
+[step 19500] loss=4.0136 pred_loss=0.9598 ego_loss=0.1558 sigreg=26.4283 sigreg_world=24.8334 sigreg_ego=3.1896 var_loss=0.0050 cov_loss=1.9554
+[diag 19500] world/std=0.836 world/mean_norm=13.543 world/effective_rank=36.786 world/sigreg=25.921 ego/std=0.998 ego/mean_norm=5.605 ego/effective_rank=31.286 ego/sigreg=3.370 cov_loss=1.9554
+[step 19550] loss=4.9168 pred_loss=0.9751 ego_loss=0.1895 sigreg=33.8495 sigreg_world=32.1242 sigreg_ego=3.4508 var_loss=0.0049 cov_loss=2.5314
+[step 19600] loss=5.1046 pred_loss=1.0044 ego_loss=0.1757 sigreg=35.0999 sigreg_world=33.3094 sigreg_ego=3.5810 var_loss=0.0038 cov_loss=2.6848
+[step 19650] loss=4.4705 pred_loss=0.9868 ego_loss=0.1763 sigreg=29.3852 sigreg_world=27.4747 sigreg_ego=3.8210 var_loss=0.0054 cov_loss=2.4941
+[step 19700] loss=4.7033 pred_loss=0.9693 ego_loss=0.1645 sigreg=32.4000 sigreg_world=30.6307 sigreg_ego=3.5386 var_loss=0.0071 cov_loss=2.2838
+[step 19750] loss=4.1906 pred_loss=0.9555 ego_loss=0.1582 sigreg=28.0027 sigreg_world=26.3665 sigreg_ego=3.2724 var_loss=0.0055 cov_loss=2.0470
+[diag 19750] world/std=0.832 world/mean_norm=13.460 world/effective_rank=36.294 world/sigreg=28.078 ego/std=0.995 ego/mean_norm=5.588 ego/effective_rank=31.297 ego/sigreg=3.253 cov_loss=2.0470
+[step 19800] loss=4.0678 pred_loss=1.0093 ego_loss=0.1606 sigreg=25.8768 sigreg_world=24.1817 sigreg_ego=3.3902 var_loss=0.0034 cov_loss=2.2157
+[step 19850] loss=4.7961 pred_loss=0.9579 ego_loss=0.1673 sigreg=33.6300 sigreg_world=32.0415 sigreg_ego=3.1770 var_loss=0.0033 cov_loss=2.2100
+[step 19900] loss=4.3761 pred_loss=0.9893 ego_loss=0.1571 sigreg=29.4907 sigreg_world=27.7500 sigreg_ego=3.4815 var_loss=0.0040 cov_loss=2.0757
+[step 19950] loss=4.7657 pred_loss=0.9339 ego_loss=0.1655 sigreg=34.0347 sigreg_world=32.3517 sigreg_ego=3.3660 var_loss=0.0064 cov_loss=2.0079
+[done] checkpoint saved to outputs/pusht_factored_cov_seed0/model.pt

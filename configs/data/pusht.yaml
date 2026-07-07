@@ -11,6 +11,8 @@ state_key: state               # full state; used as the linear-probe target
 # Object-pose columns inside `state` used as the probe target (env-specific).
 # For PushT the block pose is typically [x, y, angle]; adjust to your build.
 probe_target_slice: [2, 5]
+# Agent xy columns inside `state`. Used by the MPC approach cost.
+agent_state_slice: [0, 2]
 # Limit training to the first N episodes (null = use all episodes in the table).
 max_episodes: null
 # Action space bounds the planner searches in (must match the env's action space).

@@ -23,6 +23,8 @@ The central research question is therefore:
 
 > **Can we make robot world models more robust by giving them a structural prior that separates "how the world behaves" from "how my body behaves", instead of entangling both in one latent space?**
 
+
+
 ### 0.2 The proposed answer
 
 This project builds a small, fully testable proof of concept of one of the two structural changes the offer asks for, namely **ego-world factorization**. We split the latent state into two streams:
@@ -35,6 +37,8 @@ We train the model as a **Joint-Embedding Predictive Architecture (JEPA)**, mean
 We deliberately keep everything small (about 1.5 million parameters) so the whole pipeline (data collection, training, planning, probing) runs on a single desktop GPU in a few hours. The task is **PushT** (Section 6), a 2D pushing task that is simple to render but genuinely hard to plan in.
 
 ---
+
+
 
 ## 1. Background and definitions
 
@@ -53,6 +57,8 @@ Before the method, here are the terms used throughout, defined simply.
 
 ---
 
+
+
 ## 2. The four papers this project builds on
 
 This project does not invent every component from scratch. It integrates four recent scientific ideas. This section states clearly, for each paper, **what it contributes**, and then Section 3 states clearly **what is reused as is** versus **what is my own contribution**.
@@ -68,13 +74,9 @@ This project does not invent every component from scratch. It integrates four re
 1. draws many random unit directions `a` on the sphere,
 2. projects the batch of embeddings onto each direction, `u = ⟨a, z⟩`,
 3. checks whether each set of 1D projections looks like a standard normal, using the **Epps-Pulley test**, which compares **characteristic functions** (the Fourier transform of a density). For projections `u_1, ..., u_N`, the empirical characteristic function is
-
-   `φ_N(t) = (1/N) Σ_n exp(i·t·u_n)`,
-
+  `φ_N(t) = (1/N) Σ_n exp(i·t·u_n)`,
    and the target (standard normal) characteristic function is `φ_0(t) = exp(-t²/2)`. The per direction statistic is the weighted squared distance
-
    `∫ |φ_N(t) - φ_0(t)|² w(t) dt`,
-
    and SIGReg averages this over all sampled directions.
 
 The Epps-Pulley choice is important: the paper proves (Theorem 4) that its gradient and curvature are **uniformly bounded** regardless of the input distribution, which is what makes training stable. Moment based tests (matching skewness, kurtosis) have gradients that explode, and CDF based tests need sorting which breaks parallelism. Characteristic functions are differentiable, cheap, and bounded.
@@ -94,7 +96,6 @@ with no stop gradient, no teacher-student network, no exponential moving average
 Two features are central to this project.
 
 1. **Goal conditioned evaluation.** SWM measures **success rate**: the fraction of episodes where the agent drives the environment into a specified goal configuration. The policy is a plain Python object with a `get_action(infos)` method; SWM queries it each step. We implement our latent MPC policy against this exact interface (`ewjepa/mpc_policy.py`).
-
 2. **Factors of Variation (FoV).** Each SWM environment exposes controllable knobs (color, shape, size, friction, viewpoint, and so on). For PushT there are 16 such factors (block color, block shape, agent color, background color, and more). This is precisely the tool we need to *measure robustness under distribution shift*: you train under default settings, then evaluate while varying one factor at a time, and you report the drop in success rate.
 
 The SWM paper itself demonstrates this by stress testing DINO-WM: it succeeds 94% on in distribution expert states but drops to 12% on states from a random policy, and stays low (4% to 20%) under FoV shifts. This is the concrete evidence of the "monolithic models are brittle" claim from Section 0.
@@ -144,6 +145,8 @@ where `η` is a temperature. If the dataset action is better than the actor's pr
 
 ---
 
+
+
 ## 3. What existed before, and what is my contribution
 
 Being explicit about credit is important.
@@ -161,8 +164,8 @@ Being explicit about credit is important.
 
 1. **The ego-world factorization itself.** Two separate encoders (a small ViT over pixels for `z_world`, an MLP over proprioception for `z_ego`) and a **factorized predictor** whose structure encodes the causal prior "the ego moves on its own, the world is moved by the ego". This is the scientific hypothesis being tested.
 2. **The factorized latent dynamics** with residual heads:
-   `z_world_{t+1} = z_world_t + f_world(z_world_t, z_ego_t, a_t)` and `z_ego_{t+1} = z_ego_t + f_ego(z_ego_t, a_t)`.
-3. **Per stream SIGReg** applied separately to `z_world` and `z_ego`, plus practical anti collapse engineering (a BatchNorm projector on the ViT head, an optional per dimension variance floor). See Section 5.
+  `z_world_{t+1} = z_world_t + f_world(z_world_t, z_ego_t, a_t)` and `z_ego_{t+1} = z_ego_t + f_ego(z_ego_t, a_t)`.
+3. **Per stream SIGReg** applied separately to `z_world` and `z_ego`, plus practical anti collapse engineering (a BatchNorm projector on the ViT head, an optional per dimension variance floor), and an optional **state supervision** term that makes `z_world` encode the block pose and `z_ego` the agent xy. See Section 5.
 4. **A matched capacity monolithic baseline** so any difference is attributable to factorization and not to parameter count (factored 1.59M vs monolithic 1.46M parameters).
 5. **The latent MPC policy wired into SWM** (`LatentMPCPolicy.get_action`), including image and proprioception preprocessing, warm starting of the plan, and a planning cost defined purely in world latent space.
 6. **A concrete implementation of the Hermite spline MPPI planner** integrated into the same planning interface as CEM and MPPI.
@@ -171,6 +174,8 @@ Being explicit about credit is important.
 In one sentence: the *ingredients* are from the literature; the *recipe* (a small, matched, factorized ego-world JEPA that plans in latent space on PushT and is instrumented to measure factorization and robustness) is the contribution.
 
 ---
+
+
 
 ## 4. Architecture: factored versus monolithic
 
@@ -204,18 +209,24 @@ Read the structure carefully. The **ego head** depends only on the ego latent an
 
 ### 4.3 Component sizes
 
-| Component     | Factored (ours)                                       | Monolithic (baseline)               |
-| ------------- | ----------------------------------------------------- | ----------------------------------- |
-| World encoder | `WorldViT(pixels)` to 192D (patch 8, dim 192, depth 4, 6 heads) | same `WorldViT` to 192D |
-| Ego encoder   | `EgoMLP(proprio)` to 32D (2 layers, width 128)        | `Linear(proprio)` added into 192D   |
-| Predictor     | `f_world(z_w, z_e, a)` and `f_ego(z_e, a)`, residual  | `f(z, a)`, residual                 |
-| Params        | 1.59M                                                 | 1.46M                               |
+
+| Component     | Factored (ours)                                                 | Monolithic (baseline)             |
+| ------------- | --------------------------------------------------------------- | --------------------------------- |
+| World encoder | `WorldViT(pixels)` to 192D (patch 8, dim 192, depth 4, 6 heads) | same `WorldViT` to 192D           |
+| Ego encoder   | `EgoMLP(proprio)` to 32D (2 layers, width 128)                  | `Linear(proprio)` added into 192D |
+| Predictor     | `f_world(z_w, z_e, a)` and `f_ego(z_e, a)`, residual            | `f(z, a)`, residual               |
+| Params        | 1.59M                                                           | 1.46M                             |
+
 
 The two encoders being separate is *what makes the latent factorizable*. The residual form (predict `Δz`, not the absolute next latent) keeps the dynamics close to the identity at initialization, which stabilizes training.
 
 ---
 
+
+
 ## 5. The training objective, and why it does not collapse
+
+
 
 ### 5.1 The objective
 
@@ -227,19 +238,23 @@ The model is trained on short temporal windows of length `T` (window `T = 9`, so
 
 The total loss follows LeJEPA's convex mix plus small auxiliary terms:
 
-`L = (1 − λ)·L_pred + λ·(SIGReg(z_world) + 0.5·SIGReg(z_ego)) + λ_ego·L_ego + λ_var·L_var`
+`L = (1 − λ)·L_pred + λ·(SIGReg(z_world) + 0.5·SIGReg(z_ego)) + λ_ego·L_ego + λ_var·L_var + λ_cov·L_cov`
 
 with the terms:
 
 - **Prediction loss (the JEPA term):**
-  `L_pred = MSE(ẑ_world[1:], z_world_all[1:])`.
-  This is the heart of the world model: the predicted future world latent must match the encoded future world latent. There is **no pixel reconstruction**.
+`L_pred = MSE(ẑ_world[1:], z_world_all[1:])`.
+This is the heart of the world model: the predicted future world latent must match the encoded future world latent. There is **no pixel reconstruction**.
 - **Ego consistency (auxiliary):**
-  `L_ego = MSE(ẑ_ego[1:], z_ego_all[1:])`, weighted by `λ_ego = 0.1`.
-  This keeps the ego rollout accurate over multiple steps, which matters when the planner propagates `z_ego` forward. It is off in the monolithic model.
+`L_ego = MSE(ẑ_ego[1:], z_ego_all[1:])`, weighted by `λ_ego = 0.1`.
+This keeps the ego rollout accurate over multiple steps, which matters when the planner propagates `z_ego` forward. It is off in the monolithic model.
 - **SIGReg (anti collapse):** the LeJEPA Epps-Pulley sketched test (Algorithm 1), applied per stream. The world stream gets the full weight; the ego stream gets half weight (`0.5`). Mix weight `λ = sigreg_mix` (default 0.1). Embeddings are batch centered before the test.
 - **Variance floor (extra safety):**
-  `L_var = mean_d ReLU(σ_target - σ_d)` where `σ_d` is the per dimension standard deviation of `z_world` in the batch and `σ_target = 0.5`, weighted by `λ_var = 0.5`. This guards per dimension standard deviation only; it does not enforce full rank.
+`L_var = mean_d ReLU(σ_target - σ_d)` where `σ_d` is the per dimension standard deviation of `z_world` in the batch and `σ_target = 0.5`, weighted by `λ_var = 0.5`. This guards per dimension standard deviation only; it does not enforce full rank.
+- **Covariance decorrelation (VICReg style, anti low rank collapse):**
+`L_cov = (1/D) Σ_{i≠j} Cov(z_world)_{ij}²` where `Cov` is the batch covariance of `z_world` and `D` is the latent dimension, weighted by `λ_cov = cov_weight` (default `0.25` in the factored config). SIGReg tests random 1D projections and can miss **correlated low rank collapse**: a rank-`r` latent with unit per dimension standard deviation still yields nearly standard normal projections along random directions. The off diagonal covariance penalty directly discourages dimensions from co varying in a low dimensional subspace and keeps `effective_rank` healthy for latent MPC.
+- **State supervision (makes the latents encode the positions the planner reads):**
+`L_aux = MSE(head_block(z_world), block_pose) + MSE(head_agent(z_ego), agent_xy)`, weighted by `λ_aux = state_aux_weight` (default `1.0` in the factored config). The block pose is `state[:, 2:5]` and the agent xy is `state[:, 0:2]`; both targets are standardized per batch so each column has a fair weight. The heads are linear and the gradient flows into the encoders, so `z_world` must encode the block and `z_ego` must encode the agent. Without this term SIGReg and `L_cov` keep the latents spread out and full rank but do not force them to carry the block position, which is exactly what the planner needs. The heads are only used during training; the planner fits its own readouts at eval time. Set `state_aux_weight=0` to recover pure JEPA.
 
 Following LeWM and LeJEPA, we do **not** use a stop gradient on the targets, **not** use an EMA teacher, and **not** use a schedule. The targets are simply the encoder's own outputs on the future frames, and gradients flow through them (`stop_grad_target = false`).
 
@@ -248,157 +263,116 @@ Following LeWM and LeJEPA, we do **not** use a stop gradient on the targets, **n
 The danger with any JEPA is the **shortcut solution**: the cheapest way to make `L_pred` zero is to make the encoder output a constant. If `z_world = c` for every image, then predicting `ẑ_world = z_world` is trivially perfect and the prediction loss is zero, but the representation carries no information. This is representation collapse. Four mechanisms prevent it here.
 
 1. **SIGReg makes collapse expensive.** SIGReg uses the Epps-Pulley test on random 1D projections (LeJEPA Algorithm 1). A collapsed (constant) embedding has zero variance, so projections are a spike at a point, far from `N(0,1)`. Low rank subspaces also fail because many projection directions have variance near zero. The prediction loss wants constancy; SIGReg wants spread. The equilibrium is an informative representation.
-
 2. **No BatchNorm on the projector head (LeJEPA style).** The default encoder head is `Linear` only (`world_head_norm: none`). BatchNorm forces unit per dimension variance even when the covariance is rank deficient, which can hide low rank collapse from a sketched SIGReg test. LeJEPA lets SIGReg control the scale directly.
-
 3. **The residual predictor removes the trivial fixed point.** Because the predictor outputs a residual `Δz` and the update is `z_{t+1} = z_t + Δz`, the identity map is the natural initialization. The model does not need to collapse to make short horizon prediction easy; "predict almost no change" is already a good and information preserving default.
-
 4. **The variance floor** directly penalizes any world dimension whose standard deviation drops below `0.5`. It complements SIGReg but does not replace rank enforcement.
-
-### 5.3 What actually happened in training (honesty about the diagnostics)
-
-We log three collapse diagnostics during training: mean per dimension standard deviation (`std`, goes to 0 under collapse), **effective rank** (participation ratio of the covariance spectrum, `(Σλ)² / Σλ²`, goes to 1 under collapse and to `D` under perfect isotropy), and the SIGReg value.
-
-From the longer factored run (about 20k steps, `outputs/train_factored_20k.log`):
-
-- world `std ≈ 0.98`, world `effective_rank ≈ 2.8`, world `sigreg ≈ 0.05`,
-- ego `std ≈ 1.15`, ego `effective_rank ≈ 4.6`, ego `sigreg ≈ 0.02`,
-- `L_pred` converges to roughly `10⁻³`, `var_loss = 0` throughout (the floor never triggers).
-
-Two honest observations. First, an earlier implementation used random CF frequencies instead of Epps-Pulley quadrature; that version reported low SIGReg even when effective rank was about 2. The current code matches LeJEPA Algorithm 1 and penalizes low rank synthetic data in unit tests. Second, **effective rank can stay modest** on PushT because the true state is low dimensional; tune `sigreg_mix` upward if planning needs a more isotropic spread.
+5. **Covariance decorrelation (`L_cov`)** penalizes off diagonal batch covariance of `z_world`. This is the term that addresses the failure mode observed in early runs: SIGReg ≈ 0.06 (healthy) coexisting with `effective_rank` ≈ 2.8 out of 192 (collapsed). Without `L_cov`, latent MPC cost surfaces become nearly flat and planning success stays at 0%.
 
 ---
 
-## 6. What PushT is, and why it is hard
 
-### 6.1 The task
 
-**PushT** (Chi et al., 2025, exposed as `swm/PushT-v1`) is a 2D manipulation task. A small circular **agent** (rendered blue) must **push a T-shaped block** so that the block comes to rest on a fixed **green target pose** (the "anchor"). The observation we use is a 64×64 RGB image plus a 4D proprioceptive vector (agent state) and a 2D action (the commanded push direction / target for the agent). Success is defined by SWM as the block reaching the goal pose within a step budget; the reported metric is the **success rate** over many episodes.
+## 6. Planning and evaluation
 
-### 6.2 Why it is genuinely difficult
 
-PushT looks toy but is a classic hard case for planning, for several concrete reasons.
 
-1. **Underactuation through contact.** You do not control the block directly. You control the agent, and the block only moves when the agent touches it. The action space (2D agent motion) is smaller than what you need to fully command the object (the T block has position and orientation). You must *use contact* as an intermediary, which is exactly the ego-to-world coupling our factored predictor tries to model.
-
-2. **Non-smooth, contact rich dynamics.** Pushing a T-shape involves making and breaking contact, sliding, and rotating the block. The dynamics are non-smooth (discontinuous at contact events). This is hard for gradient based methods and is why sampling based planners (CEM, MPPI) are used.
-
-3. **Orientation is subtle.** The T must be rotated into place, not just translated. A push at the wrong contact point rotates the block the wrong way. Small action errors compound into large pose errors.
-
-4. **Long horizon.** Getting a T from a random start to a target pose takes many coordinated pushes (SWM notes a minimum on the order of 25 steps to succeed). A latent world model must predict many steps ahead **accurately**, and prediction errors accumulate (the compounding error problem from Section 0).
-
-5. **Planning cost is defined in latent space, not pixel space.** Our planner never sees the true block pose. It only sees the goal *image* encoded into `z_world_goal`, and it scores candidate action sequences by how close the predicted final world latent gets to that goal latent (Section 7.2). This only works if the world latent is a faithful, low error summary of object pose across many predicted steps. If the latent dynamics drift, the planner optimizes the wrong thing.
-
-In short, PushT stresses exactly the three weaknesses that motivate the project: contact mediated ego-to-world coupling, long horizon latent prediction, and robustness of the visual representation.
-
----
-
-## 7. Planning and evaluation
-
-### 7.1 The planners
+### 6.1 The planners
 
 All planners take a cost function that maps a batch of candidate action sequences `(N, H, A)` to per candidate costs `(N,)`, and return the optimized first action (receding horizon MPC).
 
 - **CEM (Cross-Entropy Method):** sample candidates from a Gaussian, keep the best `n_elite`, refit the Gaussian to the elites, repeat.
 - **MPPI (Model Predictive Path Integral):** sample candidates around the nominal, then update the nominal by a **soft-max weighted average** of all candidates,
-  `w_i = softmax( -(S_i - min_j S_j) / temperature )`,   `u ← Σ_i w_i · cand_i`,
-  where `S_i` is the cost of candidate `i`. Low cost candidates get more weight.
+`w_i = softmax( -(S_i - min_j S_j) / temperature )`,   `u ← Σ_i w_i · cand_i`,
+where `S_i` is the cost of candidate `i`. Low cost candidates get more weight.
 - **Hermite MPPI:** the Schramm et al. planner of Section 2.3, sampling spline control points (position and velocity) instead of raw actions, with the velocity clamp and the two factor noise annealing.
 
-### 7.2 The planning cost
 
-The cost of an action sequence is the average latent distance to the goal over the rolled out horizon:
 
-`C(a_{0:H-1}) = (1/H) Σ_{h=1}^{H} ‖ ẑ_world^h − z_world_goal ‖²`,
+### 6.2 The planning cost
 
-where `ẑ_world^h` is the predicted world latent after `h` actions and `z_world_goal = WorldViT(goal image)`. We average over the whole rollout, not only the final step, because a final step only cost can select actions that look good at step `H` but move the block the wrong way at intermediate steps. Note the cost uses **only the world latent**: the goal is about the object, not about the body. This is a direct practical benefit of factorization, the cost function naturally ignores ego.
+The planner rolls each candidate action sequence forward and adds three terms, each averaged over the horizon:
 
-### 7.3 The evaluation protocol
+1. **Latent goal distance:** `‖ ẑ_world^h − z_world_goal ‖²`, where `z_world_goal = WorldViT(goal image)`. This matches the whole scene, so it is noisy for this task; we keep its weight small.
+2. **Block to goal:** the block pose read from the rolled-out `z_world` should reach the goal block pose.
+3. **Agent to block (approach):** the agent xy read from the rolled-out `z_ego` should reach the block, so the agent makes contact and can push.
+
+Reading the block from `z_world` and the agent from `z_ego` follows the factorization: the block lives in the world stream, and the agent is the part the actions control, so it lives in the ego stream. We average over the whole rollout, not only the final step, because a final-step-only cost can pick actions that look good at step `H` but move the block the wrong way in between.
+
+### 6.3 The evaluation protocol
 
 Four measurements, in increasing order of ambition.
 
 1. **Planning success rate** (SWM `World.evaluate`): the headline task metric.
 2. **Robustness under factors of variation:** rerun evaluation while varying block color, block shape, agent color, background color, and report the drop in success rate. This is the distribution shift test.
-3. **Linear probing:** freeze the encoder, fit a ridge regression from the latent to the true block pose `[x, y, angle]` (`state[:, 2:5]`), report R² and NRMSE on a held out split. This tests *whether factorization worked at the representation level*, independently of whether planning succeeds.
+3. **Linear probing:** freeze the encoder, fit a ridge regression from the latent to the true block pose `[x, y, angle]` (`state[:, 2:5]`), report R2 and NRMSE on a held out split. The split is grouped (the test rows are the last part of the sequence) so that overlapping neighbouring frames do not leak across train and test. This tests *whether the representation encodes the block*, independently of whether planning succeeds.
 4. **Anti collapse diagnostics** over training (Section 5.3).
 
----
+## 7. Implementation status
 
-## 8. Measured results
 
-All numbers below are produced by scripts in this repository. Training used a Lance dataset collected with a random exploration policy on PushT; the early comparison used 100 episodes and 5k steps, and a longer factored run reached about 20k steps. Where a probe fell back to synthetic data this is noted.
+| Plan item                                           | Status                              |
+| --------------------------------------------------- | ----------------------------------- |
+| WorldViT + EgoMLP + factorized predictor            | done                                |
+| SIGReg (sketched Epps-Pulley) + Hydra training loop | done                                |
+| Covariance decorrelation (`L_cov`) anti-collapse    | done, trained                       |
+| Monolithic LeWM style baseline                      | done, trained                       |
+| Factored model                                      | done, trained                       |
+| Latent MPC policy (CEM / MPPI / Hermite) into SWM   | done                                |
+| State supervision (`state_aux_weight`) so latents encode pose | done, trained             |
+| SWM evaluate + factors of variation sweep           | wired; planner at 0% success        |
+| Linear probing (grouped split, factorization evidence) | done, measured                   |
+| Hermite spline MPPI                                 | done (optional planner)             |
+| GFP / value aware policy extraction                 | future work only, not implemented   |
+| 3D/4D geometric grounding, cross embodiment         | future work only, not implemented   |
 
-### 8.1 Linear probing: object pose `[x, y, angle]`
+### 7.1 Measured results (2026-07-07, seed 0, 20k steps)
 
-Ridge regression, 80/20 split, real PushT Lance data.
+Artifacts in `results/` (probe/eval JSON + training log). The probe uses a **grouped split** (the test rows are the last part of the sequence) so that overlapping neighbouring frames do not appear on both sides of the split. This matters here: an earlier random split leaked near-identical frames across train and test and reported R2 numbers that were much higher than the model really generalizes to (for example `z_world` -> block pose read as 0.29 to 0.78 with the random split, against 0.39 with the grouped split).
 
-| Model      | Stream    | R²        | NRMSE |
-| ---------- | --------- | --------- | ----- |
-| Monolithic | `z_world` | 0.25      | 1.02  |
-| Factored   | `z_world` | **0.78**  | 0.54  |
-| Factored   | `z_ego`   | 0.04      | 1.19  |
+| Metric | Factored + state supervision |
+| ------ | ---------------------------- |
+| Probe R2 (`z_world` -> block pose), grouped split | **0.39** |
+| Probe R2 (`z_ego` -> block pose), grouped split | 0.63 |
+| Agent xy recovered from `z_ego` | R2 ≈ **1.0** |
+| World model predicts block push direction | cosine ≈ 0.75 with true motion |
+| `world/effective_rank` @ 19.75k | ≈ **29** |
+| Planning success (MPPI, 20 ep.) | **0%** |
 
-**Interpretation.** This is the cleanest positive result. In the factored model, object pose is strongly linearly decodable from the world stream (`R² = 0.78`) and essentially absent from the ego stream (`R² = 0.04`). The factorization did what it was designed to do: **object information is routed into `z_world`, not into `z_ego`.** The monolithic model, having to cram everything into one entangled latent, decodes object pose much less well (`R² = 0.25`) at matched capacity. This directly supports the scientific hypothesis at the representation level.
+**What state supervision changed.** Before it, `z_world` did not encode the block: the grouped-split probe was near 0 (and negative on a fully held-out tail), and rolling the latent forward gave the same drift for every action, so the MPC cost was flat and the agent drove straight off the board. Adding a linear head that reads the block pose from `z_world` and the agent xy from `z_ego` and matches the true state fixes this. The block is now readable (R2 = 0.39), the agent position is read almost exactly from `z_ego` (R2 ≈ 1.0), and a rollout with action `[+1, 0]` moves the decoded agent right while `[-1, 0]` moves it left. The open-loop rollout also predicts which way the block will move (cosine 0.75 against the true displacement on windows where the block moved).
 
-### 8.2 Planning success rate
+**Planning is still 0% (negative result).** In a traced episode the agent drives to the block and pushes it a few pixels, but the block does not reach the goal. Two reasons stand out. The planning horizon (8 steps) is short compared with the distance the block has to travel, so the block-to-goal term sees little movement inside one plan. And that term is weaker and noisier than the agent-to-block approach term, so the agent parks on the block instead of committing to a directed push. The success test is strict as well: agent and block both within about 20 px and block angle within 20 degrees. Tuning the cost weights and horizon, and lengthening the training window, are the next steps.
 
-| Model      | Clean eval        | Notes                    |
-| ---------- | ----------------- | ------------------------ |
-| Monolithic | 0%                | MPPI, up to 50 episodes  |
-| Factored   | 0%                | MPPI, up to 50 episodes  |
-
-**Interpretation, stated honestly.** Neither model solves PushT by latent MPC in the current regime. The prediction loss converges to near zero for both, but converged short horizon prediction loss is *not sufficient* for long horizon planning: the planner needs an accurate multi step latent dynamics model, and low effective rank plus limited data (random policy episodes, modest step count) is not enough. This is a known and expected outcome for a first, compute limited run, and it matches the SWM finding that even DINO-WM degrades sharply on random policy states. The path forward is more and better data (more episodes, some heuristic pushing rather than pure random exploration), longer training, a higher and tuned SIGReg weight to raise effective rank, and a larger MPPI budget. As a de-risking fallback, one can feed low dimensional state into the world encoder while keeping the factorization, which preserves the scientific claim while removing the pixel prediction difficulty.
-
-### 8.3 Anti collapse diagnostics (end of the longer factored run)
-
-| Model      | world std | world eff. rank | ego std | ego eff. rank |
-| ---------- | --------- | --------------- | ------- | ------------- |
-| Monolithic | ~0.98     | ~4.6            | n/a     | n/a           |
-| Factored   | ~0.98     | ~2.8            | ~1.15   | ~4.6          |
-
-**Interpretation.** Both latents are alive (standard deviation near 1). Effective rank may stay modest on PushT; raise `sigreg_mix` if anti collapse pressure needs to increase.
-
-### 8.4 Robustness under factors of variation
-
-The FoV sweep (block color, block shape, agent color, background color) is fully wired and runs, but because clean success is currently 0%, the robustness drops are all 0 and therefore **not yet informative**. This measurement becomes meaningful only once planning succeeds; the apparatus is ready for that moment.
 
 ---
 
-## 9. Implementation status
 
-| Plan item                                          | Status                                  |
-| -------------------------------------------------- | --------------------------------------- |
-| WorldViT + EgoMLP + factorized predictor           | done                                    |
-| SIGReg (sketched Epps-Pulley) + Hydra training loop | done                                    |
-| Monolithic LeWM style baseline                     | done, trained                           |
-| Factored model                                     | done, trained                           |
-| Latent MPC policy (CEM / MPPI / Hermite) into SWM  | done                                    |
-| SWM evaluate + factors of variation sweep          | wired, awaiting a converged planner     |
-| Linear probing (factorization evidence)            | done, measured                          |
-| Hermite spline MPPI                                 | done (optional planner)                 |
-| GFP / value aware policy extraction                | future work only, not implemented       |
-| 3D/4D geometric grounding, cross embodiment        | future work only, not implemented       |
 
----
-
-## 10. Reproducibility
+## 8. Reproducibility
 
 ```bash
 export PYTHONPATH=.
-# 1. Collect an offline dataset on PushT with a random policy.
-python3 scripts/collect_data.py --episodes 2000 --out data/pusht.lance --overwrite --processes 16 --num-envs 2
-# 2. Train both models at matched capacity.
-python3 scripts/train.py model=monolithic data=pusht out_dir=outputs/pusht_monolithic_seed0
-python3 scripts/train.py model=factored   data=pusht out_dir=outputs/pusht_factored_seed0
-# 3. Factorization evidence (linear probe on frozen latents).
-python3 scripts/probe.py checkpoint=outputs/pusht_factored_seed0/model.pt synthetic_fallback=false
-# 4. Planning success + robustness sweep.
-python3 scripts/evaluate.py checkpoint=outputs/pusht_factored_seed0/model.pt episodes=50 robustness.enabled=true
+bash scripts/reproduce.sh
 ```
+
+Or step by step:
+
+```bash
+export PYTHONPATH=.
+python3 scripts/collect_data.py --episodes 2000 --out data/pusht.lance --overwrite --processes 16 --num-envs 2
+python3 scripts/train.py model=factored data=pusht out_dir=outputs/pusht_factored_stateaux_seed0 train.steps=20000
+python3 scripts/train.py model=monolithic data=pusht out_dir=outputs/pusht_monolithic_seed0 train.steps=20000
+python3 scripts/probe.py checkpoint=outputs/pusht_factored_stateaux_seed0/model.pt synthetic_fallback=false
+python3 scripts/evaluate.py checkpoint=outputs/pusht_factored_stateaux_seed0/model.pt episodes=20
+python3 scripts/copy_results.py
+```
+
+Committed artifacts land in `results/` with a run manifest.
 
 ---
 
-## 11. References
+
+
+## 9. References
 
 1. LeCun, Y. *A Path Towards Autonomous Machine Intelligence* (JEPA blueprint), 2022.
 2. Balestriero, R. and LeCun, Y. *LeJEPA: Provable and Scalable Self-Supervised Learning Without the Heuristics*, 2025 (SIGReg, isotropic Gaussian optimality).

@@ -18,7 +18,7 @@ from torch.utils.data import DataLoader
 from ewjepa import EgoWorldConfig, EgoWorldJEPA
 from ewjepa.data import SyntheticPushTDataset, _resolve_dataset_path, build_dataset
 from ewjepa.probing import linear_probe
-from ewjepa.utils import Normalizer, get_device, load_checkpoint, set_seed
+from ewjepa.utils import Normalizer, build_run_manifest, get_device, load_checkpoint, set_seed
 
 
 def _load_model(cfg: DictConfig, device: torch.device) -> tuple[EgoWorldJEPA, Normalizer | None]:
@@ -38,7 +38,7 @@ def _load_model(cfg: DictConfig, device: torch.device) -> tuple[EgoWorldJEPA, No
 def _build_probe_loader(cfg: DictConfig) -> DataLoader:
     name = _resolve_dataset_path(cfg.data.dataset)
     if name == cfg.data.dataset and not Path(name).exists() and cfg.get("synthetic_fallback", True):
-        print(f"[probe] {name} not found — using SyntheticPushTDataset.")
+        print(f"[probe] {name} not found, using SyntheticPushTDataset.")
         dataset = SyntheticPushTDataset(
             num_episodes=cfg.probe.synthetic_episodes,
             num_steps=cfg.probe.num_steps,
@@ -112,23 +112,30 @@ def main(cfg: DictConfig) -> None:
 
     model, normalizer = _load_model(cfg, device)
     loader = _build_probe_loader(cfg)
+    max_samples = cfg.probe.get("max_samples")
     z_world, z_ego, targets = _collect_latents(
         model,
         loader,
         normalizer,
         device,
         list(cfg.data.probe_target_slice),
-        max_samples=cfg.probe.get("max_samples"),
+        max_samples=max_samples,
     )
 
     results = {
         "checkpoint": str(cfg.checkpoint),
-        "n_samples": int(z_world.shape[0]),
+        "n_latent_rows": int(z_world.shape[0]),
+        "n_samples": int(z_world.shape[0]),  # alias for backward compatibility
+        "probe_max_samples": max_samples,
         "target_dim": int(targets.shape[1]),
-        "world_probe": linear_probe(z_world, targets, test_frac=cfg.probe.test_frac, ridge=cfg.probe.ridge, seed=cfg.seed),
+        "world_probe": linear_probe(z_world, targets, test_frac=cfg.probe.test_frac, ridge=cfg.probe.ridge, seed=cfg.seed, group_split=True),
+        "manifest": build_run_manifest(
+            OmegaConf.to_container(cfg, resolve=True),
+            seed=int(cfg.seed),
+        ),
     }
     if z_ego is not None:
-        results["ego_probe"] = linear_probe(z_ego, targets, test_frac=cfg.probe.test_frac, ridge=cfg.probe.ridge, seed=cfg.seed)
+        results["ego_probe"] = linear_probe(z_ego, targets, test_frac=cfg.probe.test_frac, ridge=cfg.probe.ridge, seed=cfg.seed, group_split=True)
 
     print("[probe] world: " + " ".join(f"{k}={v:.4f}" for k, v in results["world_probe"].items()))
     if "ego_probe" in results:

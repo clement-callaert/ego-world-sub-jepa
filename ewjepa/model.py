@@ -15,7 +15,15 @@ import torch.nn.functional as F
 
 from .encoders import EgoMLP, WorldViT
 from .predictor import Predictor
-from .sigreg import sigreg
+from .sigreg import cov_decorrelation_loss, sigreg
+
+
+def _standardize(y: torch.Tensor) -> torch.Tensor:
+    """Center and scale each column to zero mean and unit std (detached stats)."""
+    y = y.float()
+    mean = y.mean(dim=0, keepdim=True)
+    std = y.std(dim=0, keepdim=True).clamp_min(1e-3)
+    return (y - mean) / std
 
 
 @dataclass
@@ -49,6 +57,17 @@ class EgoWorldConfig:
     stop_grad_target: bool = False
     variance_weight: float = 0.0  # optional std floor on z_world
     variance_target: float = 0.5
+    # Extra decorrelation loss on z_world (VICReg style). SIGReg already fights
+    # collapse, this term just gives a direct and cheap push against correlated
+    # dimensions. 0 turns it off.
+    cov_weight: float = 0.0
+    # State supervision (optional). When > 0 we add a small linear head that
+    # reads the block pose from z_world and the agent xy from z_ego, and train
+    # it against the true state from the dataset. This forces the world latent
+    # to actually encode the block, which the planner needs. 0 keeps pure JEPA.
+    state_aux_weight: float = 0.0
+    block_slice: tuple = (2, 5)   # columns of `state` holding the block pose
+    agent_slice: tuple = (0, 2)   # columns of `state` holding the agent xy
     sigreg_kwargs: dict = field(default_factory=dict)
 
     def __post_init__(self) -> None:
@@ -93,6 +112,18 @@ class EgoWorldJEPA(nn.Module):
             depth=cfg.pred_depth,
         )
 
+        # Optional state supervision heads (see state_aux_weight). They read the
+        # block pose from z_world and the agent xy from z_ego. They are only used
+        # during training to shape the latents; the planner fits its own readouts.
+        self.block_head = None
+        self.agent_head = None
+        if cfg.state_aux_weight > 0:
+            block_dim = cfg.block_slice[1] - cfg.block_slice[0]
+            self.block_head = nn.Linear(cfg.world_dim, block_dim)
+            if self.factored:
+                agent_dim = cfg.agent_slice[1] - cfg.agent_slice[0]
+                self.agent_head = nn.Linear(cfg.ego_dim, agent_dim)
+
     # encode
 
     def encode(
@@ -123,13 +154,23 @@ class EgoWorldJEPA(nn.Module):
         z_world: torch.Tensor,
         z_ego: torch.Tensor | None,
         actions: torch.Tensor,
-    ) -> tuple[torch.Tensor, torch.Tensor | None, torch.Tensor]:
-        """Roll out in latent space. Returns final latents and (B,H,world_dim) traj."""
-        traj = []
+    ) -> tuple[torch.Tensor, torch.Tensor | None, torch.Tensor, torch.Tensor | None]:
+        """Roll the latents forward one action at a time.
+
+        Returns the final world and ego latents, the world path (B, H, world_dim),
+        and the ego path (B, H, ego_dim) or None in monolithic mode. The MPC uses
+        the ego path to read the future agent position.
+        """
+        world_path = []
+        ego_path = []
         for h in range(actions.shape[1]):
             z_world, z_ego = self.predictor(z_world, z_ego, actions[:, h])
-            traj.append(z_world)
-        return z_world, z_ego, torch.stack(traj, dim=1)
+            world_path.append(z_world)
+            if z_ego is not None:
+                ego_path.append(z_ego)
+        world_traj = torch.stack(world_path, dim=1)
+        ego_traj = torch.stack(ego_path, dim=1) if ego_path else None
+        return z_world, z_ego, world_traj, ego_traj
 
     # planning
 
@@ -141,7 +182,7 @@ class EgoWorldJEPA(nn.Module):
         goal_world: torch.Tensor,
     ) -> torch.Tensor:
         """Cost = mean squared distance to goal latent over the rollout. Returns (N,)."""
-        _, _, z_world_traj = self.rollout(z_world, z_ego, actions)
+        _, _, z_world_traj, _ = self.rollout(z_world, z_ego, actions)
         if goal_world.dim() == 1:
             goal_world = goal_world.unsqueeze(0)
         goal = goal_world.unsqueeze(1)
@@ -150,7 +191,13 @@ class EgoWorldJEPA(nn.Module):
 
     # loss
 
-    def compute_loss(self, pixels: torch.Tensor, proprio: torch.Tensor, action: torch.Tensor) -> dict:
+    def compute_loss(
+        self,
+        pixels: torch.Tensor,
+        proprio: torch.Tensor,
+        action: torch.Tensor,
+        state: torch.Tensor | None = None,
+    ) -> dict:
         """Training loss on a (B,T,...) window. Returns loss dict with parts."""
         cfg = self.cfg
         b, t = pixels.shape[:2]
@@ -184,20 +231,44 @@ class EgoWorldJEPA(nn.Module):
                 target_ego = target_ego.detach()
             ego_loss = F.mse_loss(pred_ego_t, target_ego)
 
-        # SIGReg on encoded latents (anti-collapse)
+        # SIGReg keeps the latents close to a standard Gaussian (anti collapse)
         sig_world = sigreg(z_world_all.reshape(b * t, -1), **cfg.sigreg_kwargs)
         if self.factored and z_ego_all is not None:
             sig_ego = sigreg(z_ego_all.reshape(b * t, -1), **cfg.sigreg_kwargs)
-            # lighter weight on ego stream
+            # the ego stream is small, so we weight its SIGReg less
             sig = sig_world + 0.5 * sig_ego
         else:
             sig_ego = sig_world.new_zeros(())
             sig = sig_world
 
+        # floor on the per dimension std. it only acts when a std drops below
+        # variance_target, and pushes it back up. it is 0 when std is high enough.
         var_loss = pred_world.new_zeros(())
         if cfg.variance_weight > 0:
             per_dim_std = z_world_all.reshape(b * t, -1).std(dim=0, unbiased=False)
             var_loss = F.relu(cfg.variance_target - per_dim_std).mean()
+
+        # extra decorrelation term on z_world, computed in full precision
+        # because batch covariance is unstable under fp16 autocast
+        cov_loss = pred_world.new_zeros(())
+        if cfg.cov_weight > 0:
+            zw_flat = z_world_all.reshape(b * t, -1)
+            cov_loss = cov_decorrelation_loss(zw_flat.float())
+
+        # State supervision. We ask a linear head to read the block pose from
+        # z_world (and the agent xy from z_ego) and match the true state. The
+        # gradient flows into the encoders, so they must encode these positions.
+        # We standardize the targets per batch so every column has a fair weight.
+        aux_loss = pred_world.new_zeros(())
+        if cfg.state_aux_weight > 0 and state is not None and self.block_head is not None:
+            state_flat = state.reshape(b * t, -1)
+            zw_flat = z_world_all.reshape(b * t, -1)
+            block_target = _standardize(state_flat[:, cfg.block_slice[0] : cfg.block_slice[1]])
+            aux_loss = F.mse_loss(self.block_head(zw_flat), block_target)
+            if self.agent_head is not None and z_ego_all is not None:
+                ze_flat = z_ego_all.reshape(b * t, -1)
+                agent_target = _standardize(state_flat[:, cfg.agent_slice[0] : cfg.agent_slice[1]])
+                aux_loss = aux_loss + F.mse_loss(self.agent_head(ze_flat), agent_target)
 
         mix = cfg.sigreg_mix
         total = (
@@ -205,6 +276,8 @@ class EgoWorldJEPA(nn.Module):
             + mix * sig
             + cfg.ego_loss_weight * ego_loss
             + cfg.variance_weight * var_loss
+            + cfg.cov_weight * cov_loss
+            + cfg.state_aux_weight * aux_loss
         )
         return {
             "loss": total,
@@ -214,6 +287,8 @@ class EgoWorldJEPA(nn.Module):
             "sigreg_world": sig_world.detach(),
             "sigreg_ego": sig_ego.detach(),
             "var_loss": var_loss.detach(),
+            "cov_loss": cov_loss.detach(),
+            "aux_loss": aux_loss.detach(),
         }
 
     # utils

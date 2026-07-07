@@ -1,0 +1,83 @@
+{
+  "checkpoint": "outputs/pusht_monolithic_seed0/model.pt",
+  "n_latent_rows": 8192,
+  "n_samples": 8192,
+  "probe_max_samples": 8192,
+  "target_dim": 3,
+  "world_probe": {
+    "mse": 611.1939086914062,
+    "rmse": 24.722336230449706,
+    "nrmse": 0.27036744876761715,
+    "r2": 0.7794774174690247
+  },
+  "manifest": {
+    "date": "2026-07-06",
+    "git_sha": null,
+    "seed": 0,
+    "torch_version": "2.12.0+cu130",
+    "config": {
+      "model": {
+        "mode": "factored",
+        "img_size": 64,
+        "in_chans": 3,
+        "proprio_dim": 4,
+        "action_dim": 2,
+        "patch_size": 8,
+        "embed_dim": 192,
+        "depth": 4,
+        "num_heads": 6,
+        "mlp_ratio": 2.0,
+        "world_dim": 192,
+        "world_head_norm": "none",
+        "ego_dim": 32,
+        "ego_hidden": 128,
+        "ego_depth": 2,
+        "action_emb_dim": 64,
+        "pred_hidden": 256,
+        "pred_depth": 2,
+        "sigreg_mix": 0.1,
+        "ego_loss_weight": 0.1,
+        "stop_grad_target": false,
+        "variance_weight": 0.5,
+        "variance_target": 0.5,
+        "cov_weight": 0.25,
+        "sigreg_kwargs": {
+          "n_directions": 256,
+          "n_points": 17,
+          "t_max": 5.0
+        }
+      },
+      "data": {
+        "name_short": "pusht",
+        "dataset": "data/pusht.lance",
+        "env": "swm/PushT-v1",
+        "image_key": "pixels",
+        "proprio_key": "proprio",
+        "action_key": "action",
+        "state_key": "state",
+        "probe_target_slice": [
+          2,
+          5
+        ],
+        "max_episodes": null,
+        "action_low": -1.0,
+        "action_high": 1.0
+      },
+      "checkpoint": "outputs/pusht_monolithic_seed0/model.pt",
+      "device": "cuda",
+      "seed": 0,
+      "synthetic_fallback": false,
+      "out_dir": "outputs/probe",
+      "probe": {
+        "num_steps": 9,
+        "batch_size": 64,
+        "num_workers": 0,
+        "synthetic_episodes": 1024,
+        "test_frac": 0.2,
+        "ridge": 0.001,
+        "max_samples": 8192
+      }
+    },
+    "swm_version": null
+  }
+}

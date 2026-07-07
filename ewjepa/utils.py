@@ -1,8 +1,10 @@
-"""Helpers: seeding, device, checkpoints."""
+"""Helpers: seeding, device, checkpoints, run manifests."""
 
 from __future__ import annotations
 
 import random
+import subprocess
+from datetime import datetime, timezone
 from pathlib import Path
 
 import numpy as np
@@ -43,6 +45,36 @@ def load_checkpoint(path: str | Path, map_location: str | torch.device = "cpu") 
 
 def count_parameters(model: torch.nn.Module) -> int:
     return sum(p.numel() for p in model.parameters() if p.requires_grad)
+
+
+def _git_sha() -> str | None:
+    try:
+        out = subprocess.check_output(
+            ["git", "rev-parse", "HEAD"],
+            stderr=subprocess.DEVNULL,
+            text=True,
+        )
+        return out.strip() or None
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return None
+
+
+def build_run_manifest(cfg: dict, seed: int | None = None) -> dict:
+    """Metadata stamped into probe/eval JSON for reproducibility."""
+    manifest: dict = {
+        "date": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+        "git_sha": _git_sha(),
+        "seed": seed,
+        "torch_version": torch.__version__,
+        "config": cfg,
+    }
+    try:
+        import stable_worldmodel as swm
+
+        manifest["swm_version"] = getattr(swm, "__version__", None)
+    except ImportError:
+        manifest["swm_version"] = None
+    return manifest
 
 
 class Normalizer:

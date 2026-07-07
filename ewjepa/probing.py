@@ -33,16 +33,28 @@ def linear_probe(
     test_frac: float = 0.2,
     ridge: float = 1e-3,
     seed: int = 0,
+    group_split: bool = False,
 ) -> dict[str, float]:
-    """Train/test split ridge probe. Returns mse, rmse, r2, nrmse."""
+    """Train/test split ridge probe. Returns mse, rmse, r2, nrmse.
+
+    With group_split=True the test set is the last test_frac rows kept in order.
+    Use this when rows come from time series: neighbouring frames look almost the
+    same, so a random split would leak them across train and test and give an
+    R2 that is too high. A contiguous tail avoids that leak.
+    """
     features = features.detach().float()
     targets = targets.detach().float()
     n = features.shape[0]
 
-    g = torch.Generator().manual_seed(seed)
-    perm = torch.randperm(n, generator=g)
     n_test = max(1, int(round(n * test_frac)))
-    test_idx, train_idx = perm[:n_test], perm[n_test:]
+    if group_split:
+        # Hold out the final block of rows, keep the earlier rows for training.
+        idx = torch.arange(n)
+        test_idx, train_idx = idx[-n_test:], idx[:-n_test]
+    else:
+        g = torch.Generator().manual_seed(seed)
+        perm = torch.randperm(n, generator=g)
+        test_idx, train_idx = perm[:n_test], perm[n_test:]
 
     # standardize features on train split
     mu, sd = features[train_idx].mean(0), features[train_idx].std(0).clamp_min(1e-6)

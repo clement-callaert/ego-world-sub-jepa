@@ -28,6 +28,13 @@ fast: false
 use_pose_cost: true
 pose_cost_weight: 1.0
 pose_probe_ridge: 1.0e-3
+# Weight on the raw latent distance to the goal image. It matches the whole
+# scene, so it is noisy for this task. We keep it small and let the pose costs
+# drive the plan. Set to 1.0 to recover the old latent only behaviour.
+latent_cost_weight: 0.0
+# Pulls the planned agent toward the block so it can push it. 0 turns it off.
+# Without it the agent drifts off the board and never touches the block.
+approach_weight: 1.0
 
 planner:
   kind: mppi              # one of: cem, mppi, hermite

@@ -92,18 +92,14 @@ pipeline_train() {
 
 pipeline_probe() {
     local model="$1"
-    local max_samples="${2:-}"
+    local max_samples="${2:-8192}"
     local ckpt="outputs/pusht_${model}_seed0/model.pt"
 
     pipeline_banner "Probe ${model}"
-    local extra=()
-    if [[ -n "${max_samples}" ]]; then
-        extra+=("probe.max_samples=${max_samples}")
-    fi
     python3 scripts/probe.py \
         "checkpoint=${ckpt}" \
         synthetic_fallback=false \
-        "${extra[@]}"
+        "probe.max_samples=${max_samples}"
 }
 
 pipeline_plot() {

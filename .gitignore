@@ -17,7 +17,7 @@ venv/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
-.coverage
+.coverage 
 htmlcov/
 .tox/
 
@@ -38,8 +38,10 @@ runs/
 *.pth
 *.safetensors
 
-# Generated media and result dumps
-results/
+# Generated media and result dumps (curated results/ is committable)
+results/*
+!results/
+!results/**
 figures/
 *.mp4
 *.avi

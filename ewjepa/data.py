@@ -199,7 +199,7 @@ def build_dataloader(
         and not (Path.cwd() / name).exists()
     )
     if use_synthetic:
-        print(f"[data] {name} not found — using SyntheticPushTDataset ({synthetic_episodes} episodes).")
+        print(f"[data] {name} not found, using SyntheticPushTDataset ({synthetic_episodes} episodes).")
         dataset = SyntheticPushTDataset(
             num_episodes=synthetic_episodes,
             num_steps=num_steps,

@@ -52,7 +52,7 @@ def main() -> None:
             fig, ax = plt.subplots(figsize=(8, 4))
             ax.bar(labels, values)
             ax.set_ylabel("Success rate (%)")
-            ax.set_title(f"Planning robustness — {Path(path).stem}")
+            ax.set_title(f"Planning robustness, {Path(path).stem}")
             ax.set_ylim(0, max(100, max(values) * 1.1 if values else 1))
             fig.tight_layout()
             fig.savefig(out_dir / f"{Path(path).stem}_robustness.png", dpi=150)

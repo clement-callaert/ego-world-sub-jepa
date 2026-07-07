@@ -19,7 +19,7 @@ from ewjepa import EgoWorldConfig, EgoWorldJEPA
 from ewjepa.mpc_policy import LatentMPCPolicy
 from ewjepa.planning import build_planner
 from ewjepa.probing import fit_pose_readout
-from ewjepa.utils import Normalizer, get_device, load_checkpoint, set_seed
+from ewjepa.utils import Normalizer, build_run_manifest, get_device, load_checkpoint, set_seed
 
 
 def _load_model(cfg: DictConfig, device: torch.device) -> tuple[EgoWorldJEPA, Normalizer | None]:
@@ -49,7 +49,15 @@ def _build_policy(cfg: DictConfig, model: EgoWorldJEPA, normalizer, device: torc
         generator=torch.Generator(device=device).manual_seed(cfg.seed),
         **planner_cfg,
     )
-    pose_readout = _fit_pose_readout(cfg, model, normalizer, device)
+    pose_readout, agent_readout = _fit_readouts(cfg, model, normalizer, device)
+    approach_weight = float(cfg.get("approach_weight", 0.0))
+    if bool(cfg.get("use_pose_cost", True)):
+        if pose_readout is not None:
+            print("[eval] pose readout fitted, auxiliary pose cost enabled in MPC")
+            if agent_readout is not None and approach_weight > 0:
+                print(f"[eval] agent readout fitted, approach cost enabled (weight={approach_weight})")
+        else:
+            print("[warn] pose readout unavailable, planner uses latent cost only")
     return LatentMPCPolicy(
         model=model,
         planner=planner,
@@ -57,24 +65,33 @@ def _build_policy(cfg: DictConfig, model: EgoWorldJEPA, normalizer, device: torc
         proprio_normalizer=normalizer,
         pose_readout=pose_readout,
         pose_cost_weight=float(cfg.get("pose_cost_weight", 1.0)),
+        agent_readout=agent_readout,
+        approach_weight=approach_weight,
+        latent_cost_weight=float(cfg.get("latent_cost_weight", 1.0)),
     )
 
 
 @torch.no_grad()
-def _fit_pose_readout(
+def _fit_readouts(
     cfg: DictConfig,
     model: EgoWorldJEPA,
     normalizer: Normalizer | None,
     device: torch.device,
     max_samples: int = 2048,
-) -> dict[str, torch.Tensor] | None:
-    """Fit ridge readout from world latents to block pose."""
+) -> tuple[dict[str, torch.Tensor] | None, dict[str, torch.Tensor] | None]:
+    """Fit ridge readouts used by the planner cost.
+
+    The block pose is read from the world latent (the part that sees the block in
+    pixels). The agent xy is read from the ego latent (the part the actions
+    control). We fit both on encoded dataset latents and return
+    (block_readout, agent_readout), or (None, None) when the pose cost is off.
+    """
     from torch.utils.data import DataLoader
 
     from ewjepa.data import build_dataset
 
     if not bool(cfg.get("use_pose_cost", True)):
-        return None
+        return None, None
 
     dataset = build_dataset(
         cfg.data.dataset,
@@ -87,28 +104,40 @@ def _fit_pose_readout(
     )
     loader = DataLoader(dataset, batch_size=64, shuffle=True, num_workers=0)
 
-    sl = slice(cfg.data.probe_target_slice[0], cfg.data.probe_target_slice[1])
-    zw_chunks, y_chunks = [], []
+    zw_chunks, ze_chunks, state_chunks = [], [], []
     seen = 0
     for batch in loader:
         pixels = batch["pixels"].to(device)
         proprio = batch["proprio"].to(device)
         if normalizer is not None:
             proprio = normalizer(proprio)
-        zw, _ = model.encode_sequence(pixels, proprio)
+        zw, ze = model.encode_sequence(pixels, proprio)
         zw_chunks.append(zw.reshape(-1, zw.shape[-1]).cpu())
-        y_chunks.append(batch["state"].reshape(-1, batch["state"].shape[-1])[:, sl])
+        if ze is not None:
+            ze_chunks.append(ze.reshape(-1, ze.shape[-1]).cpu())
+        state_chunks.append(batch["state"].reshape(-1, batch["state"].shape[-1]))
         seen += zw.shape[0] * zw.shape[1]
         if seen >= max_samples:
             break
 
     if not zw_chunks:
-        return None
+        return None, None
 
-    features = torch.cat(zw_chunks, dim=0)[:max_samples]
-    targets = torch.cat(y_chunks, dim=0)[:max_samples]
-    readout = fit_pose_readout(features, targets, ridge=float(cfg.get("pose_probe_ridge", 1e-3)))
-    return {k: v.to(device) for k, v in readout.items()}
+    world_feats = torch.cat(zw_chunks, dim=0)[:max_samples]
+    ego_feats = torch.cat(ze_chunks, dim=0)[:max_samples] if ze_chunks else None
+    states = torch.cat(state_chunks, dim=0)[:max_samples]
+    ridge = float(cfg.get("pose_probe_ridge", 1e-3))
+
+    def fit(features, state_slice) -> dict[str, torch.Tensor]:
+        sl = slice(state_slice[0], state_slice[1])
+        readout = fit_pose_readout(features, states[:, sl], ridge=ridge)
+        return {k: v.to(device) for k, v in readout.items()}
+
+    block_readout = fit(world_feats, cfg.data.probe_target_slice)
+    # Agent xy comes from the ego latent when we have one, else fall back to world.
+    agent_feats = ego_feats if ego_feats is not None else world_feats
+    agent_readout = fit(agent_feats, cfg.data.get("agent_state_slice", [0, 2]))
+    return block_readout, agent_readout
 
 
 def _run_eval(world, episodes: int, seed: int, variation: list, video_dir: str | Path | None = None) -> dict:
@@ -192,6 +221,12 @@ def main(cfg: DictConfig) -> None:
         if drops:
             results["robustness_mean_drop"] = float(sum(drops.values()) / len(drops))
             print(f"[robustness] mean_drop={results['robustness_mean_drop']:.1f} pp")
+
+    results["checkpoint"] = str(cfg.checkpoint)
+    results["manifest"] = build_run_manifest(
+        OmegaConf.to_container(cfg, resolve=True),
+        seed=int(cfg.seed),
+    )
 
     ckpt_path = Path(cfg.checkpoint)
     tag = ckpt_path.parent.name if ckpt_path.parent.name not in ("", ".", "outputs") else ckpt_path.stem

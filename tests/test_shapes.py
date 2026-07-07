@@ -35,10 +35,11 @@ def test_rollout_shapes():
     zw = torch.randn(7, cfg.world_dim)
     ze = torch.randn(7, cfg.ego_dim)
     actions = torch.randn(7, 5, cfg.action_dim)
-    zf, ef, traj = model.rollout(zw, ze, actions)
+    zf, ef, traj, ego_traj = model.rollout(zw, ze, actions)
     assert zf.shape == (7, cfg.world_dim)
     assert ef.shape == (7, cfg.ego_dim)
     assert traj.shape == (7, 5, cfg.world_dim)
+    assert ego_traj.shape == (7, 5, cfg.ego_dim)
 
 
 def test_get_cost_shapes():
