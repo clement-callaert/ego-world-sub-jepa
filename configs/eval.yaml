@@ -20,7 +20,10 @@ device: cuda
 seed: 0
 episodes: 50
 num_envs: 1
-max_episode_steps: 300
+# The push plan runs in phases (approach, push, park) with recovery cycles, so
+# an episode needs more room than the 300 steps used in earlier reports. The
+# success check itself is unchanged; episodes end early on success.
+max_episode_steps: 700
 out_dir: outputs/eval
 
 # Set fast=true to use the smoke-test budget below.
@@ -28,22 +31,72 @@ fast: false
 use_pose_cost: true
 pose_cost_weight: 1.0
 pose_probe_ridge: 1.0e-3
-# Weight on the raw latent distance to the goal image. It matches the whole
-# scene, so it is noisy for this task. We keep it small and let the pose costs
-# drive the plan. Set to 1.0 to recover the old latent only behaviour.
+# Weight on the raw latent distance to the goal image. Measured to be noisy on
+# PushT (it mixes agent, block and background) and it dominated the plan, which
+# drove the agent out of the frame. Off by default; the decoded pose costs
+# below drive the plan.
 latent_cost_weight: 0.0
-# Pulls the planned agent toward the block so it can push it. 0 turns it off.
-# Without it the agent drifts off the board and never touches the block.
+# Moves the agent to the block in the approach phase (agent farther than
+# engage_thresh px from the block). The training data only has the agent near
+# the block, so the model hallucinates block motion when the agent is far away;
+# this term keeps the plan on the one signal that is reliable everywhere.
 approach_weight: 1.0
+engage_thresh: 70.0
+# A push can only move the block away from the agent, so the approach phase
+# aims at a standoff point this many px behind the block, opposite the goal.
+standoff: 60.0
+# During the approach the agent keeps at least this distance (px) to the block,
+# so it walks around the block instead of shoving it in a random direction.
+# Must stay clearly below standoff and engage_thresh, or the agent can never
+# reach its approach target and hangs at the balance point forever.
+clearance: 45.0
+# Penalty on squared actions near the block, so pushes stay gentle. A full
+# speed agent smashes the block much farther than the model predicts.
+action_penalty: 0.02
+# Rotates the block toward the goal angle. Success needs the angle within 20
+# degrees, which is hard for a point pusher, so the angle term carries real
+# weight and runs during the whole push.
+angle_cost_weight: 1.5
+# The plan parks the agent at its own goal only once the block is truly placed:
+# within near_block_thresh px and park_angle_thresh rad of its goal. With the
+# precise detector (about 8 px, 2 degrees) these can be tight. Parking on
+# position alone freezes the block short of its goal.
+agent_goal_weight: 1.0
+near_block_thresh: 18.0
+park_angle_thresh: 0.30
+# Keeps the planned agent inside the 512 px board. PushT never clamps the
+# agent, so without this the agent can leave the frame and the image goes dead.
+bounds_weight: 10.0
+# Supervised block detector checkpoint (from scripts/train_detector.py). When
+# set, the planner reads the current block pose from it (about 5 px) instead of
+# the latent readout (about 45 px). The world model still supplies the block
+# dynamics. Leave null to fall back to the latent readout.
+block_detector: null
+# The PushT action is relative: the env sets the agent target to
+# agent_position + action * action_scale. The planner uses this to clamp the
+# applied action so the agent target stays on the board.
+action_scale: 100.0
+# Margin (px) kept from the 512 px board edge by the on board action clamp.
+board_margin: 40.0
+# During the push phase the agent is pulled toward a point push_through px past
+# the block toward the goal, so it presses the block forward instead of drifting
+# around it. This gives the push a reliable geometric backbone; the world model
+# still scores the fine action through the predicted block displacement.
+push_weight: 1.0
+push_through: 4.0
 
 planner:
   kind: mppi              # one of: cem, mppi, hermite
   horizon: 8
   n_samples: 512
-  n_iters: 4
+  n_iters: 6
   # mppi / hermite
-  temperature: 0.1
-  noise_std: 0.4
+  # The pose costs live in (px / 512)^2 units, so they range about 0.01 to 0.3
+  # and good candidates differ by about 0.01. The temperature must sit at that
+  # scale or the MPPI softmax treats all candidates the same and the actions
+  # average out to mush.
+  temperature: 0.01
+  noise_std: 0.5
   # cem
   n_elites: 64
   init_std: 0.5

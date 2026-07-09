@@ -1,0 +1,22 @@
+# @package data
+# PushT collected at 96x96 (higher resolution than pusht.yaml). Use this with
+# model=factored_hires. Collect it first:
+#   python scripts/collect_data.py --out data/pusht_96.lance --episodes 2000 \
+#       --processes 32 --image-shape 96 96 --overwrite
+name_short: pusht96
+dataset: data/pusht_96.lance   # Lance dataset consumed by training
+env: swm/PushT-v1              # SWM environment id used for evaluation
+image_key: pixels
+proprio_key: proprio
+action_key: action
+state_key: state               # full state; used as the linear-probe target
+# Object-pose columns inside `state` used as the probe target (env-specific).
+# For PushT the block pose is [x, y, angle].
+probe_target_slice: [2, 5]
+# Agent xy columns inside `state`. Used by the MPC approach cost.
+agent_state_slice: [0, 2]
+# Limit training to the first N episodes (null = use all episodes in the table).
+max_episodes: null
+# Action space bounds the planner searches in (must match the env's action space).
+action_low: -1.0
+action_high: 1.0

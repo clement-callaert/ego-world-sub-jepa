@@ -54,8 +54,10 @@ class WorldViT(nn.Module):
         super().__init__()
         if img_size % patch_size != 0:
             raise ValueError(f"img_size ({img_size}) must be divisible by patch_size ({patch_size}).")
-        if head_norm not in ("batchnorm", "none"):
-            raise ValueError(f"head_norm must be 'batchnorm' or 'none', got {head_norm!r}.")
+        if head_norm not in ("batchnorm", "layernorm", "none"):
+            raise ValueError(
+                f"head_norm must be 'batchnorm', 'layernorm' or 'none', got {head_norm!r}."
+            )
         self.num_patches = (img_size // patch_size) ** 2
         self.patch_embed = nn.Conv2d(in_chans, embed_dim, kernel_size=patch_size, stride=patch_size)
         self.cls_token = nn.Parameter(torch.zeros(1, 1, embed_dim))
@@ -65,10 +67,20 @@ class WorldViT(nn.Module):
             [TransformerBlock(embed_dim, num_heads, mlp_ratio, dropout) for _ in range(depth)]
         )
         self.norm = nn.LayerNorm(embed_dim)
-        # CLS -> world latent (optional BatchNorm on head)
+        # CLS -> world latent, with an optional norm on the head.
+        # "batchnorm" uses batch stats in train and running stats in eval, so the
+        # train and eval outputs differ. That breaks the predictor at eval time.
+        # "layernorm" normalizes each sample on its own, so train and eval match.
+        # We default to layernorm for this reason.
+        # The LayerNorm has no learnable scale or bias (elementwise_affine=False).
+        # A learnable scale could shrink toward zero and let the whole latent
+        # collapse to a constant. Without it, LayerNorm forces unit RMS per
+        # sample, so the latent can never collapse to zero.
         head_layers: list[nn.Module] = [nn.Linear(embed_dim, out_dim)]
         if head_norm == "batchnorm":
             head_layers.append(nn.BatchNorm1d(out_dim))
+        elif head_norm == "layernorm":
+            head_layers.append(nn.LayerNorm(out_dim, elementwise_affine=False))
         self.head = nn.Sequential(*head_layers)
         self.out_dim = out_dim
 
@@ -116,5 +128,8 @@ def _init_weights(module: nn.Module) -> None:
         if module.bias is not None:
             nn.init.zeros_(module.bias)
     elif isinstance(module, nn.LayerNorm):
-        nn.init.ones_(module.weight)
-        nn.init.zeros_(module.bias)
+        # A non-affine LayerNorm has no weight or bias, so skip it.
+        if module.weight is not None:
+            nn.init.ones_(module.weight)
+        if module.bias is not None:
+            nn.init.zeros_(module.bias)

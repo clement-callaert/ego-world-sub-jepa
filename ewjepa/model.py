@@ -41,7 +41,8 @@ class EgoWorldConfig:
     num_heads: int = 6
     mlp_ratio: float = 2.0
     world_dim: int = 192
-    # world head norm: "batchnorm" (LeWM) or "none" (SIGReg can see collapse)
+    # world head norm: "layernorm" (train and eval match), "batchnorm" (LeWM,
+    # but train and eval differ, which breaks the predictor), or "none".
     world_head_norm: str = "none"
     # ego encoder (MLP)
     ego_dim: int = 32

@@ -58,6 +58,18 @@ def _build_policy(cfg: DictConfig, model: EgoWorldJEPA, normalizer, device: torc
                 print(f"[eval] agent readout fitted, approach cost enabled (weight={approach_weight})")
         else:
             print("[warn] pose readout unavailable, planner uses latent cost only")
+
+    # Optional supervised block detector. It is the block sensor the planner
+    # reads for the current pose. The JEPA world model still supplies the block
+    # dynamics through the predicted displacement in the MPC cost.
+    block_detector = None
+    detector_path = cfg.get("block_detector")
+    if detector_path:
+        from ewjepa.detector import load_detector
+
+        block_detector = load_detector(detector_path, map_location=device)
+        print(f"[eval] block detector loaded from {detector_path}")
+
     return LatentMPCPolicy(
         model=model,
         planner=planner,
@@ -68,6 +80,20 @@ def _build_policy(cfg: DictConfig, model: EgoWorldJEPA, normalizer, device: torc
         agent_readout=agent_readout,
         approach_weight=approach_weight,
         latent_cost_weight=float(cfg.get("latent_cost_weight", 1.0)),
+        angle_cost_weight=float(cfg.get("angle_cost_weight", 0.2)),
+        agent_goal_weight=float(cfg.get("agent_goal_weight", 1.0)),
+        bounds_weight=float(cfg.get("bounds_weight", 10.0)),
+        near_block_thresh=float(cfg.get("near_block_thresh", 15.0)),
+        park_angle_thresh=float(cfg.get("park_angle_thresh", 0.30)),
+        engage_thresh=float(cfg.get("engage_thresh", 70.0)),
+        standoff=float(cfg.get("standoff", 60.0)),
+        clearance=float(cfg.get("clearance", 45.0)),
+        action_penalty=float(cfg.get("action_penalty", 0.02)),
+        block_detector=block_detector,
+        action_scale=float(cfg.get("action_scale", 100.0)),
+        board_margin=float(cfg.get("board_margin", 40.0)),
+        push_weight=float(cfg.get("push_weight", 1.0)),
+        push_through=float(cfg.get("push_through", 20.0)),
     )
 
 
@@ -77,7 +103,7 @@ def _fit_readouts(
     model: EgoWorldJEPA,
     normalizer: Normalizer | None,
     device: torch.device,
-    max_samples: int = 2048,
+    max_samples: int = 8192,
 ) -> tuple[dict[str, torch.Tensor] | None, dict[str, torch.Tensor] | None]:
     """Fit ridge readouts used by the planner cost.
 

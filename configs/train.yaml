@@ -24,6 +24,7 @@ train:
   num_steps: 9          # window length T (open-loop rollout horizon = T-1; matches MPPI H=8)
   frameskip: 1
   lr: 3.0e-4
+  warmup_steps: 1000    # linear LR warmup, stops deep transformers collapsing
   weight_decay: 0.01
   grad_clip: 1.0
   num_workers: 12

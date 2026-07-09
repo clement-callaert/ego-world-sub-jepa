@@ -145,3 +145,4 @@ pipeline_summary() {
     echo "Eval (monolithic): outputs/eval/eval_pusht_monolithic_seed0_mppi.json"
     echo "Figures:           outputs/figures/probe_r2.png"
 }
+

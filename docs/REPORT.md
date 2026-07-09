@@ -1,6 +1,6 @@
 # Ego-World JEPA: Detailed Technical Report
 
-**Date:** 2026-07-05
+**Date:** 2026-07-09 (updated after planning fix)
 **Author:** Clément Callaert
 **Scope:** A factorized latent world model (world dynamics vs ego kinematics) trained as a JEPA, compared against a monolithic latent world model of matched capacity, on the PushT manipulation task from `stable-worldmodel`. This report explains the method, the four papers it builds on, the training objective and why it does not collapse, the planning problem, and the measured results.
 
@@ -165,7 +165,7 @@ Being explicit about credit is important.
 1. **The ego-world factorization itself.** Two separate encoders (a small ViT over pixels for `z_world`, an MLP over proprioception for `z_ego`) and a **factorized predictor** whose structure encodes the causal prior "the ego moves on its own, the world is moved by the ego". This is the scientific hypothesis being tested.
 2. **The factorized latent dynamics** with residual heads:
   `z_world_{t+1} = z_world_t + f_world(z_world_t, z_ego_t, a_t)` and `z_ego_{t+1} = z_ego_t + f_ego(z_ego_t, a_t)`.
-3. **Per stream SIGReg** applied separately to `z_world` and `z_ego`, plus practical anti collapse engineering (a BatchNorm projector on the ViT head, an optional per dimension variance floor), and an optional **state supervision** term that makes `z_world` encode the block pose and `z_ego` the agent xy. See Section 5.
+3. **Per stream SIGReg** on `z_world` and `z_ego`, plus practical anti collapse engineering: non-affine **LayerNorm** on the ViT head (train/eval match; BatchNorm broke the predictor at eval), optional variance floor, covariance decorrelation (`L_cov`), and optional **state supervision** so `z_world` encodes block pose and `z_ego` agent xy. See Section 5.
 4. **A matched capacity monolithic baseline** so any difference is attributable to factorization and not to parameter count (factored 1.59M vs monolithic 1.46M parameters).
 5. **The latent MPC policy wired into SWM** (`LatentMPCPolicy.get_action`), including image and proprioception preprocessing, warm starting of the plan, and a planning cost defined purely in world latent space.
 6. **A concrete implementation of the Hermite spline MPPI planner** integrated into the same planning interface as CEM and MPPI.
@@ -256,17 +256,17 @@ This keeps the ego rollout accurate over multiple steps, which matters when the 
 - **State supervision (makes the latents encode the positions the planner reads):**
 `L_aux = MSE(head_block(z_world), block_pose) + MSE(head_agent(z_ego), agent_xy)`, weighted by `λ_aux = state_aux_weight` (default `1.0` in the factored config). The block pose is `state[:, 2:5]` and the agent xy is `state[:, 0:2]`; both targets are standardized per batch so each column has a fair weight. The heads are linear and the gradient flows into the encoders, so `z_world` must encode the block and `z_ego` must encode the agent. Without this term SIGReg and `L_cov` keep the latents spread out and full rank but do not force them to carry the block position, which is exactly what the planner needs. The heads are only used during training; the planner fits its own readouts at eval time. Set `state_aux_weight=0` to recover pure JEPA.
 
-Following LeWM and LeJEPA, we do **not** use a stop gradient on the targets, **not** use an EMA teacher, and **not** use a schedule. The targets are simply the encoder's own outputs on the future frames, and gradients flow through them (`stop_grad_target = false`).
+Following LeJEPA, we do **not** use an EMA teacher or a schedule. The factored config sets `stop_grad_target: true` so the model cannot collapse the detached target latent (measured fix during debugging). Monolithic keeps `stop_grad_target: false`.
 
 ### 5.2 Why it does not collapse: the intuition and the mechanism
 
 The danger with any JEPA is the **shortcut solution**: the cheapest way to make `L_pred` zero is to make the encoder output a constant. If `z_world = c` for every image, then predicting `ẑ_world = z_world` is trivially perfect and the prediction loss is zero, but the representation carries no information. This is representation collapse. Four mechanisms prevent it here.
 
-1. **SIGReg makes collapse expensive.** SIGReg uses the Epps-Pulley test on random 1D projections (LeJEPA Algorithm 1). A collapsed (constant) embedding has zero variance, so projections are a spike at a point, far from `N(0,1)`. Low rank subspaces also fail because many projection directions have variance near zero. The prediction loss wants constancy; SIGReg wants spread. The equilibrium is an informative representation.
-2. **No BatchNorm on the projector head (LeJEPA style).** The default encoder head is `Linear` only (`world_head_norm: none`). BatchNorm forces unit per dimension variance even when the covariance is rank deficient, which can hide low rank collapse from a sketched SIGReg test. LeJEPA lets SIGReg control the scale directly.
-3. **The residual predictor removes the trivial fixed point.** Because the predictor outputs a residual `Δz` and the update is `z_{t+1} = z_t + Δz`, the identity map is the natural initialization. The model does not need to collapse to make short horizon prediction easy; "predict almost no change" is already a good and information preserving default.
-4. **The variance floor** directly penalizes any world dimension whose standard deviation drops below `0.5`. It complements SIGReg but does not replace rank enforcement.
-5. **Covariance decorrelation (`L_cov`)** penalizes off diagonal batch covariance of `z_world`. This is the term that addresses the failure mode observed in early runs: SIGReg ≈ 0.06 (healthy) coexisting with `effective_rank` ≈ 2.8 out of 192 (collapsed). Without `L_cov`, latent MPC cost surfaces become nearly flat and planning success stays at 0%.
+1. **SIGReg makes collapse expensive.** SIGReg uses the Epps-Pulley test on random 1D projections (LeJEPA Algorithm 1). A collapsed embedding fails the test. The prediction loss wants constancy; SIGReg wants spread.
+2. **LayerNorm head, not BatchNorm.** The factored config uses non-affine LayerNorm on the ViT projector (`world_head_norm: layernorm`). BatchNorm uses different statistics in train vs eval and made train/eval latents ~100% apart, so the predictor was useless at planning time (4.8% action response vs 67% after the fix).
+3. **The residual predictor** outputs `Δz` with update `z_{t+1} = z_t + Δz`, so near-identity is a good default and collapse is not the easiest shortcut.
+4. **Variance floor** penalizes world dimensions with std below 0.5.
+5. **`L_cov`** penalizes off-diagonal batch covariance of `z_world` and keeps `effective_rank` healthy (early runs had SIGReg OK but rank ~3 without it).
 
 ---
 
@@ -288,15 +288,17 @@ where `S_i` is the cost of candidate `i`. Low cost candidates get more weight.
 
 
 
-### 6.2 The planning cost
+### 6.2 The planning cost (current stack)
 
-The planner rolls each candidate action sequence forward and adds three terms, each averaged over the horizon:
+The planner rolls each candidate action sequence and scores pose costs in pixel space:
 
-1. **Latent goal distance:** `‖ ẑ_world^h − z_world_goal ‖²`, where `z_world_goal = WorldViT(goal image)`. This matches the whole scene, so it is noisy for this task; we keep its weight small.
-2. **Block to goal:** the block pose read from the rolled-out `z_world` should reach the goal block pose.
-3. **Agent to block (approach):** the agent xy read from the rolled-out `z_ego` should reach the block, so the agent makes contact and can push.
+1. **Block to goal:** block pose from the **supervised detector** (about 8 px RMSE) compared to `goal_state[2:5]`.
+2. **Agent approach / push / park:** agent xy read exactly from **proprio** (not from `z_ego` decode). Phases: go around the block, gentle push toward goal, latch park when block position and angle are close.
+3. **Dynamics term:** block displacement predicted by rolling the **JEPA world model** in latent space, added to the detector's current block. This uses the learned push dynamics without trusting the latent for absolute block position.
+4. **On-board clamp:** actions are clipped so the agent (kinematic, unclamped in the env) stays inside the 512 px board.
+5. **Latent goal distance:** optional, weight 0 by default (too noisy for this task).
 
-Reading the block from `z_world` and the agent from `z_ego` follows the factorization: the block lives in the world stream, and the agent is the part the actions control, so it lives in the ego stream. We average over the whole rollout, not only the final step, because a final-step-only cost can pick actions that look good at step `H` but move the block the wrong way in between.
+Earlier versions used only ridge readouts on `z_world`/`z_ego` and wrong goal keys; those bugs are documented in `POSTMORTEM.md`.
 
 ### 6.3 The evaluation protocol
 
@@ -307,66 +309,86 @@ Four measurements, in increasing order of ambition.
 3. **Linear probing:** freeze the encoder, fit a ridge regression from the latent to the true block pose `[x, y, angle]` (`state[:, 2:5]`), report R2 and NRMSE on a held out split. The split is grouped (the test rows are the last part of the sequence) so that overlapping neighbouring frames do not leak across train and test. This tests *whether the representation encodes the block*, independently of whether planning succeeds.
 4. **Anti collapse diagnostics** over training (Section 5.3).
 
-## 7. Implementation status
+## 7. Implementation status and measured results
 
 
-| Plan item                                           | Status                              |
-| --------------------------------------------------- | ----------------------------------- |
-| WorldViT + EgoMLP + factorized predictor            | done                                |
-| SIGReg (sketched Epps-Pulley) + Hydra training loop | done                                |
-| Covariance decorrelation (`L_cov`) anti-collapse    | done, trained                       |
-| Monolithic LeWM style baseline                      | done, trained                       |
-| Factored model                                      | done, trained                       |
-| Latent MPC policy (CEM / MPPI / Hermite) into SWM   | done                                |
-| State supervision (`state_aux_weight`) so latents encode pose | done, trained             |
-| SWM evaluate + factors of variation sweep           | wired; planner at 0% success        |
-| Linear probing (grouped split, factorization evidence) | done, measured                   |
-| Hermite spline MPPI                                 | done (optional planner)             |
-| GFP / value aware policy extraction                 | future work only, not implemented   |
-| 3D/4D geometric grounding, cross embodiment         | future work only, not implemented   |
+| Plan item | Status |
+| --- | --- |
+| WorldViT + EgoMLP + factorized predictor | done |
+| SIGReg (Epps-Pulley) + Hydra training | done |
+| Covariance decorrelation (`L_cov`) | done |
+| Monolithic LeWM-style baseline | done, probed (`results/probe/monolithic_seed0.json`) |
+| Factored model + LayerNorm head | done |
+| Latent MPC (CEM / MPPI / Hermite) in SWM | done |
+| State supervision (`state_aux_weight`) | done |
+| Supervised block detector for control | done |
+| Linear probing (grouped split) | done |
+| Planning success > 0% | **6.0% (3/50)** on factored hires + detector |
+| Monolithic planning on same detector stack | not run |
+| FoV robustness sweeps, multi-seed | not done |
+| GFP offline policy | future work |
 
-### 7.1 Measured results (2026-07-07, seed 0, 20k steps)
+### 7.1 Representation (Jul 8 fix, 64px, seed 0)
 
-Artifacts in `results/` (probe/eval JSON + training log). The probe uses a **grouped split** (the test rows are the last part of the sequence) so that overlapping neighbouring frames do not appear on both sides of the split. This matters here: an earlier random split leaked near-identical frames across train and test and reported R2 numbers that were much higher than the model really generalizes to (for example `z_world` -> block pose read as 0.29 to 0.78 with the random split, against 0.39 with the grouped split).
+LayerNorm head vs old BatchNorm head (same training budget, measured):
 
-| Metric | Factored + state supervision |
-| ------ | ---------------------------- |
-| Probe R2 (`z_world` -> block pose), grouped split | **0.39** |
-| Probe R2 (`z_ego` -> block pose), grouped split | 0.63 |
-| Agent xy recovered from `z_ego` | R2 ≈ **1.0** |
-| World model predicts block push direction | cosine ≈ 0.75 with true motion |
-| `world/effective_rank` @ 19.75k | ≈ **29** |
-| Planning success (MPPI, 20 ep.) | **0%** |
+| Metric | BatchNorm | LayerNorm |
+| --- | --- | --- |
+| Probe R2, block from `z_world` | 0.35 | **~0.8** |
+| Probe R2, agent xy from `z_ego` | 0.94 | **~1.0** |
+| Train vs eval latent gap | ~100% | **0%** |
+| Predictor action response / step | 4.8% | **67%** |
 
-**What state supervision changed.** Before it, `z_world` did not encode the block: the grouped-split probe was near 0 (and negative on a fully held-out tail), and rolling the latent forward gave the same drift for every action, so the MPC cost was flat and the agent drove straight off the board. Adding a linear head that reads the block pose from `z_world` and the agent xy from `z_ego` and matches the true state fixes this. The block is now readable (R2 = 0.39), the agent position is read almost exactly from `z_ego` (R2 ≈ 1.0), and a rollout with action `[+1, 0]` moves the decoded agent right while `[-1, 0]` moves it left. The open-loop rollout also predicts which way the block will move (cosine 0.75 against the true displacement on windows where the block moved).
+### 7.2 Monolithic vs factored (probe only, Jul 6 cov run)
 
-**Planning is still 0% (negative result).** In a traced episode the agent drives to the block and pushes it a few pixels, but the block does not reach the goal. Two reasons stand out. The planning horizon (8 steps) is short compared with the distance the block has to travel, so the block-to-goal term sees little movement inside one plan. And that term is weaker and noisier than the agent-to-block approach term, so the agent parks on the block instead of committing to a directed push. The success test is strict as well: agent and block both within about 20 px and block angle within 20 degrees. Tuning the cost weights and horizon, and lengthening the training window, are the next steps.
+From committed `results/probe/` (grouped split, 8192 latent rows). **Different config** than the LayerNorm run above (`world_head_norm: none`, no LayerNorm fix). Planning was 0% for both.
 
+| Metric | Factored (`factored_cov_seed0`) | Monolithic (`monolithic_seed0`) |
+| --- | --- | --- |
+| Probe R2, block pose from world latent | 0.29 | **0.78** |
+| Planning success (MPPI, 20 ep.) | 0% | not evaluated |
+
+So on this older probe, the monolithic latent actually encoded block pose better. We have **not** yet compared planning with the detector stack. The scientific claim (factorization helps planning) remains **open**, not proven.
+
+### 7.3 Planning (Jul 9, seed 0)
+
+After the precision wall was measured (~45 px from JEPA latent vs ~14 px needed for success), we added a small supervised CNN block detector (~8 px) and fixed MPC control (exact agent from proprio, board clamp, go-around / push / park).
+
+| Metric | Value |
+| --- | --- |
+| Detector block xy RMSE (held-out) | **8.3 px**, angle **2.4 deg** |
+| Planning success, MPPI, 50 episodes | **6.0% (3/50)** |
+| Artifact | `results/eval/eval_pusht_hires_seed0_mppi.json` |
+
+**Honest reading:** 0% to 6% shows the pipeline is not broken. 6% is **not** comparable to DINO-WM's ~94% in-distribution or strong baselines in the literature: we use a tiny ViT trained from scratch, WeakPolicy data, heuristic MPC phases, and a **supervised** block sensor. LeJEPA and Hermite MPPI inspired parts of the code but this number does not extend those papers' benchmarks.
+
+Details and mistakes: `POSTMORTEM.md` sections 8 and 9.
 
 ---
 
-
-
 ## 8. Reproducibility
 
-```bash
-export PYTHONPATH=.
-bash scripts/reproduce.sh
-```
-
-Or step by step:
+**Representation (probe ~0.8):**
 
 ```bash
 export PYTHONPATH=.
-python3 scripts/collect_data.py --episodes 2000 --out data/pusht.lance --overwrite --processes 16 --num-envs 2
-python3 scripts/train.py model=factored data=pusht out_dir=outputs/pusht_factored_stateaux_seed0 train.steps=20000
-python3 scripts/train.py model=monolithic data=pusht out_dir=outputs/pusht_monolithic_seed0 train.steps=20000
-python3 scripts/probe.py checkpoint=outputs/pusht_factored_stateaux_seed0/model.pt synthetic_fallback=false
-python3 scripts/evaluate.py checkpoint=outputs/pusht_factored_stateaux_seed0/model.pt episodes=20
-python3 scripts/copy_results.py
+python3 scripts/collect_data.py --out data/pusht.lance --episodes 2000 \
+    --processes 16 --num-envs 2 --image-shape 64 64 --overwrite
+python3 scripts/train.py model=factored data=pusht train.steps=20000 \
+    out_dir=outputs/pusht_factored_ln_seed0
+python3 scripts/probe.py checkpoint=outputs/pusht_factored_ln_seed0/model.pt \
+    synthetic_fallback=false
+python3 scripts/train.py model=monolithic data=pusht train.steps=20000 \
+    out_dir=outputs/pusht_monolithic_seed0
+python3 scripts/probe.py checkpoint=outputs/pusht_monolithic_seed0/model.pt \
+    synthetic_fallback=false
 ```
 
-Committed artifacts land in `results/` with a run manifest.
+**Planning (6%):** see README section "Reproduce results B". Checkpoints and detector weights live under `outputs/` (gitignored). Committed JSON summaries live in `results/`.
+
+`bash scripts/reproduce.sh` still runs an older cov/stateaux pipeline (useful smoke test, 0% planning on that path).
+
+After local runs: `python3 scripts/copy_results.py` refreshes probe/eval copies into `results/` (does not yet copy the hires detector eval by default).
 
 ---
 

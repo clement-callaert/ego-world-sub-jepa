@@ -1,5 +1,6 @@
 """Ego-World JEPA: factorized latent world models for planning."""
 
+from .detector import BlockPoseDetector, load_detector, save_detector
 from .encoders import EgoMLP, WorldViT
 from .model import EgoWorldConfig, EgoWorldJEPA
 from .mpc_policy import LatentMPCPolicy
@@ -35,6 +36,9 @@ __all__ = [
     "hermite_interpolate",
     "clamp_node_velocity",
     "LatentMPCPolicy",
+    "BlockPoseDetector",
+    "load_detector",
+    "save_detector",
     "Normalizer",
 ]
 

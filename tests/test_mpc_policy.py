@@ -78,3 +78,61 @@ def test_needs_flush_clears_nominal():
     assert planner.nominals_seen[0] is None
     assert planner.nominals_seen[1] is not None
     assert torch.allclose(planner.nominals_seen[1], stale)
+
+
+class _FixedPlanner(MPPIPlanner):
+    """Planner that always proposes the same first action (for clamp tests)."""
+
+    def __init__(self, first: torch.Tensor, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._first = first
+
+    def plan(self, cost_fn, nominal=None):
+        return torch.zeros(self.h, self.a), self._first.clone()
+
+
+def test_onboard_clamp_keeps_agent_target_on_board():
+    device = torch.device("cpu")
+    cfg = EgoWorldConfig(mode="factored", img_size=32, proprio_dim=2, action_dim=2)
+    model = EgoWorldJEPA(cfg).to(device)
+
+    # The planner asks for a full speed move up and to the right.
+    planner = _FixedPlanner(
+        torch.tensor([1.0, 1.0]),
+        horizon=4,
+        action_dim=2,
+        n_samples=8,
+        n_iters=1,
+        device=device,
+        generator=torch.Generator(device=device),
+    )
+    action_scale = 100.0
+    board_margin = 40.0
+    pose_scale = 512.0
+    policy = LatentMPCPolicy(
+        model=model,
+        planner=planner,
+        device=device,
+        action_scale=action_scale,
+        board_margin=board_margin,
+        pose_scale=pose_scale,
+    )
+
+    class _Env1:
+        num_envs = 1
+        action_space = type("S", (), {"shape": (1, 2)})()
+
+    policy.set_env(_Env1())
+
+    # Agent sits near the right and bottom edge, so a full speed move would send
+    # its target off the board. The clamp must pull it back inside.
+    agent = np.array([[500.0, 500.0]], dtype=np.float32)
+    info = {
+        "pixels": np.random.randint(0, 255, (1, 1, 32, 32, 3), dtype=np.uint8),
+        "proprio": agent[:, None, :],
+        "goal": np.random.randint(0, 255, (1, 1, 32, 32, 3), dtype=np.uint8),
+    }
+    action = policy.get_action(info)
+    target = agent[0] + action[0] * action_scale
+    assert (target >= board_margin - 1e-4).all()
+    assert (target <= pose_scale - board_margin + 1e-4).all()

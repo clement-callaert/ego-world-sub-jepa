@@ -133,7 +133,17 @@ def main(cfg: DictConfig) -> None:
     model.train()
     prefetcher = BatchPrefetcher(loader, device)
 
+    # Linear learning rate warmup. A deep transformer can collapse to a single
+    # point if the full learning rate hits it from a cold start. We ramp the
+    # rate up from 0 to base_lr over the first warmup_steps steps to avoid that.
+    base_lr = float(cfg.train.lr)
+    warmup_steps = max(1, int(cfg.train.get("warmup_steps", 0)))
+
     while step < cfg.train.steps:
+        lr_scale = min(1.0, (step + 1) / warmup_steps)
+        for group in opt.param_groups:
+            group["lr"] = base_lr * lr_scale
+
         batch = prefetcher.next()
         out = _training_step(
             model,
