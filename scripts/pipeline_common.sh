@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 # Shared helpers for pipeline_short / pipeline_medium / pipeline_long.
+#
+# Common overrides (examples):
+#   TRAIN_COMPILE=1 TRAIN_STEPS=50000 bash scripts/pipeline_long.sh
+#   DETECTOR_STEPS=8000 EVAL_EPISODES=100 bash scripts/pipeline_long.sh
 
 set -euo pipefail
 
@@ -16,14 +20,15 @@ pipeline_banner() {
     echo "============================================================"
 }
 
-# Exit 0 when data/pusht.lance exists and the current user can read Lance files.
-pipeline_pusht_lance_readable() {
-    python3 - <<'PY'
+# Exit 0 when a Lance dataset exists and the current user can read it.
+pipeline_lance_readable() {
+    local path="$1"
+    python3 - <<PY
 import os
 import sys
 from pathlib import Path
 
-path = Path("data/pusht.lance")
+path = Path("${path}")
 if not path.is_dir():
     sys.exit(1)
 
@@ -39,32 +44,52 @@ sys.exit(0)
 PY
 }
 
-# Collect PushT Lance data when missing, unreadable, or FORCE_COLLECT=1.
+# Collect 64x64 PushT data when missing or FORCE_COLLECT=1.
 pipeline_ensure_pusht_data() {
     local episodes="$1"
     local processes="$2"
+    pipeline_ensure_lance_data "data/pusht.lance" "${episodes}" "${processes}" 64 64
+}
+
+# Collect Lance data when missing, unreadable, or FORCE_COLLECT=1.
+pipeline_ensure_lance_data() {
+    local out_path="$1"
+    local episodes="$2"
+    local processes="$3"
+    local img_h="${4:-64}"
+    local img_w="${5:-64}"
     local need_collect=0
 
-    if [[ ! -d data/pusht.lance ]] || [[ "${FORCE_COLLECT:-0}" == "1" ]]; then
+    if [[ ! -d "${out_path}" ]] || [[ "${FORCE_COLLECT:-0}" == "1" ]]; then
         need_collect=1
-    elif ! pipeline_pusht_lance_readable; then
-        echo "[warn] data/pusht.lance exists but is not readable (often root-owned files); recollecting"
+    elif ! pipeline_lance_readable "${out_path}"; then
+        echo "[warn] ${out_path} exists but is not readable; recollecting"
         need_collect=1
     fi
 
     if [[ "${need_collect}" == "1" ]]; then
-        pipeline_banner "Collect data (${episodes} episodes)"
-        # PushT collection uses WeakPolicy by default (see collect_data.py).
-        # Set FORCE_COLLECT=1 to replace old random-policy data.
+        pipeline_banner "Collect data (${episodes} ep -> ${out_path}, ${img_h}x${img_w})"
         python3 scripts/collect_data.py \
             --episodes "${episodes}" \
-            --out data/pusht.lance \
+            --out "${out_path}" \
             --processes "${processes}" \
             --num-envs 2 \
+            --image-shape "${img_h}" "${img_w}" \
             --overwrite
     else
-        echo "[skip] data/pusht.lance exists and is readable (set FORCE_COLLECT=1 to recollect)"
+        echo "[skip] ${out_path} exists and is readable (set FORCE_COLLECT=1 to recollect)"
     fi
+}
+
+# Default checkpoint dir for a Hydra model/data pair.
+pipeline_default_out_dir() {
+    local model="$1"
+    case "${model}" in
+        factored) echo "outputs/pusht_factored_seed0" ;;
+        monolithic) echo "outputs/pusht_monolithic_seed0" ;;
+        factored_hires) echo "outputs/pusht_hires_seed0" ;;
+        *) echo "outputs/pusht_${model}_seed0" ;;
+    esac
 }
 
 pipeline_train() {
@@ -72,17 +97,27 @@ pipeline_train() {
     local steps="$2"
     local batch="$3"
     local workers="$4"
-    local max_episodes="${5:-}"
-    local out_dir="outputs/pusht_${model}_seed0"
+    local data="${5:-pusht}"
+    local out_dir="${6:-$(pipeline_default_out_dir "${model}")}"
+    local max_episodes="${7:-}"
+    local compile="${8:-${TRAIN_COMPILE:-0}}"
 
-    pipeline_banner "Train ${model} (${steps} steps)"
+    pipeline_banner "Train ${model} (${steps} steps) -> ${out_dir}"
     local extra=()
     if [[ -n "${max_episodes}" ]]; then
         extra+=("data.max_episodes=${max_episodes}")
     fi
+    if [[ "${compile}" == "1" ]]; then
+        extra+=("train.compile=true")
+        echo "[info] torch.compile enabled (first steps are slower while compiling)"
+    fi
+    if [[ "${model}" == "factored_hires" ]]; then
+        extra+=("train.warmup_steps=${TRAIN_WARMUP:-1000}")
+    fi
+
     python3 scripts/train.py \
         "model=${model}" \
-        data=pusht \
+        "data=${data}" \
         "train.steps=${steps}" \
         "train.batch_size=${batch}" \
         "train.num_workers=${workers}" \
@@ -90,16 +125,39 @@ pipeline_train() {
         "${extra[@]}"
 }
 
-pipeline_probe() {
-    local model="$1"
-    local max_samples="${2:-8192}"
-    local ckpt="outputs/pusht_${model}_seed0/model.pt"
+pipeline_train_detector() {
+    local dataset="${1:-data/pusht_96.lance}"
+    local out_path="${2:-outputs/pusht_hires_seed0/detector.pt}"
+    local img_size="${3:-96}"
+    local steps="${4:-${DETECTOR_STEPS:-6000}}"
 
-    pipeline_banner "Probe ${model}"
+    pipeline_banner "Train block detector (${steps} steps) -> ${out_path}"
+    python3 scripts/train_detector.py \
+        --dataset "${dataset}" \
+        --out "${out_path}" \
+        --img-size "${img_size}" \
+        --steps "${steps}"
+}
+
+pipeline_probe() {
+    local ckpt="$1"
+    local max_samples="${2:-8192}"
+    local data="${3:-pusht}"
+
+    pipeline_banner "Probe ${ckpt}"
     python3 scripts/probe.py \
         "checkpoint=${ckpt}" \
+        "data=${data}" \
         synthetic_fallback=false \
         "probe.max_samples=${max_samples}"
+}
+
+# Full planning eval (optionally with block detector).
+pipeline_eval() {
+    local ckpt="$1"
+    shift
+    pipeline_banner "Eval ${ckpt}"
+    python3 scripts/evaluate.py "checkpoint=${ckpt}" "$@"
 }
 
 pipeline_plot() {
@@ -107,19 +165,13 @@ pipeline_plot() {
     local probe_files=()
     local eval_files=()
 
-    for f in outputs/probe/probe_pusht_factored_seed0.json \
-             outputs/probe/probe_pusht_monolithic_seed0.json; do
-        if [[ -f "$f" ]]; then
-            probe_files+=("$f")
-        fi
-    done
+    while IFS= read -r -d '' f; do
+        probe_files+=("$f")
+    done < <(find outputs/probe -maxdepth 1 -name 'probe_*.json' -print0 2>/dev/null || true)
 
-    for f in outputs/eval/eval_pusht_factored_seed0_mppi.json \
-             outputs/eval/eval_pusht_monolithic_seed0_mppi.json; do
-        if [[ -f "$f" ]]; then
-            eval_files+=("$f")
-        fi
-    done
+    while IFS= read -r -d '' f; do
+        eval_files+=("$f")
+    done < <(find outputs/eval -maxdepth 1 -name 'eval_*.json' -print0 2>/dev/null || true)
 
     if [[ ${#probe_files[@]} -eq 0 && ${#eval_files[@]} -eq 0 ]]; then
         echo "[warn] No probe or eval JSON files found to plot."
@@ -139,10 +191,15 @@ pipeline_plot() {
 
 pipeline_summary() {
     pipeline_banner "Summary"
-    echo "Probe (factored):  outputs/probe/probe_pusht_factored_seed0.json"
-    echo "Probe (monolithic): outputs/probe/probe_pusht_monolithic_seed0.json"
-    echo "Eval (factored):   outputs/eval/eval_pusht_factored_seed0_mppi.json"
-    echo "Eval (monolithic): outputs/eval/eval_pusht_monolithic_seed0_mppi.json"
-    echo "Figures:           outputs/figures/probe_r2.png"
+    echo "Best planning path (current):"
+    echo "  World model:  outputs/pusht_hires_seed0/model.pt"
+    echo "  Detector:     outputs/pusht_hires_seed0/detector.pt"
+    echo "  Eval JSON:    outputs/eval/eval_pusht_hires_seed0_mppi.json"
+    echo ""
+    echo "64px baselines:"
+    echo "  Factored:     outputs/pusht_factored_seed0/model.pt"
+    echo "  Monolithic:   outputs/pusht_monolithic_seed0/model.pt"
+    echo ""
+    echo "Speed tip: TRAIN_COMPILE=1 on train.py (torch.compile, slower first steps)."
+    echo "Long run:   TRAIN_STEPS=50000 DETECTOR_STEPS=8000 EVAL_EPISODES=100 bash scripts/pipeline_long.sh"
 }
-

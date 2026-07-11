@@ -1,37 +1,86 @@
 # Ego-World JEPA
 
-Small **factored (ego/world) latent world model** on [stable-worldmodel](https://github.com/facebookresearch/stable-worldmodel) PushT. Two latents: `z_world` from pixels (block and scene), `z_ego` from proprio (agent). Dynamics are learned in latent space (JEPA, no pixel decoding). Planning is latent MPC (MPPI).
+This repository is a small latent world model for PushT from
+[stable-worldmodel](https://github.com/facebookresearch/stable-worldmodel).
 
-**What works today (seed 0, measured):**
+The model has two latents:
 
-- World model trains stably with SIGReg + covariance decorrelation.
-- Linear probe: block pose R2 about **0.8** from `z_world`, agent xy R2 about **1.0** from `z_ego` (LayerNorm head, grouped split).
-- Predictor responds to actions at eval (about **67%** of a true one-step latent move; was 4.8% with a BatchNorm head).
-- Planning success **6.0% (3/50 episodes)** with a supervised block detector + corrected MPC (was 0% for weeks).
+- `z_world` comes from the image. It represents the block and the scene.
+- `z_ego` comes from proprioception. It represents the agent.
 
-**What is still weak:** 6% is low. The JEPA latent alone only localizes the block to about 45 px; we added a small supervised CNN detector (~8 px) for control. Monolithic vs factored planning has not been compared on the same eval stack yet.
+The model predicts the next latent state. It does not reconstruct pixels.
+It plans actions with MPC and MPPI.
 
-> **Name note:** Not related to the [Sub-JEPA paper](https://arxiv.org/abs/2605.09241). Here "ego-world" means factored latents with LeJEPA-style SIGReg training.
+## Important name note
 
-We also train a **monolithic** LeWM-style baseline (~1.46M params vs ~1.59M factored) for representation comparison. See `configs/model/monolithic.yaml` and `results/probe/monolithic_seed0.json`.
+This project is not Sub-JEPA by Zhao et al. The names are similar, but the
+methods are different. Here, "ego-world" means that the world and the agent use
+separate latent spaces.
 
-Full debugging story: [`POSTMORTEM.md`](POSTMORTEM.md). Technical report: [`docs/REPORT.md`](docs/REPORT.md).
+## Results
 
----
+All numbers below come from JSON files committed in `results/`. They use seed 0.
 
-## Status (2026-07-09, seed 0)
+### Representation probes
 
-| Component | Status |
+The probe predicts block pose `[x, y, angle]` from a frozen latent. It uses a
+ridge regression and 8,192 samples.
+
+| Model | Block pose R² | Evidence |
+| --- | ---: | --- |
+| Factored model | 0.286 | `results/probe/factored_cov_seed0.json` |
+| Monolithic baseline | 0.779 | `results/probe/monolithic_seed0.json` |
+
+The monolithic baseline is better on this probe. This is a representation
+result only. It is not a planning comparison.
+
+The factorized JSON records `world_head_norm: "none"`. Older documents called
+this run BatchNorm. The committed JSON does not support that label, so this
+README does not use it.
+
+### Closed-loop planning
+
+Planning improved from 0% to **6.0%**, or **3 successes in 50 episodes**.
+
+This result uses:
+
+- the factored model with a LayerNorm head
+- MPPI
+- a supervised block pose detector
+- a 96x96 PushT dataset
+
+The run is recorded in `results/eval/eval_pusht_hires_seed0_mppi.json`.
+
+This is still a weak result. The detector estimates the block pose at about
+8 px error. The JEPA latent is used to predict block motion during planning.
+The monolithic baseline has not been evaluated with this same detector and MPC
+setup.
+
+## Three important bugs we diagnosed
+
+The project includes a full debugging log in
+[POSTMORTEM.md](POSTMORTEM.md). The most important findings are:
+
+1. SIGReg was scaled by the number of samples. Its loss became much too large.
+2. The target latent could collapse to zero. The fix was to stop gradients in
+   the target branch.
+3. BatchNorm gave different latents during training and evaluation. The
+   predictor learned from one latent distribution and planned with another.
+   The fix was to use LayerNorm.
+
+These bugs explain why early training and planning results were unreliable.
+
+## Status
+
+| Part | Status |
 | --- | --- |
-| Factored + monolithic models, SIGReg, `L_cov`, state supervision | Done, tested |
-| LayerNorm head (train/eval match) | Fixed (was BatchNorm) |
-| Linear probing (grouped split), collapse diagnostics | Working |
-| Unit tests | **44 passed** (`pytest tests/`, skip `test_train_speed`) |
-| Block detector + corrected MPC | Done; planning **6.0%** on 50 ep |
-| Monolithic planning on detector stack | Not run yet |
-| Multi-seed / FoV robustness sweeps | Not done |
-
----
+| Factored and monolithic models | Implemented |
+| SIGReg and covariance loss | Implemented |
+| Linear probes | Implemented |
+| Supervised block detector | Implemented |
+| MPPI evaluation | Implemented |
+| Factored versus monolithic planning | Not yet compared |
+| Several seeds and robustness tests | Not yet run |
 
 ## Quick start
 
@@ -39,18 +88,18 @@ Full debugging story: [`POSTMORTEM.md`](POSTMORTEM.md). Technical report: [`docs
 pip install -r requirements.txt
 export PYTHONPATH=.
 
-# Data (WeakPolicy so the block moves)
+# Collect data.
 python3 scripts/collect_data.py --episodes 2000 --out data/pusht.lance \
     --overwrite --processes 16 --num-envs 2
 
-# Train both baselines (~40 min each on RTX 5090)
+# Train the two models.
 python3 scripts/train.py model=factored data=pusht \
-    out_dir=outputs/pusht_factored_ln_seed0 train.steps=20000
+    out_dir=outputs/pusht_factored_seed0 train.steps=20000
 python3 scripts/train.py model=monolithic data=pusht \
     out_dir=outputs/pusht_monolithic_seed0 train.steps=20000
 
-# Probe (grouped split, real Lance data)
-python3 scripts/probe.py checkpoint=outputs/pusht_factored_ln_seed0/model.pt \
+# Run a probe on each checkpoint.
+python3 scripts/probe.py checkpoint=outputs/pusht_factored_seed0/model.pt \
     synthetic_fallback=false
 python3 scripts/probe.py checkpoint=outputs/pusht_monolithic_seed0/model.pt \
     synthetic_fallback=false
@@ -58,113 +107,62 @@ python3 scripts/probe.py checkpoint=outputs/pusht_monolithic_seed0/model.pt \
 python3 -m pytest tests/ -q --ignore=tests/test_train_speed.py
 ```
 
-Without `data/pusht.lance`, training uses a synthetic dataset for smoke tests only.
+Without `data/pusht.lance`, training uses synthetic data for smoke tests only.
 
----
+## Reproduce the 6% planning run
 
-## Reproduce results
-
-### A. Representation (probe R2 about 0.8)
-
-64x64, LayerNorm head, 20k steps:
-
-```bash
-export PYTHONPATH=.
-python3 scripts/collect_data.py --out data/pusht.lance --episodes 2000 \
-    --processes 16 --num-envs 2 --image-shape 64 64 --overwrite
-python3 scripts/train.py model=factored data=pusht train.steps=20000 \
-    out_dir=outputs/pusht_factored_ln_seed0
-python3 scripts/probe.py checkpoint=outputs/pusht_factored_ln_seed0/model.pt \
-    synthetic_fallback=false
-```
-
-Older one-command path (cov model, 0% planning): `bash scripts/reproduce.sh`.
-
-### B. Planning (6.0% success)
-
-Needs `data/pusht_96.lance`, `outputs/pusht_hires_seed0/model.pt`, and a trained detector.
+The planning run needs `data/pusht_96.lance`, a trained model, and a trained
+block detector.
 
 ```bash
 export PYTHONPATH=.
 
-# 96x96 data + world model (batch 256 fits ~19 GB VRAM)
+# Collect 96x96 data and train the world model.
 python3 scripts/collect_data.py --out data/pusht_96.lance --episodes 2000 \
     --processes 32 --image-shape 96 96 --overwrite
 python3 scripts/train.py model=factored_hires data=pusht_96 train.steps=20000 \
-    train.batch_size=256 train.warmup_steps=1000 out_dir=outputs/pusht_hires_seed0
+    train.batch_size=256 train.warmup_steps=1000 \
+    out_dir=outputs/pusht_hires_seed0
 
-# Block detector (~few minutes)
+# Train the supervised block pose detector.
 python3 scripts/train_detector.py --dataset data/pusht_96.lance \
     --out outputs/pusht_hires_seed0/detector.pt --img-size 96 --steps 6000
 
-# Full eval (50 episodes, writes manifest JSON)
+# Evaluate 50 episodes with MPPI.
 python3 scripts/evaluate.py checkpoint=outputs/pusht_hires_seed0/model.pt \
     block_detector=outputs/pusht_hires_seed0/detector.pt data=pusht_96 episodes=50
 ```
 
-Committed copy of the 6% eval: `results/eval/eval_pusht_hires_seed0_mppi.json`.
+## Method
 
----
+- `WorldViT` encodes RGB images.
+- `EgoMLP` encodes proprioception.
+- The factored model predicts `z_world` and `z_ego` separately.
+- The monolithic baseline uses one latent for both.
+- The loss uses prediction loss, SIGReg, a variance loss, covariance loss, and
+  optional state supervision.
+- Planning uses `LatentMPCPolicy`. It supports CEM, MPPI, and Hermite MPPI.
 
-## Results (PushT, seed 0)
+## Repository layout
 
-**Probe setup:** 2000 episodes, 20k steps, ridge linear probe on block `[x, y, angle]`, **grouped split** (test tail of each sequence; random split inflates R2).
-
-| Metric | BatchNorm head (old) | LayerNorm head (fixed) |
-| --- | --- | --- |
-| Probe R2, block from `z_world` | 0.35 | **~0.8** |
-| Probe R2, agent xy from `z_ego` | 0.94 | **~1.0** |
-| Train vs eval encoding gap | ~100% | **0%** |
-| Predictor action response / step | 4.8% | **67%** |
-
-BatchNorm made train and eval latents almost orthogonal. The ridge probe still looked OK, but MPC uses raw latents and the predictor barely moved them at eval.
-
-### Planning
-
-| Metric | Value |
-| --- | --- |
-| Block xy from JEPA latent (ridge) | ~45 px RMSE (precision wall) |
-| Block xy from supervised detector | **~8 px**, ~2.4 deg (held-out) |
-| Agent xy | exact from `proprio` |
-| **Success (MPPI, 50 ep., hires + detector)** | **6.0% (3/50)** |
-
-The latent cannot resolve pushes to ~14 px accuracy. The detector fixes sensing; the JEPA model still scores how actions move the block in latent space. MPC also clamps the agent on the board, routes behind the block, and parks at the end.
-
----
-
-## Method (short)
-
-- **Encoders:** `WorldViT` on 64x64 RGB, `EgoMLP` on proprio.
-- **Predictor (residual):** factored `f(z_w, z_e, a)`, `g(z_e, a)`; monolithic `f(z, a)`.
-- **Loss:** prediction MSE + SIGReg + ego term + variance floor + `L_cov` + optional state supervision (`state_aux_weight`).
-- **Planning:** `LatentMPCPolicy` for SWM. Planners: CEM, MPPI, Hermite MPPI. Optional block detector for precise pose.
-- **Monolith baseline:** `configs/model/monolithic.yaml`, same param budget, single entangled latent.
-
----
-
-## Layout
-
+```text
+ewjepa/           Model, encoders, detector, planning, and MPC policy
+configs/          Hydra configuration files
+scripts/          Data collection, training, probing, and evaluation
+results/          Committed probe and evaluation JSON files
+tests/            Unit tests
+docs/REPORT.md    Detailed technical report
+POSTMORTEM.md     Debugging log and measured results
 ```
-ewjepa/           model, encoders, predictor, sigreg, detector, planning, mpc_policy
-configs/          Hydra configs (train, eval, probe, model/*, data/*)
-scripts/          train, evaluate, probe, train_detector, collect_data, reproduce.sh
-results/          committed probe/eval JSON + manifest (checkpoints stay in outputs/)
-tests/            unit tests
-docs/REPORT.md    full report
-POSTMORTEM.md     debugging log with measured numbers
-```
-
----
 
 ## References
 
-- LeCun, JEPA blueprint (2022)
-- Balestriero & LeCun, LeJEPA / SIGReg (2025)
-- Maes et al., stable-worldmodel (2026)
+- LeCun, JEPA blueprint, 2022
+- Balestriero and LeCun, LeJEPA and SIGReg, 2025
+- Maes et al., stable-worldmodel, 2026
 - Schramm et al., Hermite MPPI, ICRA 2026
-
----
 
 ## Hardware
 
-WSL2 + RTX 5090 (32 GB), PyTorch 2.12+cu130. Use `python3`. Full PushT: collect ~1 h, train 20k steps ~40 min per model.
+The project was run on WSL2 with an RTX 5090 with 32 GB of memory. Use
+`python3`. Training for 20,000 steps takes about 40 minutes per model.

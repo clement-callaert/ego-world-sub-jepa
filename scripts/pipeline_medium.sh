@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
-# Medium pipeline for a first meaningful run (~30 to 90 minutes on GPU).
+# Medium pipeline (~45 to 120 minutes on GPU).
+# Trains 64px baselines and runs a light planning eval (no detector).
 #
 # Usage:
 #   bash scripts/pipeline_medium.sh
+#   TRAIN_COMPILE=1 bash scripts/pipeline_medium.sh
 
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/pipeline_common.sh"
@@ -14,28 +16,26 @@ TRAIN_STEPS=5000
 TRAIN_BATCH=128
 TRAIN_WORKERS=4
 EVAL_EPISODES=20
-EVAL_MAX_STEPS=150
-EVAL_SAMPLES=128
-EVAL_ITERS=3
+EVAL_MAX_STEPS=300
+EVAL_SAMPLES=256
+EVAL_ITERS=4
+
+FACTORED_CKPT="outputs/pusht_factored_seed0/model.pt"
+MONO_CKPT="outputs/pusht_monolithic_seed0/model.pt"
 
 pipeline_banner "PushT pipeline (MEDIUM)"
-echo "Collect: ${EPISODES} episodes"
+echo "Collect: ${EPISODES} episodes (64px)"
 echo "Train:   ${TRAIN_STEPS} steps x factored + monolithic"
-echo "Eval:    ${EVAL_EPISODES} episodes, MPPI n_samples=${EVAL_SAMPLES} n_iters=${EVAL_ITERS}"
+echo "Eval:    ${EVAL_EPISODES} ep, MPPI n_samples=${EVAL_SAMPLES} n_iters=${EVAL_ITERS} (no detector)"
+echo "Compile: ${TRAIN_COMPILE:-0}"
 
-pipeline_banner "Collect data (${EPISODES} episodes)"
-python3 scripts/collect_data.py \
-    --episodes "${EPISODES}" \
-    --out data/pusht.lance \
-    --processes "${COLLECT_PROCESSES}" \
-    --num-envs 2 \
-    --overwrite
+pipeline_ensure_pusht_data "${EPISODES}" "${COLLECT_PROCESSES}"
 
 pipeline_train factored "${TRAIN_STEPS}" "${TRAIN_BATCH}" "${TRAIN_WORKERS}"
 pipeline_train monolithic "${TRAIN_STEPS}" "${TRAIN_BATCH}" "${TRAIN_WORKERS}"
 
-pipeline_probe factored
-pipeline_probe monolithic
+pipeline_probe "${FACTORED_CKPT}"
+pipeline_probe "${MONO_CKPT}"
 
 _eval_common=(
     "episodes=${EVAL_EPISODES}"
@@ -44,15 +44,8 @@ _eval_common=(
     "planner.n_iters=${EVAL_ITERS}"
 )
 
-pipeline_banner "Eval factored"
-python3 scripts/evaluate.py \
-    checkpoint=outputs/pusht_factored_seed0/model.pt \
-    "${_eval_common[@]}"
-
-pipeline_banner "Eval monolithic"
-python3 scripts/evaluate.py \
-    checkpoint=outputs/pusht_monolithic_seed0/model.pt \
-    "${_eval_common[@]}"
+pipeline_eval "${FACTORED_CKPT}" "${_eval_common[@]}"
+pipeline_eval "${MONO_CKPT}" "${_eval_common[@]}"
 
 pipeline_plot
 pipeline_summary
