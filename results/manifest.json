@@ -1,10 +1,26 @@
 {
   "date": "2026-07-09",
   "git_sha": null,
-  "description": "Committed JSON artifacts. Checkpoints live under outputs/ (gitignored). Reproduce with README.",
-  "factored_checkpoint": "outputs/pusht_hires_seed0/model.pt",
-  "monolithic_checkpoint": "outputs/pusht_monolithic_seed0/model.pt",
-  "block_detector": "outputs/pusht_hires_seed0/detector.pt",
+  "description": "Committed result artifacts. Checkpoints and datasets are generated locally and are not committed.",
+  "runs": {
+    "archived_probes": {
+      "factored_checkpoint": "outputs/pusht_factored_cov_seed0/model.pt",
+      "monolithic_checkpoint": "outputs/pusht_monolithic_seed0/model.pt",
+      "config": "configs/model/factored_cov.yaml and configs/model/monolithic_cov.yaml",
+      "artifacts": [
+        "results/probe/factored_cov_seed0.json",
+        "results/probe/monolithic_seed0.json",
+        "results/eval/factored_cov_seed0_mppi.json",
+        "results/train_factored_cov_20k.log"
+      ]
+    },
+    "planning": {
+      "checkpoint": "outputs/pusht_hires_seed0/model.pt",
+      "block_detector": "outputs/pusht_hires_seed0/detector.pt",
+      "data": "data/pusht_96.lance",
+      "artifact": "results/eval/eval_pusht_hires_seed0_mppi.json"
+    }
+  },
   "artifacts": [
     "results/probe/factored_cov_seed0.json",
     "results/probe/monolithic_seed0.json",

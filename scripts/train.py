@@ -101,6 +101,7 @@ def main(cfg: DictConfig) -> None:
             state_key=cfg.data.state_key,
             max_episodes=cfg.data.get("max_episodes"),
         ),
+        synthetic_fallback=bool(cfg.get("synthetic_fallback", False)),
     )
 
     normalizer = _fit_proprio_normalizer(loader) if cfg.train.normalize_proprio else None

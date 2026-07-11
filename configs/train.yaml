@@ -16,6 +16,7 @@ hydra:
 
 seed: 0
 device: cuda
+synthetic_fallback: false
 out_dir: outputs/${data.name_short}_${model.mode}_seed${seed}
 
 train:

@@ -6,8 +6,8 @@ block toward its goal pose), park (block at its goal, move the agent to its own
 goal).
 
 Two sensors feed the cost. The agent position is read exactly from proprio. The
-block position comes from a supervised detector when one is given (about 5 px),
-otherwise from the latent readout (about 45 px). The JEPA world model supplies
+block position comes from a supervised detector when one is given, otherwise
+from the latent readout. The JEPA world model supplies
 the block dynamics: candidate actions are scored by the block displacement the
 latent predicts, added to the precise current block pose.
 """
@@ -148,11 +148,9 @@ class LatentMPCPolicy(BasePolicy):
         # penalty on squared actions near the block. A full speed agent smashes
         # the block much farther than the model predicts, so pushes stay gentle.
         self.action_penalty = action_penalty
-        # Supervised block sensor. The JEPA latent only localizes the block to
-        # about 45 px, which is too coarse for the task (needs about 14 px), so
-        # when a detector is given the planner reads the current block pose from
-        # it instead of from the latent readout. The world model is still used
-        # for the block dynamics through the predicted displacement.
+        # Supervised block sensor. When a detector is given the planner reads
+        # the current block pose from it instead of from the latent readout.
+        # The world model still predicts the block displacement.
         self.block_detector = block_detector.eval() if block_detector is not None else None
         # The PushT action is a relative move: the env sets the agent target to
         # agent_position + action * action_scale. Knowing action_scale lets us
@@ -279,9 +277,8 @@ class LatentMPCPolicy(BasePolicy):
                 raw_p = raw_p.unsqueeze(0)
             agent_now = raw_p[:, :2]  # (E, 2), exact agent xy in px
 
-        # Current block pose. Prefer the supervised detector (about 5 px) over
-        # the latent readout (about 45 px). The readout is still used inside the
-        # cost for the predicted block displacement under candidate actions.
+        # Current block pose. Prefer the supervised detector over the latent
+        # readout. The readout is still used for predicted block displacement.
         det_block_now = None
         if self.block_detector is not None:
             det_block_now = self.block_detector.predict(pixels)  # (E, 3) x, y, angle

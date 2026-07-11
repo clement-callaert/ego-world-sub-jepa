@@ -59,7 +59,7 @@ action_penalty: 0.02
 angle_cost_weight: 1.5
 # The plan parks the agent at its own goal only once the block is truly placed:
 # within near_block_thresh px and park_angle_thresh rad of its goal. With the
-# precise detector (about 8 px, 2 degrees) these can be tight. Parking on
+# precise detector these can be tight. Parking on
 # position alone freezes the block short of its goal.
 agent_goal_weight: 1.0
 near_block_thresh: 18.0
@@ -68,8 +68,8 @@ park_angle_thresh: 0.30
 # agent, so without this the agent can leave the frame and the image goes dead.
 bounds_weight: 10.0
 # Supervised block detector checkpoint (from scripts/train_detector.py). When
-# set, the planner reads the current block pose from it (about 5 px) instead of
-# the latent readout (about 45 px). The world model still supplies the block
+# set, the planner reads the current block pose from it instead of the latent
+# readout. The world model still supplies the block
 # dynamics. Leave null to fall back to the latent readout.
 block_detector: null
 # The PushT action is relative: the env sets the agent target to

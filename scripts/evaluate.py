@@ -22,10 +22,15 @@ from ewjepa.probing import fit_pose_readout
 from ewjepa.utils import Normalizer, build_run_manifest, get_device, load_checkpoint, set_seed
 
 
-def _load_model(cfg: DictConfig, device: torch.device) -> tuple[EgoWorldJEPA, Normalizer | None]:
+def _load_model(
+    cfg: DictConfig, device: torch.device
+) -> tuple[EgoWorldJEPA, Normalizer | None, dict]:
     ckpt = load_checkpoint(cfg.checkpoint, map_location=device)
     raw_cfg = ckpt["cfg"]["model"]
-    model_cfg = EgoWorldConfig(**(OmegaConf.to_container(raw_cfg, resolve=True) if not isinstance(raw_cfg, dict) else raw_cfg))
+    checkpoint_model_cfg = (
+        OmegaConf.to_container(raw_cfg, resolve=True) if not isinstance(raw_cfg, dict) else raw_cfg
+    )
+    model_cfg = EgoWorldConfig(**checkpoint_model_cfg)
     model = EgoWorldJEPA(model_cfg).to(device)
     model.load_state_dict(ckpt["model"])
     model.eval()
@@ -33,7 +38,7 @@ def _load_model(cfg: DictConfig, device: torch.device) -> tuple[EgoWorldJEPA, No
     normalizer = None
     if "proprio_normalizer" in ckpt:
         normalizer = Normalizer.from_state_dict(ckpt["proprio_normalizer"])
-    return model, normalizer
+    return model, normalizer, checkpoint_model_cfg
 
 
 def _build_policy(cfg: DictConfig, model: EgoWorldJEPA, normalizer, device: torch.device) -> LatentMPCPolicy:
@@ -93,7 +98,7 @@ def _build_policy(cfg: DictConfig, model: EgoWorldJEPA, normalizer, device: torc
         action_scale=float(cfg.get("action_scale", 100.0)),
         board_margin=float(cfg.get("board_margin", 40.0)),
         push_weight=float(cfg.get("push_weight", 1.0)),
-        push_through=float(cfg.get("push_through", 20.0)),
+        push_through=float(cfg.get("push_through", 4.0)),
     )
 
 
@@ -128,6 +133,13 @@ def _fit_readouts(
         state_key=cfg.data.state_key,
         max_episodes=cfg.data.get("max_episodes"),
     )
+    sample = dataset[0]
+    height, width = sample["pixels"].shape[-2:]
+    if (height, width) != (model.cfg.img_size, model.cfg.img_size):
+        raise ValueError(
+            f"Checkpoint expects {model.cfg.img_size}x{model.cfg.img_size} images, "
+            f"but the dataset provides {height}x{width}. Choose matching data=."
+        )
     loader = DataLoader(dataset, batch_size=64, shuffle=True, num_workers=0)
 
     zw_chunks, ze_chunks, state_chunks = [], [], []
@@ -185,7 +197,7 @@ def main(cfg: DictConfig) -> None:
         cfg.planner.noise_std = 0.5
         print("[fast] episodes=5 max_episode_steps=300 planner.n_samples=128 planner.n_iters=3")
 
-    model, normalizer = _load_model(cfg, device)
+    model, normalizer, checkpoint_model_cfg = _load_model(cfg, device)
     policy = _build_policy(cfg, model, normalizer, device)
 
     img_size = model.cfg.img_size
@@ -249,8 +261,10 @@ def main(cfg: DictConfig) -> None:
             print(f"[robustness] mean_drop={results['robustness_mean_drop']:.1f} pp")
 
     results["checkpoint"] = str(cfg.checkpoint)
+    manifest_cfg = OmegaConf.to_container(cfg, resolve=True)
+    manifest_cfg["model"] = checkpoint_model_cfg
     results["manifest"] = build_run_manifest(
-        OmegaConf.to_container(cfg, resolve=True),
+        manifest_cfg,
         seed=int(cfg.seed),
     )
 

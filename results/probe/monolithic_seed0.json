@@ -15,7 +15,7 @@
     "git_sha": null,
     "seed": 0,
     "torch_version": "2.12.0+cu130",
-    "config": {
+    "invocation_config": {
       "model": {
         "mode": "factored",
         "img_size": 64,
@@ -77,6 +77,15 @@
         "ridge": 0.001,
         "max_samples": 8192
       }
+    },
+    "checkpoint_model_config": {
+      "config_path": "configs/model/monolithic_cov.yaml",
+      "mode": "monolithic",
+      "img_size": 64,
+      "world_head_norm": "none",
+      "stop_grad_target": false,
+      "cov_weight": 0.0,
+      "state_aux_weight": 0.0
     },
     "swm_version": null
   }

@@ -1,0 +1,34 @@
+# @package model
+# Archived configuration for results/probe/monolithic_seed0.json.
+# This is a historical baseline, not the current recommended configuration.
+mode: monolithic
+img_size: 64
+in_chans: 3
+proprio_dim: 4
+action_dim: 2
+patch_size: 8
+embed_dim: 192
+depth: 4
+num_heads: 6
+mlp_ratio: 2.0
+world_dim: 192
+world_head_norm: none
+ego_dim: 32
+ego_hidden: 128
+ego_depth: 2
+action_emb_dim: 64
+pred_hidden: 256
+pred_depth: 2
+sigreg_mix: 0.1
+ego_loss_weight: 0.1
+stop_grad_target: false
+variance_weight: 0.5
+variance_target: 0.5
+cov_weight: 0.0
+state_aux_weight: 0.0
+block_slice: [2, 5]
+agent_slice: [0, 2]
+sigreg_kwargs:
+  n_directions: 256
+  n_points: 17
+  t_max: 5.0

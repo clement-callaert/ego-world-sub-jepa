@@ -14,8 +14,7 @@ mlp_ratio: 2.0
 world_dim: 192
 # Projector head norm. "layernorm" normalizes each sample on its own, so the
 # train and eval outputs are the same. "batchnorm" uses batch stats in train and
-# running stats in eval, so its outputs differ between the two, which breaks the
-# predictor at eval time and gives 0% planning. State supervision plus SIGReg,
+# running stats in eval, so its outputs differ between the two. State supervision plus SIGReg,
 # the variance floor and the cov term already stop collapse, so we use layernorm.
 world_head_norm: layernorm
 # Ego encoder (lightweight MLP).

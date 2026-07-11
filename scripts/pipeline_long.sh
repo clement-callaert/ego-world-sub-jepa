@@ -67,7 +67,11 @@ fi
 
 pipeline_eval "${HIRES_CKPT}" "${_eval_args[@]}"
 
-# Optional: monolithic planning without detector (usually 0%, for comparison).
+python3 scripts/copy_results.py \
+    --planning-checkpoint="${HIRES_CKPT}" \
+    --block-detector="${DETECTOR_PT}"
+
+# Optional monolithic planning without a detector.
 if [[ "${EVAL_MONOLITHIC:-0}" == "1" ]]; then
     pipeline_eval "${MONO_CKPT}" "episodes=${EVAL_EPISODES}"
 fi

@@ -1,8 +1,7 @@
 """Train the supervised block pose detector on a PushT Lance dataset.
 
 The detector reads the block x, y and angle straight from the image. It is the
-block sensor the MPC uses, because the JEPA world latent only localizes the
-block to about 45 px while the task needs about 14 px (measured this session).
+block sensor that the MPC can use.
 
 Two practical points learned while building this:
 

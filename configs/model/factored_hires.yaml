@@ -1,8 +1,6 @@
 # @package model
 # Higher resolution Ego-World JEPA. Same design as factored.yaml but a bigger
-# world encoder at 96x96 input. The goal is a sharper block position, since the
-# planner needs to resolve about 5 pixels of block motion per step and the small
-# 64x64 model only localized the block to about 80 pixels.
+# world encoder at 96x96 input. The goal is a sharper block position.
 mode: factored
 img_size: 96
 in_chans: 3

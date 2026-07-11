@@ -1,168 +1,124 @@
 # Ego-World JEPA
 
-This repository is a small latent world model for PushT from
+A small latent world model for PushT from
 [stable-worldmodel](https://github.com/facebookresearch/stable-worldmodel).
 
 The model has two latents:
 
-- `z_world` comes from the image. It represents the block and the scene.
-- `z_ego` comes from proprioception. It represents the agent.
+- `z_world` comes from the image.
+- `z_ego` comes from proprioception.
 
-The model predicts the next latent state. It does not reconstruct pixels.
-It plans actions with MPC and MPPI.
+It predicts future latents and plans with MPC.
 
-## Important name note
+## Name
 
 This project is not Sub-JEPA by Zhao et al. The names are similar, but the
-methods are different. Here, "ego-world" means that the world and the agent use
-separate latent spaces.
+methods are different. Here, ego-world means separate latents for the world and
+the agent.
 
 ## Results
 
-All numbers below come from JSON files committed in `results/`. They use seed 0.
+Only files committed in `results/` support the numbers below. Checkpoints,
+datasets, and detector weights are not committed.
 
 ### Representation probes
 
-The probe predicts block pose `[x, y, angle]` from a frozen latent. It uses a
-ridge regression and 8,192 samples.
+Both probes use 8,192 latent rows. They predict block pose `[x, y, angle]` with
+ridge regression and a grouped split.
 
-| Model | Block pose R² | Evidence |
+| Run | Block pose R² | Artifact |
 | --- | ---: | --- |
-| Factored model | 0.286 | `results/probe/factored_cov_seed0.json` |
-| Monolithic baseline | 0.779 | `results/probe/monolithic_seed0.json` |
+| Factored cov baseline | 0.285869 | `results/probe/factored_cov_seed0.json` |
+| Monolithic baseline | 0.779477 | `results/probe/monolithic_seed0.json` |
 
-The monolithic baseline is better on this probe. This is a representation
-result only. It is not a planning comparison.
+The monolithic baseline is better on this probe. This is not a planning result.
 
-The factorized JSON records `world_head_norm: "none"`. Older documents called
-this run BatchNorm. The committed JSON does not support that label, so this
-README does not use it.
+### Planning
 
-### Closed-loop planning
+| Run | Success | Artifact |
+| --- | ---: | --- |
+| Factored cov, no detector, 20 episodes | 0.0% | `results/eval/factored_cov_seed0_mppi.json` |
+| Factored hires, MPPI, detector, 50 episodes | 6.0% (3/50) | `results/eval/eval_pusht_hires_seed0_mppi.json` |
 
-Planning improved from 0% to **6.0%**, or **3 successes in 50 episodes**.
+These are different experiments. They do not form a controlled 0% to 6%
+comparison. The 6% run uses a factored hires checkpoint, MPPI, and a detector.
+The detector accuracy is not published as a committed artifact.
 
-This result uses:
+Monolithic planning has not been evaluated on the same stack. The effect of
+factorization on planning is still open.
 
-- the factored model with a LayerNorm head
-- MPPI
-- a supervised block pose detector
-- a 96x96 PushT dataset
+## Important debugging work
 
-The run is recorded in `results/eval/eval_pusht_hires_seed0_mppi.json`.
+The project diagnosed three important bugs:
 
-This is still a weak result. The detector estimates the block pose at about
-8 px error. The JEPA latent is used to predict block motion during planning.
-The monolithic baseline has not been evaluated with this same detector and MPC
-setup.
+1. SIGReg was scaled incorrectly.
+2. The target latent could collapse to zero.
+3. BatchNorm created different latents in training and evaluation.
 
-## Three important bugs we diagnosed
+The full explanation is in [POSTMORTEM.md](POSTMORTEM.md). Historical
+measurements in that file are not published results unless they also appear in
+`results/`.
 
-The project includes a full debugging log in
-[POSTMORTEM.md](POSTMORTEM.md). The most important findings are:
+## Install
 
-1. SIGReg was scaled by the number of samples. Its loss became much too large.
-2. The target latent could collapse to zero. The fix was to stop gradients in
-   the target branch.
-3. BatchNorm gave different latents during training and evaluation. The
-   predictor learned from one latent distribution and planned with another.
-   The fix was to use LayerNorm.
-
-These bugs explain why early training and planning results were unreliable.
-
-## Status
-
-| Part | Status |
-| --- | --- |
-| Factored and monolithic models | Implemented |
-| SIGReg and covariance loss | Implemented |
-| Linear probes | Implemented |
-| Supervised block detector | Implemented |
-| MPPI evaluation | Implemented |
-| Factored versus monolithic planning | Not yet compared |
-| Several seeds and robustness tests | Not yet run |
-
-## Quick start
+The full experiment needs CUDA, `stable-worldmodel`, and locally collected
+Lance data. It was developed with an RTX 5090.
 
 ```bash
-pip install -r requirements.txt
+pip install -e ".[dev,experiments]"
 export PYTHONPATH=.
-
-# Collect data.
-python3 scripts/collect_data.py --episodes 2000 --out data/pusht.lance \
-    --overwrite --processes 16 --num-envs 2
-
-# Train the two models.
-python3 scripts/train.py model=factored data=pusht \
-    out_dir=outputs/pusht_factored_seed0 train.steps=20000
-python3 scripts/train.py model=monolithic data=pusht \
-    out_dir=outputs/pusht_monolithic_seed0 train.steps=20000
-
-# Run a probe on each checkpoint.
-python3 scripts/probe.py checkpoint=outputs/pusht_factored_seed0/model.pt \
-    synthetic_fallback=false
-python3 scripts/probe.py checkpoint=outputs/pusht_monolithic_seed0/model.pt \
-    synthetic_fallback=false
-
-python3 -m pytest tests/ -q --ignore=tests/test_train_speed.py
 ```
 
-Without `data/pusht.lance`, training uses synthetic data for smoke tests only.
+`requirements-results.txt` records the Python versions used for this result
+cleanup. Install a CUDA-compatible PyTorch wheel before using that file.
 
-## Reproduce the 6% planning run
-
-The planning run needs `data/pusht_96.lance`, a trained model, and a trained
-block detector.
+## Reproduce the archived probes
 
 ```bash
-export PYTHONPATH=.
-
-# Collect 96x96 data and train the world model.
-python3 scripts/collect_data.py --out data/pusht_96.lance --episodes 2000 \
-    --processes 32 --image-shape 96 96 --overwrite
-python3 scripts/train.py model=factored_hires data=pusht_96 train.steps=20000 \
-    train.batch_size=256 train.warmup_steps=1000 \
-    out_dir=outputs/pusht_hires_seed0
-
-# Train the supervised block pose detector.
-python3 scripts/train_detector.py --dataset data/pusht_96.lance \
-    --out outputs/pusht_hires_seed0/detector.pt --img-size 96 --steps 6000
-
-# Evaluate 50 episodes with MPPI.
-python3 scripts/evaluate.py checkpoint=outputs/pusht_hires_seed0/model.pt \
-    block_detector=outputs/pusht_hires_seed0/detector.pt data=pusht_96 episodes=50
+bash scripts/reproduce_probes.sh
 ```
 
-## Method
+This trains the archived `factored_cov` and `monolithic_cov` configurations. It
+uses the probe settings recorded in the committed JSON:
+`probe.num_steps=9` and `probe.max_samples=8192`.
 
-- `WorldViT` encodes RGB images.
-- `EgoMLP` encodes proprioception.
-- The factored model predicts `z_world` and `z_ego` separately.
-- The monolithic baseline uses one latent for both.
-- The loss uses prediction loss, SIGReg, a variance loss, covariance loss, and
-  optional state supervision.
-- Planning uses `LatentMPCPolicy`. It supports CEM, MPPI, and Hermite MPPI.
+## Reproduce the planning pipeline
 
-## Repository layout
+```bash
+bash scripts/reproduce_planning.sh
+```
+
+This collects 96x96 data, trains the factored hires model, trains a detector,
+and evaluates 50 episodes with MPPI. A new run may differ from 6.0% because the
+original dataset and weights are not committed.
+
+For a configurable full run, use:
+
+```bash
+bash scripts/pipeline_long.sh
+```
+
+## Publish new artifacts
+
+After an experiment, copy selected outputs with:
+
+```bash
+python3 scripts/copy_results.py \
+    --planning-checkpoint=outputs/pusht_hires_seed0/model.pt \
+    --block-detector=outputs/pusht_hires_seed0/detector.pt
+```
+
+The script uses the checkpoint directory name for the destination file and
+writes a separate probe and planning manifest.
+
+## Layout
 
 ```text
 ewjepa/           Model, encoders, detector, planning, and MPC policy
 configs/          Hydra configuration files
-scripts/          Data collection, training, probing, and evaluation
-results/          Committed probe and evaluation JSON files
+scripts/          Data collection, training, probes, evaluation, and pipelines
+results/          Committed evidence for reported results
+docs/REPORT.md    Short report based on committed evidence
+POSTMORTEM.md     Historical debugging notes
 tests/            Unit tests
-docs/REPORT.md    Detailed technical report
-POSTMORTEM.md     Debugging log and measured results
 ```
-
-## References
-
-- LeCun, JEPA blueprint, 2022
-- Balestriero and LeCun, LeJEPA and SIGReg, 2025
-- Maes et al., stable-worldmodel, 2026
-- Schramm et al., Hermite MPPI, ICRA 2026
-
-## Hardware
-
-The project was run on WSL2 with an RTX 5090 with 32 GB of memory. Use
-`python3`. Training for 20,000 steps takes about 40 minutes per model.

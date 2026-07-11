@@ -10,7 +10,7 @@
     "git_sha": null,
     "seed": 0,
     "torch_version": "2.12.0+cu130",
-    "config": {
+    "invocation_config": {
       "model": {
         "mode": "factored",
         "img_size": 64,
@@ -112,6 +112,19 @@
           "background.color"
         ]
       }
+    },
+    "checkpoint_model_config": {
+      "config_path": "configs/model/factored_hires.yaml",
+      "mode": "factored",
+      "img_size": 96,
+      "embed_dim": 256,
+      "depth": 6,
+      "num_heads": 8,
+      "world_dim": 256,
+      "world_head_norm": "layernorm",
+      "stop_grad_target": true,
+      "cov_weight": 0.25,
+      "state_aux_weight": 1.0
     },
     "swm_version": null
   }

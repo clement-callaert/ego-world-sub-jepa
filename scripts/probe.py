@@ -21,10 +21,15 @@ from ewjepa.probing import linear_probe
 from ewjepa.utils import Normalizer, build_run_manifest, get_device, load_checkpoint, set_seed
 
 
-def _load_model(cfg: DictConfig, device: torch.device) -> tuple[EgoWorldJEPA, Normalizer | None]:
+def _load_model(
+    cfg: DictConfig, device: torch.device
+) -> tuple[EgoWorldJEPA, Normalizer | None, dict]:
     ckpt = load_checkpoint(cfg.checkpoint, map_location=device)
     raw_cfg = ckpt["cfg"]["model"]
-    model_cfg = EgoWorldConfig(**(OmegaConf.to_container(raw_cfg, resolve=True) if not isinstance(raw_cfg, dict) else raw_cfg))
+    checkpoint_model_cfg = (
+        OmegaConf.to_container(raw_cfg, resolve=True) if not isinstance(raw_cfg, dict) else raw_cfg
+    )
+    model_cfg = EgoWorldConfig(**checkpoint_model_cfg)
     model = EgoWorldJEPA(model_cfg).to(device)
     model.load_state_dict(ckpt["model"])
     model.eval()
@@ -32,7 +37,7 @@ def _load_model(cfg: DictConfig, device: torch.device) -> tuple[EgoWorldJEPA, No
     normalizer = None
     if "proprio_normalizer" in ckpt:
         normalizer = Normalizer.from_state_dict(ckpt["proprio_normalizer"])
-    return model, normalizer
+    return model, normalizer, checkpoint_model_cfg
 
 
 def _build_probe_loader(cfg: DictConfig) -> DataLoader:
@@ -55,6 +60,16 @@ def _build_probe_loader(cfg: DictConfig) -> DataLoader:
             state_key=cfg.data.state_key,
         )
     return DataLoader(dataset, batch_size=cfg.probe.batch_size, shuffle=False, num_workers=cfg.probe.num_workers)
+
+
+def _validate_image_size(loader: DataLoader, expected_size: int) -> None:
+    sample = next(iter(loader))
+    height, width = sample["pixels"].shape[-2:]
+    if (height, width) != (expected_size, expected_size):
+        raise ValueError(
+            f"Checkpoint expects {expected_size}x{expected_size} images, "
+            f"but the dataset provides {height}x{width}. Choose matching data=."
+        )
 
 
 @torch.no_grad()
@@ -110,8 +125,9 @@ def main(cfg: DictConfig) -> None:
     set_seed(cfg.seed)
     device = get_device(cfg.device)
 
-    model, normalizer = _load_model(cfg, device)
+    model, normalizer, checkpoint_model_cfg = _load_model(cfg, device)
     loader = _build_probe_loader(cfg)
+    _validate_image_size(loader, model.cfg.img_size)
     max_samples = cfg.probe.get("max_samples")
     z_world, z_ego, targets = _collect_latents(
         model,
@@ -122,6 +138,8 @@ def main(cfg: DictConfig) -> None:
         max_samples=max_samples,
     )
 
+    manifest_cfg = OmegaConf.to_container(cfg, resolve=True)
+    manifest_cfg["model"] = checkpoint_model_cfg
     results = {
         "checkpoint": str(cfg.checkpoint),
         "n_latent_rows": int(z_world.shape[0]),
@@ -130,7 +148,7 @@ def main(cfg: DictConfig) -> None:
         "target_dim": int(targets.shape[1]),
         "world_probe": linear_probe(z_world, targets, test_frac=cfg.probe.test_frac, ridge=cfg.probe.ridge, seed=cfg.seed, group_split=True),
         "manifest": build_run_manifest(
-            OmegaConf.to_container(cfg, resolve=True),
+            manifest_cfg,
             seed=int(cfg.seed),
         ),
     }
