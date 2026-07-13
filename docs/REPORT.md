@@ -3,95 +3,111 @@
 ## Scope
 
 This project studies a small factored latent world model for PushT. The model
-uses two latents:
+uses two latents — `z_world` from the image and `z_ego` from proprioception —
+predicts future latents, and plans with MPPI-based MPC. A monolithic baseline
+with one latent is trained and evaluated on the identical stack.
 
-- `z_world` for the image and the block.
-- `z_ego` for agent proprioception.
+This is NOT Sub-JEPA (Zhao et al.); the names are similar, the methods are
+not. "Ego-world" means separate world and agent latents.
 
-The model predicts future latents. It plans with MPC. The project also contains
-a monolithic baseline with one latent.
+**Evidence policy:** only JSON files committed under `results/` are evidence
+for the numbers below. Checkpoints, Lance datasets, and detector weights live
+in `outputs/` locally and are not committed. Results are reported in three
+tiers; only Tier A is a controlled comparison.
 
-This report only treats files in `results/` as evidence for result numbers.
-Checkpoints, datasets, and detector weights are not committed.
+## Tier A — Controlled comparison (96px, 2026-07-13, canonical)
 
-## Committed results
+Same data, same shared detector, same MPPI stack; only the world model
+differs. Manifest: `results/manifest.json` → `controlled_comparison_96px`
+(git SHA `c7debee`).
 
-### Representation probes
+| | Factored hires | Monolithic hires |
+| --- | --- | --- |
+| Config | `configs/model/factored_hires.yaml` | `configs/model/monolithic_hires.yaml` |
+| Block pose R² (probe, 8192 rows) | **0.9973** | **0.9947** |
+| Planning success (50 ep, seed 0, MPPI) | **12.0% (6/50)** | **0.0% (0/50)** |
+| Probe artifact | `results/probe/pusht_hires_seed0.json` | `results/probe/pusht_monolithic_hires_seed0.json` |
+| Eval artifact | `results/eval/pusht_hires_seed0_mppi.json` | `results/eval/pusht_monolithic_hires_seed0_mppi.json` |
 
-The two probes use 8,192 latent rows. They predict block pose `[x, y, angle]`
-with ridge regression and a grouped split.
+Shared detector (independent of either world model),
+`results/detector/shared_pusht96_seed0.json`: val block xy RMSE **7.59 px**,
+val angle error **2.07°**.
 
-| Run | Block pose R² | Artifact |
-| --- | ---: | --- |
-| Factored cov baseline | 0.285869 | `results/probe/factored_cov_seed0.json` |
-| Monolithic baseline | 0.779477 | `results/probe/monolithic_seed0.json` |
+Protocol:
 
-These runs are historical 64x64 configurations. The factored probe records
-`world_head_norm: none` and `stop_grad_target: false`. The monolithic probe
-artifact has an incorrect Hydra model label, but its checkpoint path identifies
-the monolithic checkpoint.
+1. Collect `data/pusht_96.lance` (2000 episodes, 96×96).
+2. Train both models: 20,000 steps, batch 256, seed 0.
+3. Train the shared block detector: 6000 steps.
+4. Probes: ridge regression to block pose `[x, y, angle]`,
+   `probe.max_samples=8192`, grouped split.
+5. Eval: MPPI `n_samples=512`, `n_iters=6`, `horizon=8`,
+   `max_episode_steps=700`, `episodes=50`, shared detector, seed 0.
 
-The monolithic model is better on this probe. This is not a planning
-comparison.
+**Claims policy:** the factored model outperforms the monolithic one on
+planning on this stack (12.0% vs 0.0%) with near-identical probe R². This is
+one run at n=50 episodes and a single seed; do not state "factorization
+improves planning" without citing these artifacts and these statistical
+limits. Do not mix Tier B/C numbers into this comparison.
 
-### Planning
-
-| Run | Success | Artifact |
-| --- | ---: | --- |
-| Factored cov baseline, no detector, 20 episodes | 0.0% | `results/eval/factored_cov_seed0_mppi.json` |
-| Factored hires, MPPI, detector, 50 episodes | 6.0% (3/50) | `results/eval/eval_pusht_hires_seed0_mppi.json` |
-
-The two planning runs are different experiments. They use different model
-checkpoints, data resolutions, MPPI settings, detector settings, and episode
-counts. Therefore, they are not a controlled 0% to 6% comparison.
-
-The planning artifact records a detector path and a LayerNorm model setting.
-It does not record detector accuracy. This repository does not publish a
-detector accuracy result.
-
-Monolithic planning has not been evaluated with the same hires detector stack.
-The claim that factorization improves planning is open.
-
-## Reproduce
-
-The full runs need CUDA, `stable-worldmodel`, and locally collected Lance data.
-They can take several hours. The generated weights stay in `outputs/`.
-
-Install the experiment environment:
+Reproduce:
 
 ```bash
 pip install -e ".[dev,experiments]"
 export PYTHONPATH=.
+bash scripts/reproduce_full_comparison.sh
+# from scratch: FORCE_COLLECT=1 bash scripts/reproduce_full_comparison.sh
 ```
 
-Reproduce the archived probe configurations:
+A fresh run reproduces the protocol, not bit-identical numbers, because
+checkpoints and data are not committed.
 
-```bash
-bash scripts/reproduce_probes.sh
-```
+## Tier B — Historical 64px probes (archived)
 
-This script uses the archived `factored_cov` and `monolithic_cov` configs. It
-uses `probe.num_steps=9` and `probe.max_samples=8192`, as recorded by the
-committed probe artifacts.
+8192 latent rows, ridge regression to block pose, grouped split. Probe-only;
+NOT a planning comparison. These predate the bug fixes in POSTMORTEM.md.
 
-Reproduce the factored hires planning run:
+| Run | Block pose R² | Artifact |
+| --- | ---: | --- |
+| Factored cov (archived) | 0.2859 | `results/probe/factored_cov_seed0.json` |
+| Monolithic cov (archived) | 0.7795 | `results/probe/monolithic_seed0.json` |
 
-```bash
-bash scripts/reproduce_planning.sh
-```
+The factored probe records `world_head_norm: none` and
+`stop_grad_target: false` (pre-fix). The monolithic probe artifact carries an
+incorrect Hydra model label; its checkpoint path identifies the monolithic
+checkpoint. Reproduce with `bash scripts/reproduce_probes.sh`.
 
-This script collects 96x96 data, trains the factored hires model, trains a
-detector, and evaluates 50 episodes with MPPI. A new run may not reproduce the
-exact 6.0% score because the original checkpoint and data are not committed.
+## Tier C — Historical planning runs (not controlled)
+
+| Run | Success | Artifact |
+| --- | ---: | --- |
+| Factored cov, 64px, no detector, 20 episodes | 0.0% | `results/eval/factored_cov_seed0_mppi.json` |
+| Factored hires, MPPI + detector, 50 episodes | 6.0% (3/50) | `results/eval/eval_pusht_hires_seed0_mppi.json` |
+
+Different checkpoints, resolutions, detector settings, and episode counts —
+not comparable to each other or to Tier A, and not a 0% → 6% → 12%
+progression. The 6% run's detector accuracy was never published. Note that
+the historical 6% artifact (`eval_pusht_hires_seed0_mppi.json`) and the
+Tier A 12% artifact (`pusht_hires_seed0_mppi.json`) have similar filenames.
 
 ## Artifact publication
 
-Run `scripts/copy_results.py` after an experiment to copy selected JSON outputs
-to `results/`. The script derives artifact names from checkpoint directories and
-keeps probe runs separate from planning runs in `results/manifest.json`.
+`scripts/reproduce_full_comparison.sh` calls `scripts/copy_results.py`
+automatically. Manual copy:
 
-## Historical debugging notes
+```bash
+python3 scripts/copy_results.py \
+    --factored-checkpoint=outputs/pusht_hires_seed0/model.pt \
+    --monolithic-checkpoint=outputs/pusht_monolithic_hires_seed0/model.pt \
+    --block-detector=outputs/shared_pusht96_seed0/detector.pt \
+    --detector-metrics=outputs/shared_pusht96_seed0/detector_metrics.json
+```
 
-[POSTMORTEM.md](../POSTMORTEM.md) records debugging work. Its local measurements
-are useful context, but they are not published results unless they also appear
-in `results/`.
+This copies probe/eval/detector JSON files and figures, and updates
+`results/manifest.json`.
+
+## Debugging history
+
+[POSTMORTEM.md](../POSTMORTEM.md) records the three main bugs (SIGReg
+N-scaling, target collapse, BatchNorm train/eval mismatch), the planning
+fixes, and the July 2026 closure recap. Measurements there are debugging
+context, not published results, unless they also appear in `results/`.

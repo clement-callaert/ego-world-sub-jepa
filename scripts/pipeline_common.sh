@@ -88,6 +88,7 @@ pipeline_default_out_dir() {
         factored) echo "outputs/pusht_factored_seed0" ;;
         monolithic) echo "outputs/pusht_monolithic_seed0" ;;
         factored_hires) echo "outputs/pusht_hires_seed0" ;;
+        monolithic_hires) echo "outputs/pusht_monolithic_hires_seed0" ;;
         *) echo "outputs/pusht_${model}_seed0" ;;
     esac
 }
@@ -130,13 +131,19 @@ pipeline_train_detector() {
     local out_path="${2:-outputs/pusht_hires_seed0/detector.pt}"
     local img_size="${3:-96}"
     local steps="${4:-${DETECTOR_STEPS:-6000}}"
+    local metrics_out="${5:-}"
 
     pipeline_banner "Train block detector (${steps} steps) -> ${out_path}"
+    local extra=()
+    if [[ -n "${metrics_out}" ]]; then
+        extra+=(--metrics-out "${metrics_out}")
+    fi
     python3 scripts/train_detector.py \
         --dataset "${dataset}" \
         --out "${out_path}" \
         --img-size "${img_size}" \
-        --steps "${steps}"
+        --steps "${steps}" \
+        "${extra[@]}"
 }
 
 pipeline_probe() {

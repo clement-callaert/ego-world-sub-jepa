@@ -1,6 +1,6 @@
 {
-  "date": "2026-07-09",
-  "git_sha": null,
+  "date": "2026-07-13",
+  "git_sha": "c7debee8ff8b76ca431a0dac80d90c8ab6a0bfdd",
   "description": "Committed result artifacts. Checkpoints and datasets are generated locally and are not committed.",
   "runs": {
     "archived_probes": {
@@ -16,16 +16,38 @@
     },
     "planning": {
       "checkpoint": "outputs/pusht_hires_seed0/model.pt",
-      "block_detector": "outputs/pusht_hires_seed0/detector.pt",
-      "data": "data/pusht_96.lance",
-      "artifact": "results/eval/eval_pusht_hires_seed0_mppi.json"
-    }
+      "block_detector": "outputs/shared_pusht96_seed0/detector.pt"
+    },
+    "factored_probe": "outputs/pusht_hires_seed0/model.pt",
+    "monolithic_probe": "outputs/pusht_monolithic_hires_seed0/model.pt"
   },
   "artifacts": [
+    "results/detector/shared_pusht96_seed0.json",
+    "results/eval/eval_pusht_hires_seed0_mppi.json",
+    "results/eval/factored_cov_seed0_mppi.json",
+    "results/eval/pusht_hires_seed0_mppi.json",
+    "results/eval/pusht_monolithic_hires_seed0_mppi.json",
+    "results/figures/eval_pusht_factored_seed0_mppi_robustness.png",
+    "results/figures/probe_r2.png",
     "results/probe/factored_cov_seed0.json",
     "results/probe/monolithic_seed0.json",
-    "results/eval/factored_cov_seed0_mppi.json",
-    "results/eval/eval_pusht_hires_seed0_mppi.json",
+    "results/probe/pusht_hires_seed0.json",
+    "results/probe/pusht_monolithic_hires_seed0.json",
     "results/train_factored_cov_20k.log"
-  ]
+  ],
+  "controlled_comparison_96px": {
+    "data": "data/pusht_96.lance",
+    "detector": "outputs/shared_pusht96_seed0/detector.pt",
+    "detector_metrics": "results/detector/shared_pusht96_seed0.json",
+    "factored_hires": {
+      "checkpoint": "outputs/pusht_hires_seed0/model.pt",
+      "probe": "results/probe/pusht_hires_seed0.json",
+      "eval": "results/eval/pusht_hires_seed0_mppi.json"
+    },
+    "monolithic_hires": {
+      "checkpoint": "outputs/pusht_monolithic_hires_seed0/model.pt",
+      "probe": "results/probe/pusht_monolithic_hires_seed0.json",
+      "eval": "results/eval/pusht_monolithic_hires_seed0_mppi.json"
+    }
+  }
 }

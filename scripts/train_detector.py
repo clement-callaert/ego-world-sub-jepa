@@ -24,11 +24,14 @@ Example:
 from __future__ import annotations
 
 import argparse
+import json
 import math
+from pathlib import Path
 
 import torch
 import torch.nn.functional as F
 from torch.utils.data import DataLoader, Subset
+from tqdm import tqdm
 
 from ewjepa.data import build_dataset
 from ewjepa.detector import BlockPoseDetector, pose_to_target, save_detector
@@ -135,6 +138,7 @@ def main() -> None:
     parser.add_argument("--num-workers", type=int, default=4)
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--device", default="cuda")
+    parser.add_argument("--metrics-out", default=None, help="Optional JSON path for final validation metrics.")
     args = parser.parse_args()
 
     set_seed(args.seed)
@@ -167,7 +171,8 @@ def main() -> None:
     n_train = train_img.shape[0]
 
     detector.train()
-    for step in range(1, args.steps + 1):
+    pbar = tqdm(range(1, args.steps + 1), desc="detector", unit="step", dynamic_ncols=True)
+    for step in pbar:
         idx = torch.randint(0, n_train, (args.batch_size,), generator=gen, device=device)
         images = train_img[idx.cpu()].to(device).float() / 255.0
         block = train_blk[idx.cpu()].to(device)
@@ -180,18 +185,39 @@ def main() -> None:
         loss.backward()
         opt.step()
 
+        postfix: dict[str, str] = {"loss": f"{loss.item():.4f}"}
         if step % 500 == 0 or step == 1:
             rmse, angle_deg = _evaluate(detector, val_img, val_blk, device)
             detector.train()
-            print(
+            postfix["val_rmse"] = f"{rmse:.1f}px"
+            postfix["val_ang"] = f"{angle_deg:.1f}deg"
+            pbar.write(
                 f"[detector] step {step:5d} loss={loss.item():.4f} "
                 f"val_block_xy_RMSE={rmse:.1f}px val_angle_err={angle_deg:.1f}deg"
             )
+        pbar.set_postfix(postfix, refresh=False)
 
+    pbar.close()
     rmse, angle_deg = _evaluate(detector, val_img, val_blk, device)
     print(f"[detector] FINAL val_block_xy_RMSE={rmse:.1f}px val_angle_err={angle_deg:.1f}deg")
     save_detector(args.out, detector)
     print(f"[detector] saved to {args.out}")
+
+    if args.metrics_out:
+        metrics_path = Path(args.metrics_out)
+        metrics_path.parent.mkdir(parents=True, exist_ok=True)
+        metrics = {
+            "dataset": args.dataset,
+            "img_size": args.img_size,
+            "steps": args.steps,
+            "seed": args.seed,
+            "val_block_xy_rmse_px": float(rmse),
+            "val_angle_err_deg": float(angle_deg),
+            "detector_out": args.out,
+        }
+        with metrics_path.open("w") as f:
+            json.dump(metrics, f, indent=2)
+        print(f"[detector] metrics saved to {metrics_path}")
 
 
 if __name__ == "__main__":

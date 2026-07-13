@@ -1,0 +1,130 @@
+{
+  "clean": {
+    "success_rate": 12.0,
+    "episodes": 50,
+    "variation": []
+  },
+  "checkpoint": "outputs/pusht_hires_seed0/model.pt",
+  "manifest": {
+    "date": "2026-07-13",
+    "git_sha": "c7debee8ff8b76ca431a0dac80d90c8ab6a0bfdd",
+    "seed": 0,
+    "torch_version": "2.13.0+cu130",
+    "config": {
+      "model": {
+        "mode": "factored",
+        "img_size": 96,
+        "in_chans": 3,
+        "proprio_dim": 4,
+        "action_dim": 2,
+        "patch_size": 8,
+        "embed_dim": 256,
+        "depth": 6,
+        "num_heads": 8,
+        "mlp_ratio": 2.0,
+        "world_dim": 256,
+        "world_head_norm": "layernorm",
+        "ego_dim": 32,
+        "ego_hidden": 128,
+        "ego_depth": 2,
+        "action_emb_dim": 64,
+        "pred_hidden": 256,
+        "pred_depth": 2,
+        "sigreg_mix": 0.1,
+        "ego_loss_weight": 0.1,
+        "stop_grad_target": true,
+        "variance_weight": 0.5,
+        "variance_target": 0.5,
+        "cov_weight": 0.25,
+        "state_aux_weight": 1.0,
+        "block_slice": [
+          2,
+          5
+        ],
+        "agent_slice": [
+          0,
+          2
+        ],
+        "sigreg_kwargs": {
+          "n_directions": 256,
+          "n_points": 17,
+          "t_max": 5.0
+        }
+      },
+      "data": {
+        "name_short": "pusht96",
+        "dataset": "data/pusht_96.lance",
+        "env": "swm/PushT-v1",
+        "image_key": "pixels",
+        "proprio_key": "proprio",
+        "action_key": "action",
+        "state_key": "state",
+        "probe_target_slice": [
+          2,
+          5
+        ],
+        "agent_state_slice": [
+          0,
+          2
+        ],
+        "max_episodes": null,
+        "action_low": -1.0,
+        "action_high": 1.0
+      },
+      "checkpoint": "outputs/pusht_hires_seed0/model.pt",
+      "device": "cuda",
+      "seed": 0,
+      "episodes": 50,
+      "num_envs": 1,
+      "max_episode_steps": 700,
+      "out_dir": "outputs/eval",
+      "fast": false,
+      "use_pose_cost": true,
+      "pose_cost_weight": 1.0,
+      "pose_probe_ridge": 0.001,
+      "latent_cost_weight": 0.0,
+      "approach_weight": 1.0,
+      "engage_thresh": 70.0,
+      "standoff": 60.0,
+      "clearance": 45.0,
+      "action_penalty": 0.02,
+      "angle_cost_weight": 1.5,
+      "agent_goal_weight": 1.0,
+      "near_block_thresh": 18.0,
+      "park_angle_thresh": 0.3,
+      "bounds_weight": 10.0,
+      "block_detector": "outputs/shared_pusht96_seed0/detector.pt",
+      "action_scale": 100.0,
+      "board_margin": 40.0,
+      "push_weight": 1.0,
+      "push_through": 4.0,
+      "planner": {
+        "kind": "mppi",
+        "horizon": 8,
+        "n_samples": 512,
+        "n_iters": 6,
+        "temperature": 0.01,
+        "noise_std": 0.5,
+        "n_elites": 64,
+        "init_std": 0.5,
+        "n_nodes": 4,
+        "node_noise_std": 0.4,
+        "beta1": 1.0,
+        "beta2": 1.0
+      },
+      "variation": [],
+      "video_dir": null,
+      "robustness": {
+        "enabled": false,
+        "episodes": 30,
+        "variations": [
+          "block.color",
+          "block.shape",
+          "agent.color",
+          "background.color"
+        ]
+      }
+    },
+    "swm_version": null
+  }
+}

@@ -1,0 +1,102 @@
+{
+  "checkpoint": "outputs/pusht_hires_seed0/model.pt",
+  "n_latent_rows": 8192,
+  "n_samples": 8192,
+  "probe_max_samples": 8192,
+  "target_dim": 3,
+  "world_probe": {
+    "mse": 35.965728759765625,
+    "rmse": 5.997143383292218,
+    "nrmse": 0.06586951764711856,
+    "r2": 0.9973235726356506
+  },
+  "manifest": {
+    "date": "2026-07-13",
+    "git_sha": "c7debee8ff8b76ca431a0dac80d90c8ab6a0bfdd",
+    "seed": 0,
+    "torch_version": "2.13.0+cu130",
+    "config": {
+      "model": {
+        "mode": "factored",
+        "img_size": 96,
+        "in_chans": 3,
+        "proprio_dim": 4,
+        "action_dim": 2,
+        "patch_size": 8,
+        "embed_dim": 256,
+        "depth": 6,
+        "num_heads": 8,
+        "mlp_ratio": 2.0,
+        "world_dim": 256,
+        "world_head_norm": "layernorm",
+        "ego_dim": 32,
+        "ego_hidden": 128,
+        "ego_depth": 2,
+        "action_emb_dim": 64,
+        "pred_hidden": 256,
+        "pred_depth": 2,
+        "sigreg_mix": 0.1,
+        "ego_loss_weight": 0.1,
+        "stop_grad_target": true,
+        "variance_weight": 0.5,
+        "variance_target": 0.5,
+        "cov_weight": 0.25,
+        "state_aux_weight": 1.0,
+        "block_slice": [
+          2,
+          5
+        ],
+        "agent_slice": [
+          0,
+          2
+        ],
+        "sigreg_kwargs": {
+          "n_directions": 256,
+          "n_points": 17,
+          "t_max": 5.0
+        }
+      },
+      "data": {
+        "name_short": "pusht96",
+        "dataset": "data/pusht_96.lance",
+        "env": "swm/PushT-v1",
+        "image_key": "pixels",
+        "proprio_key": "proprio",
+        "action_key": "action",
+        "state_key": "state",
+        "probe_target_slice": [
+          2,
+          5
+        ],
+        "agent_state_slice": [
+          0,
+          2
+        ],
+        "max_episodes": null,
+        "action_low": -1.0,
+        "action_high": 1.0
+      },
+      "checkpoint": "outputs/pusht_hires_seed0/model.pt",
+      "device": "cuda",
+      "seed": 0,
+      "synthetic_fallback": false,
+      "out_dir": "outputs/probe",
+      "probe": {
+        "num_steps": 2,
+        "batch_size": 64,
+        "num_workers": 0,
+        "synthetic_episodes": 1024,
+        "test_frac": 0.2,
+        "ridge": 0.001,
+        "max_samples": 8192
+      }
+    },
+    "swm_version": null
+  },
+  "ego_probe": {
+    "mse": 911.3170776367188,
+    "rmse": 30.188028713990562,
+    "nrmse": 0.33156967626415557,
+    "r2": 0.5481911897659302
+  }
+}

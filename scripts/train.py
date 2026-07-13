@@ -14,6 +14,7 @@ from pathlib import Path
 import hydra
 import torch
 from omegaconf import DictConfig, OmegaConf
+from tqdm import tqdm
 
 from ewjepa import EgoWorldConfig, EgoWorldJEPA
 from ewjepa.data import build_dataloader
@@ -69,6 +70,21 @@ def _training_step(
     scaler.step(opt)
     scaler.update()
     return out
+
+
+def _loss_postfix(out: dict[str, torch.Tensor], lr: float) -> dict[str, str]:
+    """Short loss summary for the tqdm bar."""
+    postfix = {
+        "loss": f"{out['loss'].item():.3f}",
+        "pred": f"{out['pred_loss'].item():.3f}",
+        "sig": f"{out['sigreg'].item():.3f}",
+        "lr": f"{lr:.1e}",
+    }
+    if out["aux_loss"].item() > 0:
+        postfix["aux"] = f"{out['aux_loss'].item():.3f}"
+    if out["cov_loss"].item() > 0:
+        postfix["cov"] = f"{out['cov_loss'].item():.3f}"
+    return postfix
 
 
 @hydra.main(version_base=None, config_path="../configs", config_name="train")
@@ -139,6 +155,16 @@ def main(cfg: DictConfig) -> None:
     # rate up from 0 to base_lr over the first warmup_steps steps to avoid that.
     base_lr = float(cfg.train.lr)
     warmup_steps = max(1, int(cfg.train.get("warmup_steps", 0)))
+    show_progress = bool(cfg.train.get("progress", True))
+
+    pbar = tqdm(
+        total=int(cfg.train.steps),
+        initial=step,
+        desc=f"train {model_cfg.mode}",
+        unit="step",
+        dynamic_ncols=True,
+        disable=not show_progress,
+    )
 
     while step < cfg.train.steps:
         lr_scale = min(1.0, (step + 1) / warmup_steps)
@@ -157,20 +183,24 @@ def main(cfg: DictConfig) -> None:
         )
 
         if not torch.isfinite(out["loss"]):
-            print(f"[warn] non-finite loss at step {step}; skipping update")
+            pbar.write(f"[warn] non-finite loss at step {step}; skipping update")
             ckpt_path = out_dir / "model.pt"
             if ckpt_path.exists():
                 ckpt = load_checkpoint(ckpt_path, map_location=device)
                 model.load_state_dict(ckpt["model"])
                 if "optimizer" in ckpt:
                     opt.load_state_dict(ckpt["optimizer"])
-                print(f"[warn] reloaded checkpoint from step {ckpt.get('step', '?')}")
+                pbar.write(f"[warn] reloaded checkpoint from step {ckpt.get('step', '?')}")
             step += 1
+            pbar.update(1)
             continue
+
+        current_lr = float(opt.param_groups[0]["lr"])
+        pbar.set_postfix(_loss_postfix(out, current_lr), refresh=False)
 
         if step % cfg.train.log_every == 0:
             msg = " ".join(f"{k}={v.item():.4f}" for k, v in out.items())
-            print(f"[step {step}] {msg}")
+            pbar.write(f"[step {step}] {msg}")
             if run is not None:
                 run.log({k: v.item() for k, v in out.items()}, step=step)
 
@@ -184,21 +214,20 @@ def main(cfg: DictConfig) -> None:
             diag_msg = " ".join(f"{k}={v:.3f}" for k, v in diag.items())
             if model_cfg.cov_weight > 0:
                 diag_msg += f" cov_loss={out['cov_loss'].item():.4f}"
-            print(f"[diag {step}] {diag_msg}")
+            pbar.write(f"[diag {step}] {diag_msg}")
             if run is not None:
                 run.log(diag, step=step)
                 if model_cfg.cov_weight > 0:
                     run.log({"cov_loss": out["cov_loss"].item()}, step=step)
             world_std = diag.get("world/std", 1.0)
             world_rank = diag.get("world/effective_rank", 192.0)
-            world_sigreg = diag.get("world/sigreg", 0.0)
             if world_std < 0.1:
-                print(
+                pbar.write(
                     "[warn] World latent std collapsed near zero. "
                     "Raise sigreg_mix or check the encoder."
                 )
             elif world_rank < 5.0:
-                print(
+                pbar.write(
                     "[warn] World latent collapse detected "
                     f"(effective_rank={world_rank:.2f}). "
                     "Raise cov_weight or sigreg_mix."
@@ -208,7 +237,9 @@ def main(cfg: DictConfig) -> None:
             _save(out_dir / "model.pt", model, cfg, step, normalizer, opt, scaler if use_amp else None)
 
         step += 1
+        pbar.update(1)
 
+    pbar.close()
     _save(out_dir / "model.pt", model, cfg, step, normalizer, opt, scaler if use_amp else None)
     print(f"[done] checkpoint saved to {out_dir / 'model.pt'}")
     if run is not None:

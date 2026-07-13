@@ -1,0 +1,9 @@
+{
+  "dataset": "data/pusht_96.lance",
+  "img_size": 96,
+  "steps": 6000,
+  "seed": 0,
+  "val_block_xy_rmse_px": 7.589017708903402,
+  "val_angle_err_deg": 2.066824997173423,
+  "detector_out": "outputs/shared_pusht96_seed0/detector.pt"
+}
