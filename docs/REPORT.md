@@ -3,7 +3,7 @@
 ## Scope
 
 This project studies a small factored latent world model for PushT. The model
-uses two latents — `z_world` from the image and `z_ego` from proprioception —
+uses two latents (`z_world` from the image and `z_ego` from proprioception),
 predicts future latents, and plans with MPPI-based MPC. A monolithic baseline
 with one latent is trained and evaluated on the identical stack.
 
@@ -15,7 +15,7 @@ for the numbers below. Checkpoints, Lance datasets, and detector weights live
 in `outputs/` locally and are not committed. Results are reported in three
 tiers; Tier A is the main comparison but is confounded (see below).
 
-## Tier A — Main comparison (96px, 2026-07-13, canonical, confounded)
+## Tier A: Main comparison (96px, 2026-07-13, canonical, confounded)
 
 Same data, same shared detector, same MPPI stack. The model configs differ on
 FOUR axes, not one: `mode` (intended variable), `ego_loss_weight` 0.1 vs 0.0
@@ -69,7 +69,7 @@ bash scripts/reproduce_full_comparison.sh
 A fresh run reproduces the protocol, not bit-identical numbers, because
 checkpoints and data are not committed.
 
-## Tier B — Historical 64px probes (archived)
+## Tier B: Historical 64px probes (archived)
 
 8192 latent rows, ridge regression to block pose, grouped split. Probe-only;
 NOT a planning comparison. These predate the bug fixes in POSTMORTEM.md.
@@ -84,14 +84,14 @@ The factored probe records `world_head_norm: none` and
 incorrect Hydra model label; its checkpoint path identifies the monolithic
 checkpoint. Reproduce with `bash scripts/reproduce_probes.sh`.
 
-## Tier C — Historical planning runs (not controlled)
+## Tier C: Historical planning runs (not controlled)
 
 | Run | Success | Artifact |
 | --- | ---: | --- |
 | Factored cov, 64px, no detector, 20 episodes | 0.0% | `results/eval/factored_cov_seed0_mppi.json` |
 | Factored hires, MPPI + detector, 50 episodes | 6.0% (3/50) | `results/archive/eval_pusht_hires_seed0_mppi.json` |
 
-Different checkpoints, resolutions, detector settings, and episode counts —
+Different checkpoints, resolutions, detector settings, and episode counts:
 not comparable to each other or to Tier A, and not a 0% → 6% → 12%
 progression. The 6% run's detector accuracy was never published. The
 historical 6% artifact lives under `results/archive/` to avoid confusion

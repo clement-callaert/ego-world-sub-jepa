@@ -24,6 +24,9 @@
   "artifacts": [
     "results/archive/eval_pusht_hires_seed0_mppi.json",
     "results/detector/shared_pusht96_seed0.json",
+    "results/diagnostics/pusht_hires_seed0.json",
+    "results/diagnostics/pusht_monolithic_hires_seed0.json",
+    "results/eval/pusht_hires_seed0_random.json",
     "results/eval/factored_cov_seed0_mppi.json",
     "results/eval/pusht_hires_seed0_mppi.json",
     "results/eval/pusht_monolithic_hires_seed0_mppi.json",
@@ -35,6 +38,22 @@
     "results/probe/pusht_monolithic_hires_seed0.json",
     "results/train_factored_cov_20k.log"
   ],
+  "diagnostics_96px": {
+    "date": "2026-07-14",
+    "description": "Action-conditioned rollout error and action sensitivity on held-out episodes (episode split, readout fitted on train episodes only), plus a random-actions planning baseline. Same checkpoints as controlled_comparison_96px.",
+    "factored_hires": {
+      "checkpoint": "outputs/pusht_hires_seed0/model.pt",
+      "diagnostics": "results/diagnostics/pusht_hires_seed0.json"
+    },
+    "monolithic_hires": {
+      "checkpoint": "outputs/pusht_monolithic_hires_seed0/model.pt",
+      "diagnostics": "results/diagnostics/pusht_monolithic_hires_seed0.json"
+    },
+    "random_baseline": {
+      "eval": "results/eval/pusht_hires_seed0_random.json",
+      "note": "Uniform random actions, policy independent of the checkpoint; same 50 episodes / seed 0 / 700 steps protocol as the MPPI evals."
+    }
+  },
   "controlled_comparison_96px": {
     "data": "data/pusht_96.lance",
     "detector": "outputs/shared_pusht96_seed0/detector.pt",

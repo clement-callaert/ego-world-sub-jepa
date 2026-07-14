@@ -25,21 +25,21 @@ committed artifact. The artifact JSON schema (including the legacy
 `results/SCHEMA.md` and validated by `tests/test_results_schema.py`.
 Results fall in three tiers:
 
-- **Tier A — Main comparison (96px, canonical).** Same data, same shared
+- **Tier A: Main comparison (96px, canonical).** Same data, same shared
   detector, same MPPI stack (`factored_hires` vs `monolithic_hires`).
   **Warning: the two model configs differ on four axes, not one** (see the
   delta table in the Tier A section), so this comparison is confounded on
   `stop_grad_target` and `cov_weight`. A controlled ablation is in progress.
-- **Tier B — Historical 64px probes.** Archived configs (`factored_cov`,
+- **Tier B: Historical 64px probes.** Archived configs (`factored_cov`,
   `monolithic_cov`). Probe-only; not a planning comparison.
-- **Tier C — Historical planning runs.** Incomplete or different protocols.
+- **Tier C: Historical planning runs.** Incomplete or different protocols.
   Kept for the record only; not comparable to Tier A or to each other.
 
 In particular, the historical 0% (Tier C), the historical 6% (Tier C), and
 the controlled 12% (Tier A) are three different experiments. They must NOT be
 read as a 0% → 6% → 12% progression.
 
-## Tier A — Main comparison (96px, 2026-07-13) — confounded
+## Tier A: Main comparison (96px, 2026-07-13): confounded
 
 Both models were trained and evaluated on the identical pipeline:
 `data/pusht_96.lance`, the same shared block detector, the same probes, and
@@ -63,7 +63,7 @@ ablation varying one factor at a time is in progress.
 **Probe R² caveat.** Both models are trained with `state_aux_weight=1.0`: a
 linear head reads the block pose from `z_world` and is directly supervised on
 the true pose during training. The ridge probe below therefore measures almost
-exactly what the auxiliary loss optimized — the near-saturated R² is partly
+exactly what the auxiliary loss optimized: the near-saturated R² is partly
 tautological, the probe is not an independent measure of representation
 quality, and these models are not pure JEPA.
 
@@ -124,7 +124,55 @@ not bit-identical numbers.
 
 Overrides: `TRAIN_STEPS=50000 EVAL_EPISODES=100 bash scripts/reproduce_full_comparison.sh`
 
-## Tier B — Historical 64px probes (archived)
+## Diagnostics: action-conditioned rollout error and action sensitivity
+
+Probe R² alone does not measure whether the model supports planning. Two
+diagnostics computed on the Tier A checkpoints, on 200 held-out episodes
+(episode split; the frozen ridge readout is fitted on the 1800 training
+episodes only, same procedure as the planner's readout). Run with
+`python scripts/diagnose.py checkpoint=... data=pusht_96`. Artifacts:
+`results/diagnostics/pusht_hires_seed0.json`,
+`results/diagnostics/pusht_monolithic_hires_seed0.json`,
+`results/eval/pusht_hires_seed0_random.json`.
+
+**Open-loop rollout RMSE of the decoded block pose** (encode frame 0, roll
+the predictor with the real dataset actions, decode with the frozen readout,
+compare with the simulator pose). "abs" is the absolute decoded pose; "disp"
+compares predicted vs true displacement from frame 0, which cancels the
+per-frame readout bias and is what the planner consumes (displacement mode
+anchored on the detector). "zero" is the trivial block-never-moves predictor.
+
+| Horizon | Factored abs / disp (px) | Monolithic abs / disp (px) | Zero-motion (px) |
+| --- | --- | --- | --- |
+| 0 (readout only) | 167.3 / n.a. | 19.7 / n.a. | n.a. |
+| 1 | 167.8 / 8.6 | 21.4 / 11.0 | 11.3 |
+| 2 | 168.3 / 13.6 | 24.0 / 17.2 | 19.9 |
+| 4 | 169.4 / 21.3 | 29.0 / 25.1 | 34.2 |
+| 8 | 171.7 / 33.2 | 39.6 / 37.9 | 59.0 |
+
+**Action sensitivity** (std in px of the decoded block xy at H=8 under K=32
+uniform random action sequences, normalized by the dataset block xy std;
+0 means the predictor is blind to the action):
+
+| | Factored | Monolithic |
+| --- | --- | --- |
+| Normalized xy sensitivity | 0.184 | 0.315 |
+
+**Random-actions baseline**: uniform random actions, same 50 episodes /
+seed 0 / 700-step protocol as the MPPI evals: **0.0% (0/50)**. The 12%
+factored MPPI result is therefore above the random floor; the monolithic 0%
+is indistinguishable from it.
+
+Readings. (1) Neither predictor is action-blind, so the monolithic 0%
+planning is NOT mechanically explained by action blindness. (2) Both models
+beat the zero-motion floor on displacement at every horizon, the factored
+one by a wider margin. (3) The factored readout has a huge absolute error on
+held-out episodes (167 px, vs 20 px monolithic) despite its 0.997 committed
+probe R²; the committed probes span only the first ~14 episodes of the
+dataset (8192 sequential rows), so the probe R² is not comparable to these
+held-out numbers and overstates global readability.
+
+## Tier B: Historical 64px probes (archived)
 
 Archived configs at 64×64, probe-only (8192 rows, ridge regression, grouped
 split). These predate the bug fixes below and are NOT a planning comparison.
@@ -136,7 +184,7 @@ split). These predate the bug fixes below and are NOT a planning comparison.
 
 Reproduce with `bash scripts/reproduce_probes.sh`.
 
-## Tier C — Historical planning runs (not controlled)
+## Tier C: Historical planning runs (not controlled)
 
 | Run | Success | Artifact |
 | --- | ---: | --- |
