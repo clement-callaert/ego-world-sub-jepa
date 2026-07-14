@@ -22,8 +22,8 @@
     "monolithic_probe": "outputs/pusht_monolithic_hires_seed0/model.pt"
   },
   "artifacts": [
+    "results/archive/eval_pusht_hires_seed0_mppi.json",
     "results/detector/shared_pusht96_seed0.json",
-    "results/eval/eval_pusht_hires_seed0_mppi.json",
     "results/eval/factored_cov_seed0_mppi.json",
     "results/eval/pusht_hires_seed0_mppi.json",
     "results/eval/pusht_monolithic_hires_seed0_mppi.json",

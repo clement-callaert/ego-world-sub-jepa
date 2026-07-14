@@ -13,12 +13,19 @@ not. "Ego-world" means separate world and agent latents.
 **Evidence policy:** only JSON files committed under `results/` are evidence
 for the numbers below. Checkpoints, Lance datasets, and detector weights live
 in `outputs/` locally and are not committed. Results are reported in three
-tiers; only Tier A is a controlled comparison.
+tiers; Tier A is the main comparison but is confounded (see below).
 
-## Tier A — Controlled comparison (96px, 2026-07-13, canonical)
+## Tier A — Main comparison (96px, 2026-07-13, canonical, confounded)
 
-Same data, same shared detector, same MPPI stack; only the world model
-differs. Manifest: `results/manifest.json` → `controlled_comparison_96px`
+Same data, same shared detector, same MPPI stack. The model configs differ on
+FOUR axes, not one: `mode` (intended variable), `ego_loss_weight` 0.1 vs 0.0
+(imposed by the architecture), `stop_grad_target` true vs false
+(**confound**), and `cov_weight` 0.25 vs 0.0 (**confound**). See README.md
+for the full delta table; a controlled one-factor-at-a-time ablation is in
+progress. Both models also train with `state_aux_weight=1.0`, which directly
+supervises the block pose in `z_world`, so the probe R² is quasi-saturated by
+construction and is not an independent measure of representation quality.
+Manifest: `results/manifest.json` → `controlled_comparison_96px`
 (git SHA `c7debee`).
 
 | | Factored hires | Monolithic hires |
@@ -43,11 +50,12 @@ Protocol:
 5. Eval: MPPI `n_samples=512`, `n_iters=6`, `horizon=8`,
    `max_episode_steps=700`, `episodes=50`, shared detector, seed 0.
 
-**Claims policy:** the factored model outperforms the monolithic one on
-planning on this stack (12.0% vs 0.0%) with near-identical probe R². This is
-one run at n=50 episodes and a single seed; do not state "factorization
-improves planning" without citing these artifacts and these statistical
-limits. Do not mix Tier B/C numbers into this comparison.
+**Claims policy:** the factored-config model outperforms the
+monolithic-config one on planning on this stack (12.0% vs 0.0%) with
+near-identical probe R². The comparison is confounded on `stop_grad_target`
+and `cov_weight`, is one run at n=50 episodes and a single seed; do not state
+"factorization improves planning". Do not mix Tier B/C numbers into this
+comparison.
 
 Reproduce:
 
@@ -81,13 +89,13 @@ checkpoint. Reproduce with `bash scripts/reproduce_probes.sh`.
 | Run | Success | Artifact |
 | --- | ---: | --- |
 | Factored cov, 64px, no detector, 20 episodes | 0.0% | `results/eval/factored_cov_seed0_mppi.json` |
-| Factored hires, MPPI + detector, 50 episodes | 6.0% (3/50) | `results/eval/eval_pusht_hires_seed0_mppi.json` |
+| Factored hires, MPPI + detector, 50 episodes | 6.0% (3/50) | `results/archive/eval_pusht_hires_seed0_mppi.json` |
 
 Different checkpoints, resolutions, detector settings, and episode counts —
 not comparable to each other or to Tier A, and not a 0% → 6% → 12%
-progression. The 6% run's detector accuracy was never published. Note that
-the historical 6% artifact (`eval_pusht_hires_seed0_mppi.json`) and the
-Tier A 12% artifact (`pusht_hires_seed0_mppi.json`) have similar filenames.
+progression. The 6% run's detector accuracy was never published. The
+historical 6% artifact lives under `results/archive/` to avoid confusion
+with the Tier A 12% artifact (`results/eval/pusht_hires_seed0_mppi.json`).
 
 ## Artifact publication
 

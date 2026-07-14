@@ -45,7 +45,7 @@ Beyond the model bugs, the planning stack was changed to:
 
 - **0.0%** — `results/eval/factored_cov_seed0_mppi.json`: 64×64 factored_cov
   model, no detector, 20 episodes, pre-fix planning stack.
-- **6.0% (3/50)** — `results/eval/eval_pusht_hires_seed0_mppi.json`: an
+- **6.0% (3/50)** — `results/archive/eval_pusht_hires_seed0_mppi.json`: an
   isolated factored_hires run with MPPI and a detector, before the controlled
   comparison existed. Its detector accuracy was never published as an
   artifact.

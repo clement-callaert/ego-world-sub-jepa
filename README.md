@@ -20,12 +20,16 @@ latents for the world and the agent.
 **Only JSON files committed under `results/` count as published evidence.**
 Checkpoints, Lance datasets, and detector weights are generated locally into
 `outputs/` and are NOT in git. Every number in this README quotes a specific
-committed artifact. Results fall in three tiers:
+committed artifact. The artifact JSON schema (including the legacy
+`invocation_config` variant and its known pitfall) is documented in
+`results/SCHEMA.md` and validated by `tests/test_results_schema.py`.
+Results fall in three tiers:
 
-- **Tier A — Controlled comparison (96px, canonical).** Same data, same
-  shared detector, same MPPI stack; only the world model differs
-  (`factored_hires` vs `monolithic_hires`). This is the main claim the repo
-  supports.
+- **Tier A — Main comparison (96px, canonical).** Same data, same shared
+  detector, same MPPI stack (`factored_hires` vs `monolithic_hires`).
+  **Warning: the two model configs differ on four axes, not one** (see the
+  delta table in the Tier A section), so this comparison is confounded on
+  `stop_grad_target` and `cov_weight`. A controlled ablation is in progress.
 - **Tier B — Historical 64px probes.** Archived configs (`factored_cov`,
   `monolithic_cov`). Probe-only; not a planning comparison.
 - **Tier C — Historical planning runs.** Incomplete or different protocols.
@@ -35,12 +39,33 @@ In particular, the historical 0% (Tier C), the historical 6% (Tier C), and
 the controlled 12% (Tier A) are three different experiments. They must NOT be
 read as a 0% → 6% → 12% progression.
 
-## Tier A — Controlled comparison (96px, 2026-07-13)
+## Tier A — Main comparison (96px, 2026-07-13) — confounded
 
 Both models were trained and evaluated on the identical pipeline:
 `data/pusht_96.lance`, the same shared block detector, the same probes, and
 the same MPPI planner. Manifest: `results/manifest.json`
 (`controlled_comparison_96px`, git SHA `c7debee`).
+
+**The two model configs are NOT identical up to `mode`.** They differ on four
+axes:
+
+| Config key | `factored_hires` | `monolithic_hires` | Status |
+| --- | --- | --- | --- |
+| `mode` | `factored` | `monolithic` | intended variable |
+| `ego_loss_weight` | 0.1 | 0.0 | imposed by the architecture (no ego stream in monolithic) |
+| `stop_grad_target` | `true` | `false` | **confound** (not imposed by the architecture) |
+| `cov_weight` | 0.25 | 0.0 | **confound** (not imposed by the architecture) |
+
+The 12% vs 0% result below is therefore confounded on `stop_grad_target` and
+`cov_weight`; it cannot be attributed to the factorization alone. A controlled
+ablation varying one factor at a time is in progress.
+
+**Probe R² caveat.** Both models are trained with `state_aux_weight=1.0`: a
+linear head reads the block pose from `z_world` and is directly supervised on
+the true pose during training. The ridge probe below therefore measures almost
+exactly what the auxiliary loss optimized — the near-saturated R² is partly
+tautological, the probe is not an independent measure of representation
+quality, and these models are not pure JEPA.
 
 | | Factored hires | Monolithic hires |
 | --- | --- | --- |
@@ -58,13 +83,13 @@ model), artifact `results/detector/shared_pusht96_seed0.json`:
 - Val angle error: **2.07°**
 - Weights (local, not committed): `outputs/shared_pusht96_seed0/detector.pt`
 
-**Interpretation and limits.** On this stack, the factored model reaches
-12.0% planning success while the monolithic model reaches 0.0%, with
-near-identical probe R². This is evidence that the factorization helps
-planning *on this specific stack*, but it is a single controlled run: n=50
-episodes, one seed (0), one task. No confidence intervals or seed variance
-are available; do not cite this as "factorization improves planning" without
-these qualifiers and the artifacts above.
+**Interpretation and limits.** On this stack, the factored-config model
+reaches 12.0% planning success while the monolithic-config model reaches
+0.0%, with near-identical probe R². Because the configs differ on the four
+axes above, this does NOT isolate the factorization: `stop_grad_target`
+and/or `cov_weight` could explain part or all of the gap. It is also a single
+run: n=50 episodes, one seed (0), one task, no confidence intervals or seed
+variance. Do not cite this as "factorization improves planning".
 
 ### Protocol
 
@@ -116,13 +141,12 @@ Reproduce with `bash scripts/reproduce_probes.sh`.
 | Run | Success | Artifact |
 | --- | ---: | --- |
 | Factored cov, 64px, no detector, 20 episodes | 0.0% | `results/eval/factored_cov_seed0_mppi.json` |
-| Factored hires, MPPI + detector, 50 episodes | 6.0% (3/50) | `results/eval/eval_pusht_hires_seed0_mppi.json` |
+| Factored hires, MPPI + detector, 50 episodes | 6.0% (3/50) | `results/archive/eval_pusht_hires_seed0_mppi.json` |
 
 These runs use different checkpoints, resolutions, detector settings, and
-episode counts; neither is comparable to the other or to Tier A. Note the
-filename collision hazard: the historical 6% artifact is
-`eval_pusht_hires_seed0_mppi.json` (with the `eval_` prefix), while the Tier A
-12% artifact is `pusht_hires_seed0_mppi.json`.
+episode counts; neither is comparable to the other or to Tier A. The
+historical 6% artifact lives under `results/archive/` to avoid confusion with
+the Tier A 12% artifact `results/eval/pusht_hires_seed0_mppi.json`.
 
 ## Debugging history
 
