@@ -59,6 +59,46 @@ def _to_nchw_float(x: torch.Tensor) -> torch.Tensor:
     return x.float()
 
 
+class RandomPolicy(BasePolicy):
+    """Uniform random actions in the action bounds. Baseline for planning evals.
+
+    Anchors the MPC success rate: any planner must beat this to show that the
+    world model contributes anything at all.
+    """
+
+    def __init__(
+        self,
+        action_dim: int = 2,
+        action_low: float = -1.0,
+        action_high: float = 1.0,
+        seed: int = 0,
+        image_key: str = "pixels",
+        **kwargs: Any,
+    ):
+        super().__init__(**kwargs)
+        self.action_dim = action_dim
+        self.action_low = action_low
+        self.action_high = action_high
+        self.image_key = image_key
+        self.rng = np.random.default_rng(seed)
+
+    def reset(self, num_envs: int = 1) -> None:
+        pass
+
+    def get_action(self, info_dict: dict, **kwargs: Any) -> np.ndarray:
+        n_envs = np.asarray(info_dict[self.image_key]).shape[0]
+        action = self.rng.uniform(
+            self.action_low, self.action_high, size=(n_envs, self.action_dim)
+        ).astype(np.float32)
+        if hasattr(self, "env") and hasattr(self.env, "action_space"):
+            target_shape = self.env.action_space.shape
+            if len(target_shape) == 2 and target_shape[1] == 1:
+                action = action[:, None, :]
+        return action
+
+    get_actions = get_action
+
+
 class LatentMPCPolicy(BasePolicy):
     """Plan in the learned latent world model."""
 

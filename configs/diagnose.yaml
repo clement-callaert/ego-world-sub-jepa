@@ -1,0 +1,38 @@
+# Diagnostics config (Hydra). Action-conditioned rollout error and action
+# sensitivity for a trained checkpoint, on held-out episodes.
+#   python scripts/diagnose.py checkpoint=outputs/pusht_hires_seed0/model.pt data=pusht_96
+defaults:
+  - model: factored
+  - data: pusht
+  - override hydra/hydra_logging: disabled
+  - override hydra/job_logging: disabled
+  - _self_
+
+hydra:
+  output_subdir: null
+  run:
+    dir: .
+
+checkpoint: ???            # path to a trained checkpoint (.pt)
+device: cuda
+seed: 0
+out_dir: outputs/diagnostics
+
+# Rollout error (1.1). Horizons of the open-loop rollout with real actions.
+horizons: [1, 2, 4, 8]
+# Fraction of episodes held out for evaluation. The readout is fitted on the
+# other episodes only, so no episode leaks between readout fit and rollout eval.
+holdout_frac: 0.1
+# Cap on evaluated held-out windows (keeps the run fast, order is deterministic).
+max_eval_windows: 4096
+batch_size: 64
+
+# Frozen ridge readout, fitted exactly like the planner's (scripts/evaluate.py):
+# same ridge, same standardization, same max sample count.
+readout_ridge: 1.0e-3
+readout_max_samples: 8192
+
+# Action sensitivity (1.2).
+sensitivity_horizon: 8
+sensitivity_sequences: 32       # K random action sequences per state
+sensitivity_states: 64          # number of held-out initial states

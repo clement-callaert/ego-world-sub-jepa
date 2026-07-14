@@ -16,6 +16,10 @@ hydra:
     dir: .
 
 checkpoint: ???            # path to a trained checkpoint (.pt)
+# Policy: "mpc" plans in the latent model, "random" samples uniform actions in
+# the action bounds (baseline anchoring the planning success rate; the
+# checkpoint is still loaded for the image size and the manifest).
+policy: mpc
 device: cuda
 seed: 0
 episodes: 50

@@ -1,6 +1,7 @@
 """Ego-World JEPA: factorized latent world models for planning."""
 
 from .detector import BlockPoseDetector, load_detector, save_detector
+from .diagnostics import action_sensitivity, rollout_pose_errors
 from .encoders import EgoMLP, WorldViT
 from .model import EgoWorldConfig, EgoWorldJEPA
 from .mpc_policy import LatentMPCPolicy
@@ -40,6 +41,8 @@ __all__ = [
     "load_detector",
     "save_detector",
     "Normalizer",
+    "rollout_pose_errors",
+    "action_sensitivity",
 ]
 
 __version__ = "0.1.0"

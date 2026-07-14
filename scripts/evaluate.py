@@ -198,7 +198,21 @@ def main(cfg: DictConfig) -> None:
         print("[fast] episodes=5 max_episode_steps=300 planner.n_samples=128 planner.n_iters=3")
 
     model, normalizer, checkpoint_model_cfg = _load_model(cfg, device)
-    policy = _build_policy(cfg, model, normalizer, device)
+    policy_kind = str(cfg.get("policy", "mpc"))
+    if policy_kind == "random":
+        from ewjepa.mpc_policy import RandomPolicy
+
+        policy = RandomPolicy(
+            action_dim=model.cfg.action_dim,
+            action_low=float(cfg.data.action_low),
+            action_high=float(cfg.data.action_high),
+            seed=int(cfg.seed),
+        )
+        print("[eval] RANDOM policy baseline (uniform actions, no planning)")
+    elif policy_kind == "mpc":
+        policy = _build_policy(cfg, model, normalizer, device)
+    else:
+        raise ValueError(f"unknown policy {policy_kind!r}, expected 'mpc' or 'random'")
 
     img_size = model.cfg.img_size
     world = swm.World(
@@ -270,7 +284,8 @@ def main(cfg: DictConfig) -> None:
 
     ckpt_path = Path(cfg.checkpoint)
     tag = ckpt_path.parent.name if ckpt_path.parent.name not in ("", ".", "outputs") else ckpt_path.stem
-    out_path = out_dir / f"eval_{tag}_{cfg.planner.kind}.json"
+    suffix = "random" if policy_kind == "random" else cfg.planner.kind
+    out_path = out_dir / f"eval_{tag}_{suffix}.json"
     with open(out_path, "w") as f:
         json.dump(results, f, indent=2)
     print(f"[done] results saved to {out_path}")
