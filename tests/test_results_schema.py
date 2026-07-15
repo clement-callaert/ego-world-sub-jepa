@@ -19,7 +19,7 @@ RESULTS = Path(__file__).resolve().parent.parent / "results"
 
 ARTIFACTS = sorted(
     p
-    for sub in ("probe", "eval", "archive")
+    for sub in ("probe", "eval", "archive", "diagnostics")
     for p in (RESULTS / sub).glob("*.json")
     if (RESULTS / sub).exists()
 )

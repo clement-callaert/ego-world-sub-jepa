@@ -4,7 +4,7 @@ Every probe/eval JSON committed under `results/` carries a `manifest` block.
 Two schema versions exist. Committed artifacts are never modified, so legacy
 files keep their original schema; all NEW artifacts must use v1.
 
-## v1 (current — written by `ewjepa.utils.build_run_manifest`)
+## v1 (current: written by `ewjepa.utils.build_run_manifest`)
 
 ```json
 {
@@ -27,7 +27,7 @@ the Hydra invocation's `model` block with the config stored inside the
 checkpoint before building the manifest, so `manifest.config.model.mode` is
 guaranteed to describe the evaluated checkpoint.
 
-## v0 (legacy — only in artifacts committed before 2026-07-13)
+## v0 (legacy: only in artifacts committed before 2026-07-13)
 
 Legacy manifests have `invocation_config` instead of `config`, plus a
 separate `checkpoint_model_config` key.
