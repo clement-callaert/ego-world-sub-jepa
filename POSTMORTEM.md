@@ -80,9 +80,28 @@ metrics are now a committed artifact.
 Interpretation is limited by n=50 episodes and a single seed. Reproduce with
 `bash scripts/reproduce_full_comparison.sh` (see README).
 
+## Screening grid closure (2026-07-15)
+
+The Tier A comparison was confounded on `stop_grad_target` and `cov_weight`.
+The 8-config screening grid (seed 0, 50 episodes per run, one factor at a
+time; see README "Screening grid" and `results/grid/`) closed that item:
+
+- No single factor is significant at n=50 except the state auxiliary loss in
+  factored mode (g1 vs g7: 6/50 vs 0/50, Fisher p=0.027). Without it the
+  factored probe R² collapses to 0.27 and planning to 0%.
+- The de-confounded mode comparison (g1 factored 6/50 vs g2 monolithic 2/50,
+  p=0.269) is NOT significant; the Tier A 12% vs 0% gap does not survive
+  matching `stop_grad_target` and `cov_weight`. Do not present the Tier A
+  result as evidence that factorization improves planning.
+- Neither probe R² (Spearman rho=0.48, p=0.23) nor rollout RMSE (rho=-0.12,
+  p=0.77) predicts planning success across the 8 runs. g2 has the best
+  rollout displacement RMSE (25.8 px at H=8) yet plans at 4%, while g1 with
+  ~170 px absolute rollout RMSE plans best at 12%.
+
 ## What remains open
 
-- More seeds and confidence intervals for the controlled comparison.
+- More seeds and confidence intervals: the grid is one seed, and its
+  interesting cells (g1, g2, g5) are within binomial noise of each other.
 - Factors-of-variation / robustness evaluations (the eval config supports
   them; `robustness.enabled` was false in the committed runs).
 - Absolute success rates are low (12% best); the planner and cost shaping

@@ -1,0 +1,38 @@
+# @package model
+# Screening grid g1_factored_sgT_cov025_aux1: identical to factored_hires (the 12% Tier A run)
+# Axes: mode=factored, stop_grad_target=T, cov_weight=0.25, state_aux_weight=1.0.
+# Everything else is identical across the grid (96px, embed_dim 256, depth 6,
+# patch 8, sigreg_mix 0.1, variance 0.5/0.5, same data, detector, planner).
+# ego_loss_weight is 0.1 in factored mode and 0.0 in monolithic mode: this is
+# the one architecturally imposed difference that cannot be controlled.
+mode: factored
+img_size: 96
+in_chans: 3
+proprio_dim: 4
+action_dim: 2
+patch_size: 8
+embed_dim: 256
+depth: 6
+num_heads: 8
+mlp_ratio: 2.0
+world_dim: 256
+world_head_norm: layernorm
+ego_dim: 32
+ego_hidden: 128
+ego_depth: 2
+action_emb_dim: 64
+pred_hidden: 256
+pred_depth: 2
+sigreg_mix: 0.1
+ego_loss_weight: 0.1
+stop_grad_target: true
+variance_weight: 0.5
+variance_target: 0.5
+cov_weight: 0.25
+state_aux_weight: 1.0
+block_slice: [2, 5]
+agent_slice: [0, 2]
+sigreg_kwargs:
+  n_directions: 256
+  n_points: 17
+  t_max: 5.0

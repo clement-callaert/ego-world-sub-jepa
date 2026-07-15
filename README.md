@@ -29,7 +29,8 @@ Results fall in three tiers:
   detector, same MPPI stack (`factored_hires` vs `monolithic_hires`).
   **Warning: the two model configs differ on four axes, not one** (see the
   delta table in the Tier A section), so this comparison is confounded on
-  `stop_grad_target` and `cov_weight`. A controlled ablation is in progress.
+  `stop_grad_target` and `cov_weight`. The screening grid below resolves the
+  confounds: the matched comparison is 12% vs 4%, not significant at n=50.
 - **Tier B: Historical 64px probes.** Archived configs (`factored_cov`,
   `monolithic_cov`). Probe-only; not a planning comparison.
 - **Tier C: Historical planning runs.** Incomplete or different protocols.
@@ -57,8 +58,9 @@ axes:
 | `cov_weight` | 0.25 | 0.0 | **confound** (not imposed by the architecture) |
 
 The 12% vs 0% result below is therefore confounded on `stop_grad_target` and
-`cov_weight`; it cannot be attributed to the factorization alone. A controlled
-ablation varying one factor at a time is in progress.
+`cov_weight`; it cannot be attributed to the factorization alone. The
+screening grid section below varies one factor at a time: with the confounds
+matched the gap is 12% vs 4% (Fisher p=0.269, not significant).
 
 **Probe R² caveat.** Both models are trained with `state_aux_weight=1.0`: a
 linear head reads the block pose from `z_world` and is directly supervised on
@@ -171,6 +173,65 @@ held-out episodes (167 px, vs 20 px monolithic) despite its 0.997 committed
 probe R²; the committed probes span only the first ~14 episodes of the
 dataset (8192 sequential rows), so the probe R² is not comparable to these
 held-out numbers and overstates global readability.
+
+## Screening grid
+
+Eight configs under `configs/model/grid/`, seed 0, varying only `mode`,
+`stop_grad_target` (sg), `cov_weight` (cov), and `state_aux_weight` (aux).
+Everything else (96px, embed_dim 256, depth 6, patch 8, sigreg_mix, variance
+terms, data, shared detector, MPPI planner, 20k steps, batch 256) is
+identical across the grid. `ego_loss_weight` is 0.1 in factored mode and 0.0
+in monolithic mode: the one architecturally imposed difference that cannot
+be controlled.
+
+| Config | mode | sg | cov | aux | Role |
+| --- | --- | --- | --- | --- | --- |
+| g1 | factored | T | 0.25 | 1.0 | = factored_hires (the Tier A 12%) |
+| g2 | monolithic | T | 0.25 | 1.0 | the missing control |
+| g3 | monolithic | F | 0.0 | 1.0 | = monolithic_hires (the Tier A 0%) |
+| g4 | factored | F | 0.0 | 1.0 | symmetric of g3 |
+| g5 | factored | T | 0.0 | 1.0 | isolates cov_weight |
+| g6 | factored | F | 0.25 | 1.0 | isolates stop_grad_target |
+| g7 | factored | T | 0.25 | 0.0 | pure JEPA, factored (probe R2 variance) |
+| g8 | monolithic | T | 0.25 | 0.0 | pure JEPA, monolithic (probe R2 variance) |
+
+g1 to g6 de-confound the Tier A comparison. g7 and g8 exist to create
+variance on the probe R2: with aux=1.0 every R2 saturates near 0.995 and the
+scatter is degenerate. Run with `bash scripts/run_grid.sh` (resumable, logs
+GPU time), aggregate with `python3 scripts/aggregate_grid.py` (CSV, Wilson
+95% intervals, Fisher exact tests on declared pairs, two-panel scatter with
+Spearman correlations). Artifacts land in `results/grid/`.
+
+### Results (seed 0, 50 episodes per run)
+
+| Config | Probe R² | Rollout RMSE H=8 (px) | Disp RMSE H=8 (px) | Action sens. | Planning success (Wilson 95%) |
+| --- | --- | --- | --- | --- | --- |
+| g1 | 0.997 | 171.6 | 33.2 | 0.184 | 12% (6/50, 5.6 to 23.8) |
+| g2 | 0.992 | 27.4 | 25.8 | 0.354 | 4% (2/50, 1.1 to 13.5) |
+| g3 | 0.995 | 39.6 | 37.9 | 0.315 | 0% (0/50, 0 to 7.1) |
+| g4 | 0.997 | 172.1 | 35.7 | 0.219 | 2% (1/50, 0.4 to 10.5) |
+| g5 | 0.996 | 169.6 | 34.9 | 0.215 | 8% (4/50, 3.2 to 18.8) |
+| g6 | 0.998 | 169.8 | 34.6 | 0.159 | 4% (2/50, 1.1 to 13.5) |
+| g7 | 0.271 | 228.2 | 91.7 | 0.411 | 0% (0/50, 0 to 7.1) |
+| g8 | 0.603 | 50.3 | 48.6 | 0.375 | 4% (2/50, 1.1 to 13.5) |
+
+Fisher exact tests on the declared pairs: no single factor is significant at
+n=50 except the state auxiliary loss in factored mode (g1 vs g7, 6/50 vs
+0/50, p=0.027). The headline mode comparison g1 vs g2 (6/50 vs 2/50,
+p=0.269) is not significant; neither are cov_weight (g1 vs g5, p=0.741) nor
+stop_grad_target (g1 vs g6, p=0.269). Spearman correlations with planning
+success across the 8 runs: probe R² rho=0.48 (p=0.23), rollout RMSE H=8
+rho=-0.12 (p=0.77). Notably g2 has the best rollout displacement RMSE and
+one of the highest action sensitivities yet plans at 4%, while g1 with far
+worse absolute rollout RMSE plans best: at this sample size, neither probe
+R² nor rollout error predicts planning success. Figure:
+`results/figures/grid_scatter.png`. Per-run artifacts and `grid.csv` /
+`stats.json` are in `results/grid/`.
+
+What the grid does NOT show, by design: it is one
+seed (0), one environment (PushT), n=50 episodes per run, and there are no
+inter-seed intervals at this stage. The Wilson bars capture per-run binomial
+noise only, not seed-to-seed variance.
 
 ## Tier B: Historical 64px probes (archived)
 

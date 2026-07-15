@@ -21,8 +21,8 @@ Same data, same shared detector, same MPPI stack. The model configs differ on
 FOUR axes, not one: `mode` (intended variable), `ego_loss_weight` 0.1 vs 0.0
 (imposed by the architecture), `stop_grad_target` true vs false
 (**confound**), and `cov_weight` 0.25 vs 0.0 (**confound**). See README.md
-for the full delta table; a controlled one-factor-at-a-time ablation is in
-progress. Both models also train with `state_aux_weight=1.0`, which directly
+for the full delta table; the confounds were resolved by the screening grid
+below. Both models also train with `state_aux_weight=1.0`, which directly
 supervises the block pose in `z_world`, so the probe R² is quasi-saturated by
 construction and is not an independent measure of representation quality.
 Manifest: `results/manifest.json` → `controlled_comparison_96px`
@@ -54,8 +54,9 @@ Protocol:
 monolithic-config one on planning on this stack (12.0% vs 0.0%) with
 near-identical probe R². The comparison is confounded on `stop_grad_target`
 and `cov_weight`, is one run at n=50 episodes and a single seed; do not state
-"factorization improves planning". Do not mix Tier B/C numbers into this
-comparison.
+"factorization improves planning". The screening grid below shows the gap
+shrinks to a non-significant 12% vs 4% once the confounds are matched. Do not
+mix Tier B/C numbers into this comparison.
 
 Reproduce:
 
@@ -68,6 +69,43 @@ bash scripts/reproduce_full_comparison.sh
 
 A fresh run reproduces the protocol, not bit-identical numbers, because
 checkpoints and data are not committed.
+
+## Screening grid (96px, 2026-07-15, one factor at a time)
+
+Eight configs under `configs/model/grid/`, seed 0, varying only `mode`,
+`stop_grad_target` (sg), `cov_weight` (cov), and `state_aux_weight` (aux);
+everything else identical to Tier A (g1 and g3 ARE the Tier A checkpoints).
+Evidence: `results/grid/` (`gN_probe.json`, `gN_diagnostics.json`,
+`gN_mppi.json`, `grid.csv`, `stats.json`) and
+`results/figures/grid_scatter.png`. Full table in README "Screening grid".
+
+| Config | mode | sg | cov | aux | Probe R² | Planning success |
+| --- | --- | --- | --- | --- | ---: | ---: |
+| g1 | factored | T | 0.25 | 1.0 | 0.997 | 12% (6/50) |
+| g2 | monolithic | T | 0.25 | 1.0 | 0.992 | 4% (2/50) |
+| g3 | monolithic | F | 0.0 | 1.0 | 0.995 | 0% (0/50) |
+| g4 | factored | F | 0.0 | 1.0 | 0.997 | 2% (1/50) |
+| g5 | factored | T | 0.0 | 1.0 | 0.996 | 8% (4/50) |
+| g6 | factored | F | 0.25 | 1.0 | 0.998 | 4% (2/50) |
+| g7 | factored | T | 0.25 | 0.0 | 0.271 | 0% (0/50) |
+| g8 | monolithic | T | 0.25 | 0.0 | 0.603 | 4% (2/50) |
+
+Findings (Fisher exact on declared pairs, `results/grid/stats.json`):
+
+- The only significant factor is the state auxiliary loss in factored mode
+  (g1 vs g7, 6/50 vs 0/50, p=0.027).
+- The de-confounded mode comparison g1 vs g2 (p=0.269) is not significant,
+  nor are `cov_weight` (g1 vs g5, p=0.741) or `stop_grad_target` (g1 vs g6,
+  p=0.269).
+- Across the 8 runs, neither probe R² (Spearman rho=0.48, p=0.23) nor
+  rollout RMSE at H=8 (rho=-0.12, p=0.77) predicts planning success. g2 has
+  the best rollout displacement RMSE (25.8 px) yet plans at 4%.
+
+**Claims policy:** one seed, one environment, n=50 per run; Wilson intervals
+capture binomial noise only, not seed-to-seed variance. The grid rules out
+`stop_grad_target` and `cov_weight` as the source of the Tier A gap, and
+identifies `state_aux_weight` as necessary for factored planning, but does
+not establish that factorization helps.
 
 ## Tier B: Historical 64px probes (archived)
 

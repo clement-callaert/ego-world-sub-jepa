@@ -35,6 +35,7 @@ train:
   cudnn_benchmark: true
   allow_tf32: true
   log_every: 50
+  progress: true        # tqdm bar with loss postfix and ETA
   ckpt_every: 500
   diag_every: 250
   normalize_proprio: true
