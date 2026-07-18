@@ -29,13 +29,16 @@ At **n=13** (8 seed-0 + 5 seed-1 points), planner-faithful Spearman:
 
 Seed-0 only (n=8, committed `stats_corrected.json`): disp_h8 rho=-0.663, p=0.073.
 
-Verdict in one sentence: the planner-faithful displacement-vs-planning correlation **weakens** at the n reached (smaller |rho|, larger p); it does not cross p<0.05 and is no longer as suggestive as the seed-0-only figure.
+Verdict: the displacement-vs-planning effect weakened at n=13, does not reach
+significance, g1's headline was seed-dependent (12% -> 4%), and the seed-0-only
+hypothesis is not supported.
 
 Notable seed-1 shifts (same MPPI protocol, train seed only): g1 planning 12% -> 4%; g7 disp_h8 91.7 -> 48.5 px with planning still 0%.
 
 ## Per-factor mean R2
 
 Linear probes, same group split as `scripts/probe.py`. Means over available checkpoints (factored n=8, monolithic n=5). Ego is null for monolithic.
+Caveat: the absolute-pose decodability figure below is unreconciled with the earlier global readout diagnosis and should not be cited until resolved.
 
 | Mode | z_world -> abs | z_world -> disp | z_ego -> abs | z_ego -> disp |
 | --- | ---: | ---: | ---: | ---: |

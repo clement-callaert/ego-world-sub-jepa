@@ -17,7 +17,7 @@ latents for the world and the agent.
 
 ## Multi-seed update (uncommitted)
 
-Working-tree only; not yet committed. Artifact:
+Working-tree artifacts ready to commit. Numbers from
 `results/grid/stats_corrected_multiseed.json`. Full notes:
 `results/grid/SESSION_REPORT.md`.
 
@@ -29,9 +29,15 @@ Working-tree only; not yet committed. Artifact:
 | Spearman rho(probe_r2, planning) | +0.479 (p=0.230) | +0.273 (p=0.367) |
 | Spearman rho(action_sensitivity, planning) | -0.577 (p=0.134) | -0.405 (p=0.170) |
 
-At n=13 the displacement-vs-planning correlation keeps the expected negative
-sign but is weaker and still not significant at 0.05. P1 (g1,g3,g7,g2) plus
-g4 completed under the 6 h session budget; seeds 2 were not run.
+The displacement-vs-planning effect weakened at n=13 (rho from -0.663 to
+-0.442). It does not reach significance (p=0.130). g1's headline planning
+rate was seed-dependent (12% on seed 0, 4% on seed 1 under the same eval
+protocol), so the seed-0-only hypothesis is not supported. P1 (g1,g3,g7,g2)
+plus g4 completed under the session budget; seeds 2 were not run.
+
+Per-factor caveat: the absolute-pose decodability figure in
+`results/diagnostics/perfactor/` is unreconciled with the earlier global
+readout diagnosis and should not be cited until resolved.
 
 ## Evidence policy
 
