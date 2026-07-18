@@ -30,6 +30,7 @@ from ewjepa import EgoWorldConfig, EgoWorldJEPA
 from ewjepa.data import build_dataset
 from ewjepa.diagnostics import action_sensitivity, rollout_pose_errors
 from ewjepa.probing import fit_pose_readout
+from ewjepa.train_utils import configure_cuda
 from ewjepa.utils import Normalizer, build_run_manifest, get_device, load_checkpoint, set_seed
 
 
@@ -90,6 +91,10 @@ def _fit_readout_and_stats(cfg, model, normalizer, train_set, device, block_slic
 def main(cfg: DictConfig) -> None:
     set_seed(cfg.seed)
     device = get_device(cfg.device)
+    configure_cuda(
+        cudnn_benchmark=bool(cfg.get("cudnn_benchmark", True)),
+        allow_tf32=bool(cfg.get("allow_tf32", True)),
+    )
     model, normalizer, checkpoint_model_cfg = _load_model(cfg, device)
 
     horizons = tuple(int(h) for h in cfg.horizons)

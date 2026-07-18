@@ -1,0 +1,115 @@
+{
+  "checkpoint": "outputs/grid/g1_factored_sgT_cov025_aux1_seed1/model.pt",
+  "n_latent_rows": 8192,
+  "n_samples": 8192,
+  "n_disp_rows": 8192,
+  "probe_max_samples": 8192,
+  "target_dim": 3,
+  "world_probe": {
+    "mse": 28.60453224182129,
+    "rmse": 5.348320506647044,
+    "nrmse": 0.05874318312556972,
+    "r2": 0.9963874220848083
+  },
+  "manifest": {
+    "date": "2026-07-18",
+    "git_sha": null,
+    "seed": 0,
+    "torch_version": "2.12.0+cu130",
+    "config": {
+      "model": {
+        "mode": "factored",
+        "img_size": 96,
+        "in_chans": 3,
+        "proprio_dim": 4,
+        "action_dim": 2,
+        "patch_size": 8,
+        "embed_dim": 256,
+        "depth": 6,
+        "num_heads": 8,
+        "mlp_ratio": 2.0,
+        "world_dim": 256,
+        "world_head_norm": "layernorm",
+        "ego_dim": 32,
+        "ego_hidden": 128,
+        "ego_depth": 2,
+        "action_emb_dim": 64,
+        "pred_hidden": 256,
+        "pred_depth": 2,
+        "sigreg_mix": 0.1,
+        "ego_loss_weight": 0.1,
+        "stop_grad_target": true,
+        "variance_weight": 0.5,
+        "variance_target": 0.5,
+        "cov_weight": 0.25,
+        "state_aux_weight": 1.0,
+        "block_slice": [
+          2,
+          5
+        ],
+        "agent_slice": [
+          0,
+          2
+        ],
+        "sigreg_kwargs": {
+          "n_directions": 256,
+          "n_points": 17,
+          "t_max": 5.0
+        }
+      },
+      "data": {
+        "name_short": "pusht96",
+        "dataset": "data/pusht_96.lance",
+        "env": "swm/PushT-v1",
+        "image_key": "pixels",
+        "proprio_key": "proprio",
+        "action_key": "action",
+        "state_key": "state",
+        "probe_target_slice": [
+          2,
+          5
+        ],
+        "agent_state_slice": [
+          0,
+          2
+        ],
+        "max_episodes": null,
+        "action_low": -1.0,
+        "action_high": 1.0
+      },
+      "checkpoint": "outputs/grid/g1_factored_sgT_cov025_aux1_seed1/model.pt",
+      "device": "cuda",
+      "seed": 0,
+      "synthetic_fallback": false,
+      "out_dir": "outputs/probe",
+      "probe": {
+        "num_steps": 2,
+        "batch_size": 64,
+        "num_workers": 0,
+        "synthetic_episodes": 1024,
+        "test_frac": 0.2,
+        "ridge": 0.001,
+        "max_samples": 8192
+      }
+    },
+    "swm_version": null
+  },
+  "ego_probe": {
+    "mse": 896.2763671875,
+    "rmse": 29.937875128129917,
+    "nrmse": 0.3288221188046752,
+    "r2": 0.5445606112480164
+  },
+  "world_probe_disp": {
+    "mse": 33.833396911621094,
+    "rmse": 5.816648254073913,
+    "nrmse": 1.1272840109427111,
+    "r2": 0.22532641887664795
+  },
+  "ego_probe_disp": {
+    "mse": 39.97426223754883,
+    "rmse": 6.322520244139106,
+    "nrmse": 1.2253235314835758,
+    "r2": 0.10016503185033798
+  }
+}

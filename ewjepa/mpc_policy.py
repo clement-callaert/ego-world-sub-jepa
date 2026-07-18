@@ -261,11 +261,15 @@ class LatentMPCPolicy(BasePolicy):
         proprio = self._proprio(info_dict, self.proprio_key, e)
         z_world, z_ego = self.model.encode(pixels, proprio)
 
-        goal_pixels = _to_nchw_float(_as_tensor(info_dict[goal_key], self.device))
-        if goal_pixels.shape[0] == 1 and e > 1:
-            goal_pixels = goal_pixels.expand(e, -1, -1, -1)
-        goal_proprio = self._proprio(info_dict, self.goal_proprio_key, e)
-        goal_world, _ = self.model.encode(goal_pixels, goal_proprio)
+        # Skip the second ViT encode when the latent goal cost is off (grid
+        # default). The pose costs below do not use goal_world.
+        goal_world = None
+        if self.latent_cost_weight > 0:
+            goal_pixels = _to_nchw_float(_as_tensor(info_dict[goal_key], self.device))
+            if goal_pixels.shape[0] == 1 and e > 1:
+                goal_pixels = goal_pixels.expand(e, -1, -1, -1)
+            goal_proprio = self._proprio(info_dict, self.goal_proprio_key, e)
+            goal_world, _ = self.model.encode(goal_pixels, goal_proprio)
 
         # Target pose of the block, in raw pixels. It lives in goal_state
         # (agent xy, block xy, block angle, velocities), which is what the env
@@ -332,7 +336,7 @@ class LatentMPCPolicy(BasePolicy):
         for i in range(e):
             zw_i = z_world[i : i + 1]
             ze_i = z_ego[i : i + 1] if z_ego is not None else None
-            goal_i = goal_world[i]
+            goal_i = goal_world[i] if goal_world is not None else None
             goal_pose_i = goal_poses[i] if goal_poses is not None else goal_pose
             goal_agent_i = goal_agents[i] if goal_agents is not None else None
 

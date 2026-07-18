@@ -1,0 +1,22 @@
+{
+  "checkpoint": "/home/calla/AI_projects/ego-world-sub-jepa/outputs/grid/g3_monolithic_sgF_cov0_aux1_seed1/model.pt",
+  "config": "g3",
+  "train_seed": 1,
+  "mode": "monolithic",
+  "n_abs_rows": 8192,
+  "n_disp_rows": 8192,
+  "z_world_abs": {
+    "mse": 28.61888885498047,
+    "rmse": 5.349662499165762,
+    "nrmse": 0.058757922876521866,
+    "r2": 0.9974896907806396
+  },
+  "z_world_disp": {
+    "mse": 31.0843563079834,
+    "rmse": 5.575334636412724,
+    "nrmse": 1.080516702532464,
+    "r2": 0.25132235884666443
+  },
+  "z_ego_abs": null,
+  "z_ego_disp": null
+}

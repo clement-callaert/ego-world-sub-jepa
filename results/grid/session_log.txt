@@ -1,0 +1,56 @@
+2026-07-18T14:21:12Z SESSION_START budget_hours=6 train_compile=true eval_compile=true workers=16
+2026-07-18T14:21:12Z QUEUE g1:1 g3:1 g7:1 g2:1 g4:1 g5:1 g6:1 g8:1 g1:2 g3:2 g7:2 g2:2 g4:2 g5:2 g6:2 g8:2
+2026-07-18T14:21:12Z START config=g1 seed=1 out_dir=outputs/grid/g1_factored_sgT_cov025_aux1_seed1 budget_remaining_s=21600
+2026-07-18T14:21:20Z INIT_HASH config=g1 seed=1 hash=08283389b3c7c23c seed0_hash=2e73afcfa193a53c
+2026-07-18T14:24:25Z NOTE disabled TRAIN_COMPILE: measured slower than seed0; EVAL_COMPILE kept
+2026-07-18T14:24:25Z SESSION_START budget_hours=6 train_compile=false eval_compile=true workers=16
+2026-07-18T14:24:25Z QUEUE g1:1 g3:1 g7:1 g2:1 g4:1 g5:1 g6:1 g8:1 g1:2 g3:2 g7:2 g2:2 g4:2 g5:2 g6:2 g8:2
+2026-07-18T14:24:25Z START config=g1 seed=1 out_dir=outputs/grid/g1_factored_sgT_cov025_aux1_seed1 budget_remaining_s=21600
+2026-07-18T14:24:35Z INIT_HASH config=g1 seed=1 hash=08283389b3c7c23c seed0_hash=2e73afcfa193a53c
+2026-07-18T14:27:02Z RESTART after accidental stop; TRAIN_COMPILE=false TRAIN_WORKERS=8
+2026-07-18T14:27:02Z SESSION_RESUME remaining_s=21443
+2026-07-18T14:27:02Z QUEUE g1:1 g3:1 g7:1 g2:1 g4:1 g5:1 g6:1 g8:1 g1:2 g3:2 g7:2 g2:2 g4:2 g5:2 g6:2 g8:2
+2026-07-18T14:27:02Z START config=g1 seed=1 out_dir=outputs/grid/g1_factored_sgT_cov025_aux1_seed1 budget_remaining_s=21443
+2026-07-18T14:27:09Z INIT_HASH config=g1 seed=1 hash=08283389b3c7c23c seed0_hash=2e73afcfa193a53c
+2026-07-18T14:58:15Z RESTART_AFTER_CRASH resume g1 seed1 from step 7500; fresh BUDGET_HOURS=6
+2026-07-18T14:58:16Z SESSION_RESUME remaining_s=21599
+2026-07-18T14:58:16Z QUEUE g1:1 g3:1 g7:1 g2:1 g4:1 g5:1 g6:1 g8:1 g1:2 g3:2 g7:2 g2:2 g4:2 g5:2 g6:2 g8:2
+2026-07-18T14:58:16Z START config=g1 seed=1 out_dir=outputs/grid/g1_factored_sgT_cov025_aux1_seed1 budget_remaining_s=21599
+2026-07-18T14:58:24Z INIT_HASH config=g1 seed=1 hash=08283389b3c7c23c seed0_hash=2e73afcfa193a53c
+2026-07-18T14:58:25Z RESUME config=g1 seed=1 from existing outputs/grid/g1_factored_sgT_cov025_aux1_seed1/model.pt
+2026-07-18T15:40:28Z TIMING config=g1 seed=1 train_s=2523
+2026-07-18T15:40:42Z TIMING config=g1 seed=1 probe_s=14
+2026-07-18T15:40:55Z TIMING config=g1 seed=1 diagnose_s=13
+2026-07-18T15:59:38Z TIMING config=g1 seed=1 eval_s=1123
+2026-07-18T15:59:38Z END config=g1 seed=1 status=OK duration_s=3682 probe=results/grid/seed1/g1_probe.json diag=results/grid/seed1/g1_diagnostics.json mppi=results/grid/seed1/g1_mppi.json
+2026-07-18T15:59:38Z SMOKE_OK measured_duration_s=3682 remaining_s=17917
+2026-07-18T15:59:38Z START config=g3 seed=1 out_dir=outputs/grid/g3_monolithic_sgF_cov0_aux1_seed1 budget_remaining_s=17917
+2026-07-18T15:59:45Z INIT_HASH config=g3 seed=1 hash=08283389b3c7c23c seed0_hash=2e73afcfa193a53c
+2026-07-18T17:03:38Z TIMING config=g3 seed=1 train_s=3833
+2026-07-18T17:03:51Z TIMING config=g3 seed=1 probe_s=13
+2026-07-18T17:04:01Z TIMING config=g3 seed=1 diagnose_s=10
+2026-07-18T17:17:45Z TIMING config=g3 seed=1 eval_s=824
+2026-07-18T17:17:45Z END config=g3 seed=1 status=OK duration_s=4687 probe=results/grid/seed1/g3_probe.json diag=results/grid/seed1/g3_diagnostics.json mppi=results/grid/seed1/g3_mppi.json
+2026-07-18T17:17:45Z START config=g7 seed=1 out_dir=outputs/grid/g7_factored_sgT_cov025_aux0_seed1 budget_remaining_s=13230
+2026-07-18T17:17:52Z INIT_HASH config=g7 seed=1 hash=08283389b3c7c23c seed0_hash=2e73afcfa193a53c
+2026-07-18T18:25:22Z TIMING config=g7 seed=1 train_s=4050
+2026-07-18T18:25:36Z TIMING config=g7 seed=1 probe_s=14
+2026-07-18T18:25:48Z TIMING config=g7 seed=1 diagnose_s=12
+2026-07-18T18:44:53Z TIMING config=g7 seed=1 eval_s=1145
+2026-07-18T18:44:53Z END config=g7 seed=1 status=OK duration_s=5228 probe=results/grid/seed1/g7_probe.json diag=results/grid/seed1/g7_diagnostics.json mppi=results/grid/seed1/g7_mppi.json
+2026-07-18T18:44:53Z START config=g2 seed=1 out_dir=outputs/grid/g2_monolithic_sgT_cov025_aux1_seed1 budget_remaining_s=8002
+2026-07-18T18:45:00Z INIT_HASH config=g2 seed=1 hash=08283389b3c7c23c seed0_hash=2e73afcfa193a53c
+2026-07-18T19:50:17Z TIMING config=g2 seed=1 train_s=3917
+2026-07-18T19:50:31Z TIMING config=g2 seed=1 probe_s=14
+2026-07-18T19:50:42Z TIMING config=g2 seed=1 diagnose_s=11
+2026-07-18T20:06:19Z TIMING config=g2 seed=1 eval_s=937
+2026-07-18T20:06:19Z END config=g2 seed=1 status=OK duration_s=4886 probe=results/grid/seed1/g2_probe.json diag=results/grid/seed1/g2_diagnostics.json mppi=results/grid/seed1/g2_mppi.json
+2026-07-18T20:06:19Z START config=g4 seed=1 out_dir=outputs/grid/g4_factored_sgF_cov0_aux1_seed1 budget_remaining_s=3116
+2026-07-18T20:06:26Z INIT_HASH config=g4 seed=1 hash=08283389b3c7c23c seed0_hash=2e73afcfa193a53c
+2026-07-18T21:13:44Z TIMING config=g4 seed=1 train_s=4038
+2026-07-18T21:13:57Z TIMING config=g4 seed=1 probe_s=13
+2026-07-18T21:14:09Z TIMING config=g4 seed=1 diagnose_s=12
+2026-07-18T21:34:31Z TIMING config=g4 seed=1 eval_s=1222
+2026-07-18T21:34:31Z END config=g4 seed=1 status=OK duration_s=5292 probe=results/grid/seed1/g4_probe.json diag=results/grid/seed1/g4_diagnostics.json mppi=results/grid/seed1/g4_mppi.json
+2026-07-18T21:34:31Z STOP budget exhausted before g5 seed1 remaining_s=-2176
+2026-07-18T21:34:31Z SESSION_QUEUE_DONE remaining_s=-2176

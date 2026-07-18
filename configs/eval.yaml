@@ -24,6 +24,10 @@ device: cuda
 seed: 0
 episodes: 50
 num_envs: 1
+# Speed knobs (do not change planner budget). compile wraps the predictor only.
+compile: false
+cudnn_benchmark: true
+allow_tf32: true
 # The push plan runs in phases (approach, push, park) with recovery cycles, so
 # an episode needs more room than the 300 steps used in earlier reports. The
 # success check itself is unchanged; episodes end early on success.

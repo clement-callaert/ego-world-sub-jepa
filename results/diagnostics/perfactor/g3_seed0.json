@@ -1,0 +1,22 @@
+{
+  "checkpoint": "/home/calla/AI_projects/ego-world-sub-jepa/outputs/pusht_monolithic_hires_seed0/model.pt",
+  "config": "g3",
+  "train_seed": 0,
+  "mode": "monolithic",
+  "n_abs_rows": 8192,
+  "n_disp_rows": 8192,
+  "z_world_abs": {
+    "mse": 23.19677734375,
+    "rmse": 4.816303286105434,
+    "nrmse": 0.05289978144958732,
+    "r2": 0.9946508407592773
+  },
+  "z_world_disp": {
+    "mse": 30.598283767700195,
+    "rmse": 5.531571545926184,
+    "nrmse": 1.0720352833336388,
+    "r2": 0.26150503754615784
+  },
+  "z_ego_abs": null,
+  "z_ego_disp": null
+}

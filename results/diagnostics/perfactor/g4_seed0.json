@@ -1,0 +1,32 @@
+{
+  "checkpoint": "/home/calla/AI_projects/ego-world-sub-jepa/outputs/grid/g4_factored_sgF_cov0_aux1_seed0/model.pt",
+  "config": "g4",
+  "train_seed": 0,
+  "mode": "factored",
+  "n_abs_rows": 8192,
+  "n_disp_rows": 8192,
+  "z_world_abs": {
+    "mse": 9.670087814331055,
+    "rmse": 3.109676480653744,
+    "nrmse": 0.034155076296809396,
+    "r2": 0.9973079562187195
+  },
+  "z_world_disp": {
+    "mse": 38.355804443359375,
+    "rmse": 6.193206313643957,
+    "nrmse": 1.2002621009359677,
+    "r2": 0.15321992337703705
+  },
+  "z_ego_abs": {
+    "mse": 899.5828247070312,
+    "rmse": 29.993046272545097,
+    "nrmse": 0.32942809008773505,
+    "r2": 0.5478854775428772
+  },
+  "z_ego_disp": {
+    "mse": 39.75014877319336,
+    "rmse": 6.304771904929897,
+    "nrmse": 1.2218838497051019,
+    "r2": 0.10274191945791245
+  }
+}

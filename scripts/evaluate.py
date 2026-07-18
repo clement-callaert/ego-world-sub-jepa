@@ -19,6 +19,7 @@ from ewjepa import EgoWorldConfig, EgoWorldJEPA
 from ewjepa.mpc_policy import LatentMPCPolicy
 from ewjepa.planning import build_planner
 from ewjepa.probing import fit_pose_readout
+from ewjepa.train_utils import configure_cuda, maybe_compile
 from ewjepa.utils import Normalizer, build_run_manifest, get_device, load_checkpoint, set_seed
 
 
@@ -187,6 +188,10 @@ def _run_eval(world, episodes: int, seed: int, variation: list, video_dir: str |
 def main(cfg: DictConfig) -> None:
     set_seed(cfg.seed)
     device = get_device(cfg.device)
+    configure_cuda(
+        cudnn_benchmark=bool(cfg.get("cudnn_benchmark", True)),
+        allow_tf32=bool(cfg.get("allow_tf32", True)),
+    )
     import stable_worldmodel as swm
 
     if cfg.get("fast", False):
@@ -198,6 +203,11 @@ def main(cfg: DictConfig) -> None:
         print("[fast] episodes=5 max_episode_steps=300 planner.n_samples=128 planner.n_iters=3")
 
     model, normalizer, checkpoint_model_cfg = _load_model(cfg, device)
+    eval_compile = bool(cfg.get("compile", False))
+    if eval_compile:
+        # Compile the predictor (MPPI hot path). Full-model compile is heavier
+        # and the encode shapes vary less often than rollout batches.
+        model.predictor = maybe_compile(model.predictor, True)
     policy_kind = str(cfg.get("policy", "mpc"))
     if policy_kind == "random":
         from ewjepa.mpc_policy import RandomPolicy

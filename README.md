@@ -15,6 +15,24 @@ for comparison.
 similar but the methods are unrelated. Here, "ego-world" simply means separate
 latents for the world and the agent.
 
+## Multi-seed update (uncommitted)
+
+Working-tree only; not yet committed. Artifact:
+`results/grid/stats_corrected_multiseed.json`. Full notes:
+`results/grid/SESSION_REPORT.md`.
+
+| | Seed 0 only (committed) | Multi-seed (seed 0 + seed 1 partial) |
+| --- | --- | --- |
+| n (config x train seed) | 8 | **13** (seed1: g1,g2,g3,g4,g7) |
+| Spearman rho(rollout_disp_h8, planning) | -0.663 | **-0.442** |
+| p-value | 0.073 | **0.130** |
+| Spearman rho(probe_r2, planning) | +0.479 (p=0.230) | +0.273 (p=0.367) |
+| Spearman rho(action_sensitivity, planning) | -0.577 (p=0.134) | -0.405 (p=0.170) |
+
+At n=13 the displacement-vs-planning correlation keeps the expected negative
+sign but is weaker and still not significant at 0.05. P1 (g1,g3,g7,g2) plus
+g4 completed under the 6 h session budget; seeds 2 were not run.
+
 ## Evidence policy
 
 **Only JSON files committed under `results/` count as published evidence.**
@@ -219,14 +237,28 @@ Fisher exact tests on the declared pairs: no single factor is significant at
 n=50 except the state auxiliary loss in factored mode (g1 vs g7, 6/50 vs
 0/50, p=0.027). The headline mode comparison g1 vs g2 (6/50 vs 2/50,
 p=0.269) is not significant; neither are cov_weight (g1 vs g5, p=0.741) nor
-stop_grad_target (g1 vs g6, p=0.269). Spearman correlations with planning
-success across the 8 runs: probe R² rho=0.48 (p=0.23), rollout RMSE H=8
-rho=-0.12 (p=0.77). Notably g2 has the best rollout displacement RMSE and
-one of the highest action sensitivities yet plans at 4%, while g1 with far
-worse absolute rollout RMSE plans best: at this sample size, neither probe
-R² nor rollout error predicts planning success. Figure:
-`results/figures/grid_scatter.png`. Per-run artifacts and `grid.csv` /
-`stats.json` are in `results/grid/`.
+stop_grad_target (g1 vs g6, p=0.269).
+
+**Which rollout metric to correlate.** The `Rollout RMSE H=8` column is the
+ABSOLUTE decoded pose error, which the MPPI planner never consumes: it reads
+the current block pose from the detector and uses the latent readout only for
+the predicted DISPLACEMENT (`ewjepa/mpc_policy.py` lines 471 to 484). The
+absolute error is dominated by the factored models' failure to globally
+linearly decode absolute block xy, a quantity planning does not use (full
+analysis in `docs/READOUT_DIAGNOSIS.md`). The planner-faithful metric is the
+`Disp RMSE H=8` column. Spearman correlations with planning success across the
+8 runs (`results/grid/stats_corrected.json`): probe R² rho=0.48 (p=0.23),
+absolute rollout RMSE H=8 rho=-0.12 (p=0.77), displacement rollout RMSE H=8
+rho=-0.66 (p=0.073), action sensitivity rho=-0.58 (p=0.13). On the absolute
+metric neither predicts planning; on the planner-faithful displacement metric
+the rollout error is the strongest predictor and has the expected sign (higher
+error, lower success), and its magnitude exceeds the probe R² correlation.
+This is suggestive, not conclusive: p=0.073 is not significant at n=8, action
+sensitivity is comparably predictive, and the g1 vs g2 pair inverts locally
+(g2 has the best displacement RMSE yet plans at 4% vs g1's 12%); the overall
+negative trend is driven by the aux-off run g7 (91.7 px, 0%). Figure:
+`results/figures/grid_scatter.png`. Per-run artifacts, `grid.csv`,
+`stats.json`, and `stats_corrected.json` are in `results/grid/`.
 
 What the grid does NOT show, by design: it is one
 seed (0), one environment (PushT), n=50 episodes per run, and there are no

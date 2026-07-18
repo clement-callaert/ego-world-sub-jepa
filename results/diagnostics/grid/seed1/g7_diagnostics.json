@@ -1,0 +1,162 @@
+{
+  "checkpoint": "outputs/grid/g7_factored_sgT_cov025_aux0_seed1/model.pt",
+  "split": {
+    "by": "episode",
+    "train_episodes": 1800,
+    "holdout_episodes": 200,
+    "holdout_frac": 0.1
+  },
+  "rollout_rmse": {
+    "0": {
+      "xy_rmse_px": 173.82616856397698,
+      "angle_rmse_rad": 1.4010395511894995,
+      "angle_mae_rad": 1.1485404591076076,
+      "disp_xy_rmse_px": null,
+      "disp_angle_rmse_rad": null,
+      "zero_motion_xy_rmse_px": null,
+      "n_windows": 4096
+    },
+    "1": {
+      "xy_rmse_px": 174.2621763317894,
+      "angle_rmse_rad": 1.4053694657930031,
+      "angle_mae_rad": 1.151332609122619,
+      "disp_xy_rmse_px": 12.637603456401989,
+      "disp_angle_rmse_rad": 0.11347503848721036,
+      "zero_motion_xy_rmse_px": 11.253413974464811,
+      "n_windows": 4096
+    },
+    "2": {
+      "xy_rmse_px": 174.90838268152777,
+      "angle_rmse_rad": 1.4112302789390352,
+      "angle_mae_rad": 1.1564143581781536,
+      "disp_xy_rmse_px": 20.286336293341083,
+      "disp_angle_rmse_rad": 0.18784890160383805,
+      "zero_motion_xy_rmse_px": 19.876672100109523,
+      "n_windows": 4096
+    },
+    "4": {
+      "xy_rmse_px": 176.4006986841002,
+      "angle_rmse_rad": 1.42615971049395,
+      "angle_mae_rad": 1.16826440859586,
+      "disp_xy_rmse_px": 31.25905829561596,
+      "disp_angle_rmse_rad": 0.30498148076905723,
+      "zero_motion_xy_rmse_px": 34.21222415864441,
+      "n_windows": 4096
+    },
+    "8": {
+      "xy_rmse_px": 180.0049119226165,
+      "angle_rmse_rad": 1.4491893333432322,
+      "angle_mae_rad": 1.192049136850983,
+      "disp_xy_rmse_px": 48.493920810426665,
+      "disp_angle_rmse_rad": 0.5035745308506934,
+      "zero_motion_xy_rmse_px": 58.98741670761485,
+      "n_windows": 4096
+    }
+  },
+  "rollout_mean_xy_rmse_px": 176.39404240500846,
+  "rollout_mean_disp_xy_rmse_px": 28.16922971394642,
+  "action_sensitivity": {
+    "horizon": 8,
+    "n_sequences": 32,
+    "n_states": 64,
+    "pred_xy_std_px": [
+      28.358673095703125,
+      52.94274139404297
+    ],
+    "pred_angle_std_rad": 0.2828112840652466,
+    "dataset_block_xy_std_px": [
+      177.9079132080078,
+      165.0482635498047
+    ],
+    "dataset_block_angle_std_rad": 1.801834225654602,
+    "normalized_xy_sensitivity": 0.24008606374263763,
+    "normalized_angle_sensitivity": 0.15695743262767792
+  },
+  "manifest": {
+    "date": "2026-07-18",
+    "git_sha": null,
+    "seed": 0,
+    "torch_version": "2.12.0+cu130",
+    "config": {
+      "model": {
+        "mode": "factored",
+        "img_size": 96,
+        "in_chans": 3,
+        "proprio_dim": 4,
+        "action_dim": 2,
+        "patch_size": 8,
+        "embed_dim": 256,
+        "depth": 6,
+        "num_heads": 8,
+        "mlp_ratio": 2.0,
+        "world_dim": 256,
+        "world_head_norm": "layernorm",
+        "ego_dim": 32,
+        "ego_hidden": 128,
+        "ego_depth": 2,
+        "action_emb_dim": 64,
+        "pred_hidden": 256,
+        "pred_depth": 2,
+        "sigreg_mix": 0.1,
+        "ego_loss_weight": 0.1,
+        "stop_grad_target": true,
+        "variance_weight": 0.5,
+        "variance_target": 0.5,
+        "cov_weight": 0.25,
+        "state_aux_weight": 0.0,
+        "block_slice": [
+          2,
+          5
+        ],
+        "agent_slice": [
+          0,
+          2
+        ],
+        "sigreg_kwargs": {
+          "n_directions": 256,
+          "n_points": 17,
+          "t_max": 5.0
+        }
+      },
+      "data": {
+        "name_short": "pusht96",
+        "dataset": "data/pusht_96.lance",
+        "env": "swm/PushT-v1",
+        "image_key": "pixels",
+        "proprio_key": "proprio",
+        "action_key": "action",
+        "state_key": "state",
+        "probe_target_slice": [
+          2,
+          5
+        ],
+        "agent_state_slice": [
+          0,
+          2
+        ],
+        "max_episodes": null,
+        "action_low": -1.0,
+        "action_high": 1.0
+      },
+      "checkpoint": "outputs/grid/g7_factored_sgT_cov025_aux0_seed1/model.pt",
+      "device": "cuda",
+      "seed": 0,
+      "out_dir": "outputs/diagnostics",
+      "horizons": [
+        1,
+        2,
+        4,
+        8
+      ],
+      "holdout_frac": 0.1,
+      "max_eval_windows": 4096,
+      "batch_size": 64,
+      "readout_ridge": 0.001,
+      "readout_max_samples": 8192,
+      "sensitivity_horizon": 8,
+      "sensitivity_sequences": 32,
+      "sensitivity_states": 64
+    },
+    "swm_version": null
+  }
+}

@@ -1,0 +1,211 @@
+{
+  "n_runs": 13,
+  "seeds_present": [
+    0,
+    1
+  ],
+  "configs_present": [
+    "g1",
+    "g2",
+    "g3",
+    "g4",
+    "g5",
+    "g6",
+    "g7",
+    "g8"
+  ],
+  "spearman": {
+    "probe_r2": {
+      "spearman_rho": 0.2728668621440215,
+      "p_value": 0.3670605739704611
+    },
+    "rollout_rmse_h0_abs": {
+      "spearman_rho": 0.07755163450409035,
+      "p_value": 0.8011801899958073
+    },
+    "rollout_rmse_h8_abs": {
+      "spearman_rho": -0.1407418552111269,
+      "p_value": 0.6465104624104755
+    },
+    "rollout_disp_rmse_h8": {
+      "spearman_rho": -0.4423315449492559,
+      "p_value": 0.1301507372589446
+    },
+    "action_sensitivity": {
+      "spearman_rho": -0.4049918690769162,
+      "p_value": 0.16982201816301154
+    }
+  },
+  "per_run": [
+    {
+      "config": "g1",
+      "seed": 0,
+      "mode": "factored",
+      "probe_r2": 0.9973235726356506,
+      "rollout_disp_rmse_h8": 33.19846154886839,
+      "action_sensitivity": 0.1839907467365265,
+      "planning_success": 0.12,
+      "successes": 6,
+      "n_episodes": 50,
+      "wilson_lo": 0.056176001181193605,
+      "wilson_hi": 0.23804817495455316
+    },
+    {
+      "config": "g2",
+      "seed": 0,
+      "mode": "monolithic",
+      "probe_r2": 0.9921720623970032,
+      "rollout_disp_rmse_h8": 25.83157975387629,
+      "action_sensitivity": 0.35384589433670044,
+      "planning_success": 0.04,
+      "successes": 2,
+      "n_episodes": 50,
+      "wilson_lo": 0.011038884228173514,
+      "wilson_hi": 0.13460090793615148
+    },
+    {
+      "config": "g3",
+      "seed": 0,
+      "mode": "monolithic",
+      "probe_r2": 0.9946508407592773,
+      "rollout_disp_rmse_h8": 37.85840327408751,
+      "action_sensitivity": 0.3146253824234009,
+      "planning_success": 0.0,
+      "successes": 0,
+      "n_episodes": 50,
+      "wilson_lo": 0.0,
+      "wilson_hi": 0.07134760017861413
+    },
+    {
+      "config": "g4",
+      "seed": 0,
+      "mode": "factored",
+      "probe_r2": 0.9973079562187195,
+      "rollout_disp_rmse_h8": 35.66682947127598,
+      "action_sensitivity": 0.21866314113140106,
+      "planning_success": 0.02,
+      "successes": 1,
+      "n_episodes": 50,
+      "wilson_lo": 0.003539259232504602,
+      "wilson_hi": 0.10495443693896496
+    },
+    {
+      "config": "g5",
+      "seed": 0,
+      "mode": "factored",
+      "probe_r2": 0.9961687922477722,
+      "rollout_disp_rmse_h8": 34.85944049098943,
+      "action_sensitivity": 0.2151491343975067,
+      "planning_success": 0.08,
+      "successes": 4,
+      "n_episodes": 50,
+      "wilson_lo": 0.031549513869311444,
+      "wilson_hi": 0.1883824702807244
+    },
+    {
+      "config": "g6",
+      "seed": 0,
+      "mode": "factored",
+      "probe_r2": 0.9981236457824707,
+      "rollout_disp_rmse_h8": 34.58122587197967,
+      "action_sensitivity": 0.15949693322181702,
+      "planning_success": 0.04,
+      "successes": 2,
+      "n_episodes": 50,
+      "wilson_lo": 0.011038884228173514,
+      "wilson_hi": 0.13460090793615148
+    },
+    {
+      "config": "g7",
+      "seed": 0,
+      "mode": "factored",
+      "probe_r2": 0.27139368653297424,
+      "rollout_disp_rmse_h8": 91.71238776890695,
+      "action_sensitivity": 0.4106327295303345,
+      "planning_success": 0.0,
+      "successes": 0,
+      "n_episodes": 50,
+      "wilson_lo": 0.0,
+      "wilson_hi": 0.07134760017861413
+    },
+    {
+      "config": "g8",
+      "seed": 0,
+      "mode": "monolithic",
+      "probe_r2": 0.6026828289031982,
+      "rollout_disp_rmse_h8": 48.62541453520682,
+      "action_sensitivity": 0.3754923641681671,
+      "planning_success": 0.04,
+      "successes": 2,
+      "n_episodes": 50,
+      "wilson_lo": 0.011038884228173514,
+      "wilson_hi": 0.13460090793615148
+    },
+    {
+      "config": "g1",
+      "seed": 1,
+      "mode": "factored",
+      "probe_r2": 0.9963874220848083,
+      "rollout_disp_rmse_h8": 32.293405284632776,
+      "action_sensitivity": 0.19011621177196503,
+      "planning_success": 0.04,
+      "successes": 2,
+      "n_episodes": 50,
+      "wilson_lo": 0.011038884228173514,
+      "wilson_hi": 0.13460090793615148
+    },
+    {
+      "config": "g2",
+      "seed": 1,
+      "mode": "monolithic",
+      "probe_r2": 0.992767333984375,
+      "rollout_disp_rmse_h8": 28.402143490016723,
+      "action_sensitivity": 0.3435059189796448,
+      "planning_success": 0.04,
+      "successes": 2,
+      "n_episodes": 50,
+      "wilson_lo": 0.011038884228173514,
+      "wilson_hi": 0.13460090793615148
+    },
+    {
+      "config": "g3",
+      "seed": 1,
+      "mode": "monolithic",
+      "probe_r2": 0.9974896907806396,
+      "rollout_disp_rmse_h8": 29.874625618635843,
+      "action_sensitivity": 0.3077724874019623,
+      "planning_success": 0.0,
+      "successes": 0,
+      "n_episodes": 50,
+      "wilson_lo": 0.0,
+      "wilson_hi": 0.07134760017861413
+    },
+    {
+      "config": "g4",
+      "seed": 1,
+      "mode": "factored",
+      "probe_r2": 0.9960920214653015,
+      "rollout_disp_rmse_h8": 36.44410494881927,
+      "action_sensitivity": 0.2111196219921112,
+      "planning_success": 0.02,
+      "successes": 1,
+      "n_episodes": 50,
+      "wilson_lo": 0.003539259232504602,
+      "wilson_hi": 0.10495443693896496
+    },
+    {
+      "config": "g7",
+      "seed": 1,
+      "mode": "factored",
+      "probe_r2": 0.627734363079071,
+      "rollout_disp_rmse_h8": 48.493920810426665,
+      "action_sensitivity": 0.24008606374263763,
+      "planning_success": 0.0,
+      "successes": 0,
+      "n_episodes": 50,
+      "wilson_lo": 0.0,
+      "wilson_hi": 0.07134760017861413
+    }
+  ],
+  "note": "Planner-faithful multi-seed correlations. Each point is one (config, train_seed) pair. Eval protocol seed is fixed at 0. See docs/READOUT_DIAGNOSIS.md. Does not overwrite stats_corrected.json."
+}
