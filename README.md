@@ -15,13 +15,20 @@ for comparison.
 similar but the methods are unrelated. Here, "ego-world" simply means separate
 latents for the world and the agent.
 
-## Multi-seed update (uncommitted)
+## Project status: closed (negative result)
 
-Working-tree artifacts ready to commit. Numbers from
-`results/grid/stats_corrected_multiseed.json`. Full notes:
-`results/grid/SESSION_REPORT.md`.
+The central hypothesis (that ego/world latent factorization improves
+planning) is NOT supported. The de-confounded 8-config grid matched at
+12% vs 4% (n.s.), and the one promising signal at seed 0
+(rho(rollout_disp_h8, planning) = -0.663, p=0.073) collapsed under a
+second seed to rho=-0.442, p=0.130, with g1's headline planning rate
+shown to be seed-dependent (12% -> 4%). By the pre-registered decision
+rule, the project is frozen here: no further seeds, no OGBench, no
+unfactored baseline. What this repo demonstrates is a controlled,
+artifact-backed investigation that rejected its own hypothesis, not a
+positive planning result.
 
-| | Seed 0 only (committed) | Multi-seed (seed 0 + seed 1 partial) |
+| | Seed 0 only | Multi-seed (seed 0 + seed 1 partial) |
 | --- | --- | --- |
 | n (config x train seed) | 8 | **13** (seed1: g1,g2,g3,g4,g7) |
 | Spearman rho(rollout_disp_h8, planning) | -0.663 | **-0.442** |
@@ -29,11 +36,9 @@ Working-tree artifacts ready to commit. Numbers from
 | Spearman rho(probe_r2, planning) | +0.479 (p=0.230) | +0.273 (p=0.367) |
 | Spearman rho(action_sensitivity, planning) | -0.577 (p=0.134) | -0.405 (p=0.170) |
 
-The displacement-vs-planning effect weakened at n=13 (rho from -0.663 to
--0.442). It does not reach significance (p=0.130). g1's headline planning
-rate was seed-dependent (12% on seed 0, 4% on seed 1 under the same eval
-protocol), so the seed-0-only hypothesis is not supported. P1 (g1,g3,g7,g2)
-plus g4 completed under the session budget; seeds 2 were not run.
+Artifacts committed in `f3049ad` and `7234566`; numbers quote
+`results/grid/stats_corrected_multiseed.json`. Full notes:
+`results/grid/SESSION_REPORT.md`.
 
 Per-factor caveat: the absolute-pose decodability figure in
 `results/diagnostics/perfactor/` is unreconciled with the earlier global
